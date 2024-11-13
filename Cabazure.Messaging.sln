@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cabazure.Messaging.EventHub
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cabazure.Messaging.ServiceBus", "src\Cabazure.Messaging.ServiceBus\Cabazure.Messaging.ServiceBus.csproj", "{67DECDE1-4455-4F12-B5A0-76BE25016CD2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
@@ -24,6 +24,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cabazure.Messaging.ServiceBus.Tests", "test\Cabazure.Messaging.ServiceBus.Tests\Cabazure.Messaging.ServiceBus.Tests.csproj", "{597FF3F6-A2F8-478F-B849-F8D8AE98C407}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cabazure.Messaging.Abstractions.Tests", "test\Cabazure.Messaging.Abstractions.Tests\Cabazure.Messaging.Abstractions.Tests.csproj", "{0A647DD5-B4B2-0BBE-FAC3-BE4D7DFE0099}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{DF7C0EAA-E46A-4072-AF77-D0FB2C9E434B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventHub", "EventHub", "{E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.AppHost", "samples\EventHub\EventHub.AppHost\EventHub.AppHost.csproj", "{34B407ED-5347-23DF-A4A5-A2423A43FEAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.Producer", "samples\EventHub\EventHub.Producer\EventHub.Producer.csproj", "{1597B199-DAF5-3A73-A403-5CF78D51EC13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.ServiceDefaults", "samples\EventHub\EventHub.ServiceDefaults\EventHub.ServiceDefaults.csproj", "{11968A31-DE57-087C-BEC2-A0F1379011AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.Processor", "samples\EventHub\EventHub.Processor\EventHub.Processor.csproj", "{BFBFA229-24F2-7F48-C294-18B04A7785F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +67,22 @@ Global
 		{0A647DD5-B4B2-0BBE-FAC3-BE4D7DFE0099}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A647DD5-B4B2-0BBE-FAC3-BE4D7DFE0099}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A647DD5-B4B2-0BBE-FAC3-BE4D7DFE0099}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34B407ED-5347-23DF-A4A5-A2423A43FEAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34B407ED-5347-23DF-A4A5-A2423A43FEAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34B407ED-5347-23DF-A4A5-A2423A43FEAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34B407ED-5347-23DF-A4A5-A2423A43FEAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1597B199-DAF5-3A73-A403-5CF78D51EC13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1597B199-DAF5-3A73-A403-5CF78D51EC13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1597B199-DAF5-3A73-A403-5CF78D51EC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1597B199-DAF5-3A73-A403-5CF78D51EC13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11968A31-DE57-087C-BEC2-A0F1379011AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11968A31-DE57-087C-BEC2-A0F1379011AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11968A31-DE57-087C-BEC2-A0F1379011AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11968A31-DE57-087C-BEC2-A0F1379011AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFBFA229-24F2-7F48-C294-18B04A7785F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFBFA229-24F2-7F48-C294-18B04A7785F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFBFA229-24F2-7F48-C294-18B04A7785F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFBFA229-24F2-7F48-C294-18B04A7785F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,5 +94,13 @@ Global
 		{D916AC1D-E1B5-4325-A09A-D2EF1116C2A0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{597FF3F6-A2F8-478F-B849-F8D8AE98C407} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{0A647DD5-B4B2-0BBE-FAC3-BE4D7DFE0099} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE} = {DF7C0EAA-E46A-4072-AF77-D0FB2C9E434B}
+		{34B407ED-5347-23DF-A4A5-A2423A43FEAB} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
+		{1597B199-DAF5-3A73-A403-5CF78D51EC13} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
+		{11968A31-DE57-087C-BEC2-A0F1379011AC} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
+		{BFBFA229-24F2-7F48-C294-18B04A7785F4} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0138CC49-8843-44F6-A197-36ED64EA185E}
 	EndGlobalSection
 EndGlobal
