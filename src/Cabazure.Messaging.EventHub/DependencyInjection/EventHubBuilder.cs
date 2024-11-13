@@ -103,6 +103,11 @@ public class EventHubBuilder(
                     $"Blob storage not configured for processor `{typeof(TProcessor).Name}`"),
             };
 
+            if (config.BlobStorage.CreateIfNotExist)
+            {
+                storageClient.CreateIfNotExists();
+            }
+
             var client = config switch
             {
                 { FullyQualifiedNamespace: { } ns, Credential: { } cred }

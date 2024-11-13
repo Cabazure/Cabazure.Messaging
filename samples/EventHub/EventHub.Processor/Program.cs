@@ -1,23 +1,16 @@
-using Azure.Storage.Blobs;
 using Cabazure.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-var connectionString = builder.Configuration
-    .GetConnectionString("eventhub") ?? string.Empty;
-
-var blobsConnection = builder.Configuration
-    .GetConnectionString("blobs") ?? string.Empty;
-
-var client = new BlobServiceClient(blobsConnection);
-await client.CreateBlobContainerAsync("container1");
+var connectionString = builder.Configuration.GetConnectionString("eventhub")!;
+var blobsConnection = builder.Configuration.GetConnectionString("blobs")!;
 
 builder.Services.AddCabazureEventHub(b => b
     .Configure(o => o
         .WithConnection(connectionString)
-        .WithBlobStorage(blobsConnection, "container1"))
+        .WithBlobStorage(blobsConnection, "container1", createIfNotExist: true))
     .AddProcessor<MyEvent, MyEventprocessor>("eventhub"));
 
 var app = builder.Build();
