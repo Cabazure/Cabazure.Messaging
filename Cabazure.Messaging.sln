@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8EC462FD
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
@@ -36,6 +37,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.ServiceDefaults", "samples\EventHub\EventHub.ServiceDefaults\EventHub.ServiceDefaults.csproj", "{11968A31-DE57-087C-BEC2-A0F1379011AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.Processor", "samples\EventHub\EventHub.Processor\EventHub.Processor.csproj", "{BFBFA229-24F2-7F48-C294-18B04A7785F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{EA5EDF86-EFC4-46AE-A4B2-DD5DD2737544}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{9BAE3CA9-9B06-4E99-A2E0-653B1434E544}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\release-preview.yml = .github\workflows\release-preview.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +109,7 @@ Global
 		{1597B199-DAF5-3A73-A403-5CF78D51EC13} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
 		{11968A31-DE57-087C-BEC2-A0F1379011AC} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
 		{BFBFA229-24F2-7F48-C294-18B04A7785F4} = {E5E39E4F-A1D3-4BD3-982D-6A6035F5BCEE}
+		{9BAE3CA9-9B06-4E99-A2E0-653B1434E544} = {EA5EDF86-EFC4-46AE-A4B2-DD5DD2737544}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0138CC49-8843-44F6-A197-36ED64EA185E}
