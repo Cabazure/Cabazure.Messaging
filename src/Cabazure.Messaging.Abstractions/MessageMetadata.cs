@@ -1,4 +1,5 @@
-﻿namespace Cabazure.Messaging;
+﻿
+namespace Cabazure.Messaging;
 
 public class MessageMetadata
 {
@@ -6,10 +7,12 @@ public class MessageMetadata
 
     public string? CorrelationId { get; init; }
 
+    public DateTimeOffset EnqueuedTime { get; set; }
+
     public string? MessageId { get; init; }
 
     public string? PartitionKey { get; init; }
 
-    public IReadOnlyDictionary<string, object> Properties { get; init; }
+    public IDictionary<string, object> Properties { get; init; }
         = new Dictionary<string, object>();
 }

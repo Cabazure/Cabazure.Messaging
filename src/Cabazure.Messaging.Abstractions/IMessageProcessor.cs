@@ -1,9 +1,9 @@
 ﻿namespace Cabazure.Messaging;
 
-public interface IMessageProcessor<in T>
+public interface IMessageProcessor<in TMessage>
 {
     Task ProcessAsync(
-        T message,
+        TMessage message,
         MessageMetadata metadata,
         CancellationToken cancellationToken);
 }
