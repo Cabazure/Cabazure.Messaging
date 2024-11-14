@@ -1,27 +1,29 @@
 ﻿using System.Text.Json;
-using Azure.Messaging.EventHubs;
-using Azure.Messaging.EventHubs.Processor;
+using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Hosting;
 
-namespace Cabazure.Messaging.EventHub.Processing;
+namespace Cabazure.Messaging.ServiceBus.Processing;
 
-public class EventHubProcessorService<TMessage, TProcessor>(
+public class ServiceBusProcessorService<TMessage, TProcessor>(
     TProcessor processor,
-    EventProcessorClient client,
+    ServiceBusProcessor client,
     JsonSerializerOptions serializerOptions,
-    List<Func<IDictionary<string, object>, bool>> filters)
+    List<Func<IReadOnlyDictionary<string, object>, bool>> filters)
     : IMessageProcessorService<TProcessor>
     , IHostedService
     where TProcessor : class, IMessageProcessor<TMessage>
 {
-    public bool IsRunning => client.IsRunning;
+    private bool isStarted;
+
+    public bool IsRunning => isStarted && client.IsProcessing;
 
     public TProcessor Processor => processor;
 
     public async Task StartAsync(
            CancellationToken cancellationToken)
     {
-        client.ProcessEventAsync += OnProcessMessageAsync;
+        isStarted = true;
+        client.ProcessMessageAsync += OnProcessMessageAsync;
         client.ProcessErrorAsync += OnProcessErrorAsync;
 
         await client.StartProcessingAsync(cancellationToken);
@@ -29,24 +31,25 @@ public class EventHubProcessorService<TMessage, TProcessor>(
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        isStarted = false;
         await client.StopProcessingAsync(cancellationToken);
 
-        client.ProcessEventAsync -= OnProcessMessageAsync;
+        client.ProcessMessageAsync -= OnProcessMessageAsync;
         client.ProcessErrorAsync -= OnProcessErrorAsync;
     }
 
-    private async Task OnProcessMessageAsync(ProcessEventArgs args)
+    private async Task OnProcessMessageAsync(ProcessMessageEventArgs args)
     {
-        if (!filters.TrueForAll(f => f.Invoke(args.Data.Properties)))
+        if (!filters.TrueForAll(f => f.Invoke(args.Message.ApplicationProperties)))
         {
             return;
         }
 
-        var message = args.Data.EventBody
-            .ToObjectFromJson<TMessage>(serializerOptions);
+        var metadata = ServiceBusMetadata
+            .Create(args.Message);
 
-        var metadata = EventHubMetadata
-            .Create(args.Data);
+        var message = args.Message.Body
+            .ToObjectFromJson<TMessage>(serializerOptions);
 
         await processor.ProcessAsync(
             message!,

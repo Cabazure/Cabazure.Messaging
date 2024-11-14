@@ -13,6 +13,6 @@ public class MessageMetadata
 
     public string? PartitionKey { get; init; }
 
-    public IDictionary<string, object> Properties { get; init; }
+    public IReadOnlyDictionary<string, object> Properties { get; init; }
         = new Dictionary<string, object>();
 }

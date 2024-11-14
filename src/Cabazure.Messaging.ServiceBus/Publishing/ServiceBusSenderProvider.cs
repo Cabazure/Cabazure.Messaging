@@ -6,14 +6,14 @@ namespace Cabazure.Messaging.ServiceBus.Publishing;
 
 public sealed class ServiceBusSenderProvider(
     IOptionsMonitor<CabazureServiceBusOptions> options,
-    IEnumerable<ServcieBusPublisherRegistration> registrations,
+    IEnumerable<ServiceBusPublisherRegistration> registrations,
     IServiceBusClientProvider clientProvider)
     : IServiceBusSenderProvider
     , IAsyncDisposable
 {
     private record SenderKey(string? Connection, string Topic);
     private readonly ConcurrentDictionary<SenderKey, ServiceBusSender> senders = new();
-    private readonly Dictionary<Type, ServcieBusPublisherRegistration> publishers
+    private readonly Dictionary<Type, ServiceBusPublisherRegistration> publishers
         = registrations.ToDictionary(r => r.Type);
 
     public ServiceBusSender GetSender<T>(
@@ -28,7 +28,7 @@ public sealed class ServiceBusSenderProvider(
         var config = options.Get(connectionName);
 
         return senders.GetOrAdd(
-            new(connectionName, publisher.TopicName),
+            new(connectionName, publisher.TopicOrQueueName),
             key => clientProvider
                 .GetClient(key.Connection)
                 .CreateSender(key.Topic));

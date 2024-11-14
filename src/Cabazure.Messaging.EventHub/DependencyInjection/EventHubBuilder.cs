@@ -83,8 +83,8 @@ public class EventHubBuilder(
         Action<EventHubProcessorBuilder>? builder = null)
         where TProcessor : class, IMessageProcessor<TMessage>
     {
-        var publisherBuilder = new EventHubProcessorBuilder();
-        builder?.Invoke(publisherBuilder);
+        var processorBuilder = new EventHubProcessorBuilder();
+        builder?.Invoke(processorBuilder);
 
         services.AddSingleton<TProcessor>();
         services.AddSingleton(s =>
@@ -100,7 +100,7 @@ public class EventHubBuilder(
                 { ContainerUri: { } uri } => new BlobContainerClient(uri, config.Credential),
 
                 _ => throw new ArgumentException(
-                    $"Blob storage not configured for processor `{typeof(TProcessor).Name}`"),
+                    $"Blob storage not configured for EventHub processor `{typeof(TProcessor).Name}`"),
             };
 
             if (config.BlobStorage.CreateIfNotExist)
@@ -117,23 +117,23 @@ public class EventHubBuilder(
                         ns,
                         eventHubName,
                         cred,
-                        publisherBuilder.ClientOptions),
+                        processorBuilder.ClientOptions),
                 { ConnectionString: { } cs }
                     => new EventProcessorClient(
                         checkpointStore: storageClient,
                         consumerGroup,
                         cs,
                         eventHubName,
-                        publisherBuilder.ClientOptions),
+                        processorBuilder.ClientOptions),
                 _ => throw new ArgumentException(
-                    $"Connection not configured for processor `{typeof(TProcessor).Name}`"),
+                    $"Connection not configured for EventHub processor `{typeof(TProcessor).Name}`"),
             };
 
             return new EventHubProcessorService<TMessage, TProcessor>(
                 s.GetRequiredService<TProcessor>(),
                 client,
                 config.SerializerOptions,
-                publisherBuilder.Filters);
+                processorBuilder.Filters);
         });
         services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());

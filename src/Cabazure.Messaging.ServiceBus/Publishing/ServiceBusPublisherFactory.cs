@@ -4,11 +4,11 @@ namespace Cabazure.Messaging.ServiceBus.Publishing;
 
 public class ServiceBusPublisherFactory(
     IOptionsMonitor<CabazureServiceBusOptions> options,
-    IEnumerable<ServcieBusPublisherRegistration> registrations,
+    IEnumerable<ServiceBusPublisherRegistration> registrations,
     IServiceBusSenderProvider senderProvider)
     : IServiceBusPublisherFactory
 {
-    private readonly Dictionary<Type, ServcieBusPublisherRegistration> publishers
+    private readonly Dictionary<Type, ServiceBusPublisherRegistration> publishers
         = registrations.ToDictionary(r => r.Type);
 
     public IServiceBusPublisher<T> Create<T>(
