@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ServiceBus\ServiceBus.Producer\ServiceBus.Producer.csproj" />
     <ProjectReference Include="..\EventHub.Processor\EventHub.Processor.csproj" />
     <ProjectReference Include="..\EventHub.Producer\EventHub.Producer.csproj" />
   </ItemGroup>

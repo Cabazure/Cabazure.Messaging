@@ -21,4 +21,6 @@ builder.AddProject<Projects.EventHub_Processor>("eventhub-processor")
     .WithReference(eventHub)
     .WithReference(blobs);
 
+builder.AddProject<Projects.ServiceBus_Producer>("servicebus-producer");
+
 builder.Build().Run();

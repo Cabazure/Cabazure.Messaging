@@ -4,15 +4,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-var eventHubConnection = builder.Configuration
-    .GetConnectionString("eventhub")!;
+var connectionString = builder.Configuration
+    .GetConnectionString("servicebus")!;
 
 builder.Services
-    .AddCabazureEventHub(b => b
+    .AddCabazureServiceBus(b => b
         .Configure(o => o
-            .WithConnection(eventHubConnection))
+            .WithConnection(connectionString))
         .AddPublisher<MyEvent>(
-            "eventHub",
+            "topic",
             b => b.AddProperty(e => e.Date.Year)));
 
 var app = builder.Build();

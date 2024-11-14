@@ -5,15 +5,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 var connectionString = builder.Configuration
-    .GetConnectionString("eventhub")!;
-var blobsConnection = builder.Configuration
-    .GetConnectionString("blobs")!;
+    .GetConnectionString("servicebus")!;
 
-builder.Services.AddCabazureEventHub(b => b
+builder.Services.AddCabazureServiceBus(b => b
     .Configure(o => o
-        .WithConnection(connectionString)
-        .WithBlobStorage(blobsConnection, "container1", createIfNotExist: true))
-    .AddProcessor<MyEvent, MyEventprocessor>("eventhub"));
+        .WithConnection(connectionString))
+    .AddProcessor<MyEvent, MyEventprocessor>(
+        topicName: "topic",
+        subscriptionName: "subscription"));
 
 var app = builder.Build();
 
@@ -23,6 +22,7 @@ app.MapGet(
     (MyEventprocessor processor) => Results.Ok(processor.ReceivedEvents));
 
 app.Run();
+
 
 record MyEvent(
     DateTime Date,
