@@ -4,14 +4,14 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Publishing;
 
-public sealed class EventHubPublisherFactory(
+public class EventHubPublisherFactory(
     IOptionsMonitor<CabazureEventHubOptions> options,
     IEnumerable<EventHubPublisherRegistration> registrations)
     : IEventHubPublisherFactory
     , IAsyncDisposable
 {
-    private record ClientKey(string? Connection, string Topic);
-    private record PublisherKey(string? Connection, Type Type);
+    private sealed record ClientKey(string? Connection, string Topic);
+    private sealed record PublisherKey(string? Connection, Type Type);
     private readonly ConcurrentDictionary<ClientKey, EventHubProducerClient> clientCache = [];
     private readonly Dictionary<PublisherKey, EventHubPublisherRegistration> publishers
         = registrations.ToDictionary(r => new PublisherKey(r.ConnectionName, r.Type));
@@ -51,6 +51,7 @@ public sealed class EventHubPublisherFactory(
 
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         foreach (var sender in clientCache.Values)
         {
             await sender.DisposeAsync();

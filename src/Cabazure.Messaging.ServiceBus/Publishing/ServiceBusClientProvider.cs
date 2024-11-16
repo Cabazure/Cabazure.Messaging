@@ -10,7 +10,7 @@ public class ServiceBusClientProvider(
     : IServiceBusClientProvider
     , IAsyncDisposable
 {
-    private record ClientKey(string? Connection);
+    private sealed record ClientKey(string? Connection);
     private readonly ConcurrentDictionary<ClientKey, ServiceBusClient> clients = new();
     private readonly ConcurrentDictionary<ClientKey, ServiceBusAdministrationClient> adminClients = new();
 
@@ -48,6 +48,7 @@ public class ServiceBusClientProvider(
 
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         foreach (var client in clients.Values)
         {
             await client.DisposeAsync();

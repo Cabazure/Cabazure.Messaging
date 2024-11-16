@@ -35,6 +35,6 @@ app.MapGet(
 
 app.Run();
 
-public record MyEvent(
+sealed record MyEvent(
     DateTime Date,
     string Identifier);

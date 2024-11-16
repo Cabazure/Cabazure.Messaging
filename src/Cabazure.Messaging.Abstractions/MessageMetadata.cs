@@ -7,7 +7,7 @@ public class MessageMetadata
 
     public string? CorrelationId { get; init; }
 
-    public DateTimeOffset EnqueuedTime { get; set; }
+    public DateTimeOffset EnqueuedTime { get; init; }
 
     public string? MessageId { get; init; }
 

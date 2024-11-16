@@ -4,14 +4,14 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.ServiceBus.Publishing;
 
-public sealed class ServiceBusSenderProvider(
+public class ServiceBusSenderProvider(
     IOptionsMonitor<CabazureServiceBusOptions> options,
     IEnumerable<ServiceBusPublisherRegistration> registrations,
     IServiceBusClientProvider clientProvider)
     : IServiceBusSenderProvider
     , IAsyncDisposable
 {
-    private record SenderKey(string? Connection, string Topic);
+    private sealed record SenderKey(string? Connection, string Topic);
     private readonly ConcurrentDictionary<SenderKey, ServiceBusSender> senders = new();
     private readonly Dictionary<Type, ServiceBusPublisherRegistration> publishers
         = registrations.ToDictionary(r => r.Type);
@@ -36,6 +36,7 @@ public sealed class ServiceBusSenderProvider(
 
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         foreach (var sender in senders.Values)
         {
             await sender.DisposeAsync();

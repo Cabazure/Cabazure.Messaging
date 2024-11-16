@@ -24,11 +24,11 @@ app.MapGet(
 app.Run();
 
 
-record MyEvent(
+sealed record MyEvent(
     DateTime Date,
     string Identifier);
 
-class MyEventprocessor : IMessageProcessor<MyEvent>
+sealed class MyEventprocessor : IMessageProcessor<MyEvent>
 {
     public List<MyEvent> ReceivedEvents { get; } = [];
 
