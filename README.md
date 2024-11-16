@@ -11,7 +11,7 @@
 
 Cabazure.Messaging is a set of libraries for handling message publishing and processing on Azure EventHub and ServiceBus.
 
-The folowing packages are prduced from this repository:
+The following packages are produced from this repository:
 * **Cabazure.Messaging.Abstrations** - Publisher and processor abstractions
 * **Cabazure.Messaging.EventHub** - Package for targeting Event Hub
 * **Cabazure.Messaging.ServiceBus** - Package for targeting Service Bus
@@ -20,9 +20,9 @@ The folowing packages are prduced from this repository:
 
 ### 1. Add package reference
 
-For targeting Azure Event Hub, add a reference to the `Cabazure.Messaging.EventHub` package. Please see the [2a. Configure EventHub Connection](#2a-configure-eventhub-connection) section for how to setup the Event Hub package.
+For targeting Azure Event Hub, add a reference to the `Cabazure.Messaging.EventHub` package. Please see the [Configure EventHub Connection](#2a-configure-eventhub-connection) section for how to setup the Event Hub package.
 
-For targeting Azure Service Bus, add a reference to the `Cabazure.Messaging.ServiceBus` package. Please see the [2b. Configure ServiceBus Connection](#2b-configure-servicebus-connection) section for how to setup the Service Bus package.
+For targeting Azure Service Bus, add a reference to the `Cabazure.Messaging.ServiceBus` package. Please see the [Configure ServiceBus Connection](#2b-configure-servicebus-connection) section for how to setup the Service Bus package.
 
 ### 2a. Configure EventHub connection
 
@@ -69,7 +69,7 @@ The `CabazureServiceBusOptions` can also be configured using the `Microsoft.Exte
 
 Multiple Service Bus connections are supported by passing a `connectionName` to the `AddCabazureServiceBus()` method.
 
-### 3. Adding a Publisher
+### 3. Add a Publisher
 
 To add a message publisher, the `AddPublisher<TMessage>()` method is called on the `EventHubBuilder` or `ServiceBusBuilder`, like this:
 
@@ -105,7 +105,7 @@ builder.Services.AddCabazureServiceBus(b => b
 
 Properties and partition key can also be specified using the `PublishingOptions` that can be passed to the `IMessagePublisher<TMessage>.PublishAsync()` method when publishing messages.
 
-### 4. Adding a Processor
+### 4. Add a Processor
 
 To add a processor, the `IMessageProcessor<TMessage>` should be implemented and registered by calling the `AddProcessor<TMessage, TProcessor>()` method on the `EventHubBuilder` or `ServiceBusBuilder`, like this:
 
