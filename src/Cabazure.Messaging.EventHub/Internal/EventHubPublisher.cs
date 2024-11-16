@@ -2,7 +2,7 @@
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 
-namespace Cabazure.Messaging.EventHub.Publishing;
+namespace Cabazure.Messaging.EventHub.Internal;
 
 public class EventHubPublisher<T>(
     JsonSerializerOptions serializerOptions,

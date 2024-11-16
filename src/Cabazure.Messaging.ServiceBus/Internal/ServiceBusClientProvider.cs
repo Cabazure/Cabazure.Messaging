@@ -3,7 +3,7 @@ using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Options;
 
-namespace Cabazure.Messaging.ServiceBus.Publishing;
+namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public class ServiceBusClientProvider(
     IOptionsMonitor<CabazureServiceBusOptions> options)

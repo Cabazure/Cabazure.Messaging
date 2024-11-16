@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 
-namespace Cabazure.Messaging.ServiceBus.Publishing;
+namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public class ServiceBusPublisher<T>(
     JsonSerializerOptions serializerOptions,

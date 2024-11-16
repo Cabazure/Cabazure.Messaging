@@ -1,4 +1,4 @@
-﻿namespace Cabazure.Messaging.ServiceBus.Publishing;
+﻿namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public record ServiceBusPublisherRegistration(
     string? ConnectionName,

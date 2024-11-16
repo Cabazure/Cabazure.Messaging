@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Options;
 
-namespace Cabazure.Messaging.ServiceBus.Publishing;
+namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public class ServiceBusSenderProvider(
     IOptionsMonitor<CabazureServiceBusOptions> options,

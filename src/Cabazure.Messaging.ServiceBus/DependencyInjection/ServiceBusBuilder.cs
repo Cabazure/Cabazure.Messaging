@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Cabazure.Messaging.ServiceBus.Processing;
-using Cabazure.Messaging.ServiceBus.Publishing;
+using Cabazure.Messaging.ServiceBus.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;

@@ -1,6 +1,6 @@
 using Azure.Messaging.ServiceBus;
 
-namespace Cabazure.Messaging.ServiceBus.Publishing;
+namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public interface IServiceBusSenderProvider
 {

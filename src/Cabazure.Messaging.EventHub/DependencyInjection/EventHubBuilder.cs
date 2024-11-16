@@ -1,7 +1,6 @@
 ﻿using Azure.Messaging.EventHubs;
 using Azure.Storage.Blobs;
-using Cabazure.Messaging.EventHub.Processing;
-using Cabazure.Messaging.EventHub.Publishing;
+using Cabazure.Messaging.EventHub.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;

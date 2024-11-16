@@ -1,4 +1,4 @@
-﻿namespace Cabazure.Messaging.EventHub.Publishing;
+﻿namespace Cabazure.Messaging.EventHub.Internal;
 
 public record EventHubPublisherRegistration(
     string? ConnectionName,

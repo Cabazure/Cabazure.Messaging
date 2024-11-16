@@ -2,7 +2,7 @@
 using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Extensions.Options;
 
-namespace Cabazure.Messaging.EventHub.Publishing;
+namespace Cabazure.Messaging.EventHub.Internal;
 
 public class EventHubPublisherFactory(
     IOptionsMonitor<CabazureEventHubOptions> options,
