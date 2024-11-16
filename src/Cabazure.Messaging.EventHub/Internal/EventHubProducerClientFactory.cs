@@ -11,7 +11,8 @@ public interface IEventHubProducerClientFactory
 }
 
 public class EventHubProducerClientFactory(
-    IOptionsMonitor<CabazureEventHubOptions> options) : IEventHubProducerClientFactory
+    IOptionsMonitor<CabazureEventHubOptions> options)
+    : IEventHubProducerClientFactory
 {
     public EventHubProducerClient Create(
         string? connectionName,
@@ -21,6 +22,6 @@ public class EventHubProducerClientFactory(
             { FullyQualifiedNamespace: { } n, Credential: { } c } => new(n, eventHubName, c),
             { ConnectionString: { } cs } => new(cs, eventHubName),
             _ => throw new ArgumentException(
-                $"Invalid configuration for Event Hub connection `{connectionName}`"),
+                $"Missing configuration for Event Hub connection `{connectionName}`"),
         };
 }
