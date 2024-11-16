@@ -15,6 +15,13 @@
     <RepositoryUrl>https://github.com/Cabazure/Cabazure.Messaging</RepositoryUrl>
   </PropertyGroup>
 
+  <PropertyGroup Label="Analyzer settings">
+    <AnalysisMode>all</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+  
   <!-- Treat warnings as errors are always on when building in release -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
