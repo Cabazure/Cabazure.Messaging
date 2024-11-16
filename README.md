@@ -1,7 +1,7 @@
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Cabazure/Cabazure.Messaging/.github%2Fworkflows%2Fci.yml)](https://github.com/Cabazure/Cabazure.Messaging/actions/workflows/ci.yml)
 [![GitHub Release Date](https://img.shields.io/github/release-date/Cabazure/Cabazure.Messaging)](https://github.com/Cabazure/Cabazure.Messaging/releases)
-[![NuGet Version](https://img.shields.io/nuget/v/Cabazure.Messaging?color=blue)](https://www.nuget.org/packages/Cabazure.Messaging)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/Cabazure.Messaging?color=blue)](https://www.nuget.org/stats/packages/Cabazure.Messaging?groupby=Version)
+[![NuGet Version](https://img.shields.io/nuget/v/Cabazure.Messaging.Abstractions?color=blue)](https://www.nuget.org/packages/Cabazure.Messaging.Abstractions)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Cabazure.Messaging.Abstractions?color=blue)](https://www.nuget.org/stats/packages/Cabazure.Messaging.Abstractions?groupby=Version)
 
 [![Branch Coverage](https://raw.githubusercontent.com/Cabazure/Cabazure.Messaging/main/.github/coveragereport/badge_branchcoverage.svg?raw=true)](https://github.com/Cabazure/Cabazure.Messaging/actions/workflows/ci.yml)
 [![Line Coverage](https://raw.githubusercontent.com/Cabazure/Cabazure.Messaging/main/.github/coveragereport/badge_linecoverage.svg?raw=true)](https://github.com/Cabazure/Cabazure.Messaging/actions/workflows/ci.yml)
