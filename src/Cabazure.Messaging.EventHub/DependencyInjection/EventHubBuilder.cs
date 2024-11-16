@@ -66,6 +66,7 @@ public class EventHubBuilder(
             partitionKeyFactory));
 
         services.TryAddSingleton<IEventHubPublisherFactory, EventHubPublisherFactory>();
+        services.TryAddSingleton<IEventHubProducerClientFactory, EventHubProducerClientFactory>();
 
         services.AddSingleton(s => s
             .GetRequiredService<IEventHubPublisherFactory>()

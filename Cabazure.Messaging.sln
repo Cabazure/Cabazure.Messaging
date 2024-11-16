@@ -19,6 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{8EC4
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		test\.editorconfig = test\.editorconfig
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cabazure.Messaging.EventHub.Tests", "test\Cabazure.Messaging.EventHub.Tests\Cabazure.Messaging.EventHub.Tests.csproj", "{D916AC1D-E1B5-4325-A09A-D2EF1116C2A0}"
 EndProject
