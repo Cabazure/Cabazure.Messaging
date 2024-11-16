@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Atc.Test" Version="1.1.4" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="xunit" Version="2.9.2" />
@@ -15,6 +16,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Cabazure.Messaging.EventHub\Cabazure.Messaging.EventHub.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.ComponentModel.DataAnnotations" />
+    <Using Include="Atc.Test" />
+    <Using Include="AutoFixture" />
+    <Using Include="AutoFixture.AutoNSubstitute" />
+    <Using Include="AutoFixture.Xunit2" />
+    <Using Include="FluentAssertions" />
+    <Using Include="NSubstitute" />
+    <Using Include="NSubstitute.ReturnsExtensions" />
+    <Using Include="NSubstitute.ExceptionExtensions" />
+    <Using Include="NSubstitute.ReceivedExtensions" />
     <Using Include="Xunit" />
   </ItemGroup>
 
