@@ -1,6 +1,5 @@
 ﻿using Cabazure.Messaging.ServiceBus;
 using Cabazure.Messaging.ServiceBus.DependencyInjection;
-using Cabazure.Messaging.ServiceBus.Publishing;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,9 +19,6 @@ public static class ServiceCollectionExtensions
 
         var serviceBusBuilder = new ServiceBusBuilder(services, connectionName);
         builder.Invoke(serviceBusBuilder);
-
-        services.AddSingleton<IServiceBusSenderProvider, ServiceBusSenderProvider>();
-        services.AddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
 
         return services;
     }

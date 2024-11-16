@@ -19,7 +19,7 @@ public class ServiceBusBuilder(
     }
 
     public ServiceBusBuilder Configure<TConfigureOptions>()
-        where TConfigureOptions : class, IConfigureNamedOptions<CabazureServiceBusOptions>
+        where TConfigureOptions : class, IConfigureOptions<CabazureServiceBusOptions>
     {
         services.ConfigureOptions<TConfigureOptions>();
         return this;
@@ -58,15 +58,16 @@ public class ServiceBusBuilder(
             }
         }
 
+        services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
+        services.TryAddSingleton<IServiceBusSenderProvider, ServiceBusSenderProvider>();
+        services.TryAddSingleton<IServiceBusPublisherFactory, ServiceBusPublisherFactory>();
+
         services.AddSingleton(new ServiceBusPublisherRegistration(
             connectionName,
             typeof(T),
             topicOrQueueName,
             propertiesFactory,
             partitionKeyFactory));
-
-        services.TryAddSingleton<IServiceBusPublisherFactory, ServiceBusPublisherFactory>();
-
         services.AddSingleton(s => s
             .GetRequiredService<IServiceBusPublisherFactory>()
             .Create<T>());

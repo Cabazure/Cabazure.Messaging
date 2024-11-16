@@ -20,7 +20,7 @@ public class EventHubBuilder(
     }
 
     public EventHubBuilder Configure<TConfigureOptions>()
-        where TConfigureOptions : class, IConfigureNamedOptions<CabazureEventHubOptions>
+        where TConfigureOptions : class, IConfigureOptions<CabazureEventHubOptions>
     {
         services.ConfigureOptions<TConfigureOptions>();
         return this;
