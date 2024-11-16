@@ -1,13 +1,13 @@
 ﻿namespace Cabazure.Messaging;
 
-public interface IMessagePublisher<in T>
+public interface IMessagePublisher<in TMessage>
 {
     Task PublishAsync(
-        T message,
+        TMessage message,
         CancellationToken cancellationToken);
 
     Task PublishAsync(
-        T message,
+        TMessage message,
         PublishingOptions options,
         CancellationToken cancellationToken);
 }

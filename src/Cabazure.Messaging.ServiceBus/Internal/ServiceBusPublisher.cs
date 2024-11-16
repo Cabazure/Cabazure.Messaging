@@ -3,16 +3,16 @@ using Azure.Messaging.ServiceBus;
 
 namespace Cabazure.Messaging.ServiceBus.Internal;
 
-public class ServiceBusPublisher<T>(
+public class ServiceBusPublisher<TMessage>(
     JsonSerializerOptions serializerOptions,
     ServiceBusSender sender,
     Func<object, Dictionary<string, object>>? propertiesFactory,
     Func<object, string>? partitionKeyFactory)
-    : IServiceBusPublisher<T>
-    , IMessagePublisher<T>
+    : IServiceBusPublisher<TMessage>
+    , IMessagePublisher<TMessage>
 {
     public async Task PublishAsync(
-        T message,
+        TMessage message,
         ServiceBusPublishingOptions options,
         CancellationToken cancellationToken)
         => await PerformPublishAsync(
@@ -21,7 +21,7 @@ public class ServiceBusPublisher<T>(
             cancellationToken);
 
     public async Task PublishAsync(
-        T message,
+        TMessage message,
         CancellationToken cancellationToken)
         => await PerformPublishAsync(
             message,
@@ -29,7 +29,7 @@ public class ServiceBusPublisher<T>(
             cancellationToken);
 
     public async Task PublishAsync(
-        T message,
+        TMessage message,
         PublishingOptions options,
         CancellationToken cancellationToken)
         => await PerformPublishAsync(
@@ -38,7 +38,7 @@ public class ServiceBusPublisher<T>(
             cancellationToken);
 
     private async Task PerformPublishAsync(
-        T message,
+        TMessage message,
         PublishingOptions options,
         CancellationToken cancellationToken)
     {

@@ -1,10 +1,10 @@
 ﻿namespace Cabazure.Messaging.EventHub;
 
-public interface IEventHubPublisher<in T>
-    : IMessagePublisher<T>
+public interface IEventHubPublisher<in TMessage>
+    : IMessagePublisher<TMessage>
 {
     Task PublishAsync(
-        T message,
+        TMessage message,
         EventHubPublishingOptions options,
         CancellationToken cancellationToken);
 }

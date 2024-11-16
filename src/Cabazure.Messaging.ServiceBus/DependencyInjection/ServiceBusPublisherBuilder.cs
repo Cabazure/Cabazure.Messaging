@@ -2,20 +2,20 @@
 
 namespace Cabazure.Messaging.ServiceBus.DependencyInjection;
 
-public class ServiceBusPublisherBuilder<T>
+public class ServiceBusPublisherBuilder<TMessage>
 {
-    public Dictionary<string, Func<T, object>> Properties { get; } = [];
-    public Func<T, string>? PartitionKey { get; private set; }
+    public Dictionary<string, Func<TMessage, object>> Properties { get; } = [];
+    public Func<TMessage, string>? PartitionKey { get; private set; }
 
-    public ServiceBusPublisherBuilder<T> AddProperty(
+    public ServiceBusPublisherBuilder<TMessage> AddProperty(
         string name,
-        Func<T, object> valueSelector)
+        Func<TMessage, object> valueSelector)
     {
         Properties.Add(name, valueSelector);
         return this;
     }
 
-    public ServiceBusPublisherBuilder<T> AddProperty(
+    public ServiceBusPublisherBuilder<TMessage> AddProperty(
         string name,
         object value)
     {
@@ -23,8 +23,8 @@ public class ServiceBusPublisherBuilder<T>
         return this;
     }
 
-    public ServiceBusPublisherBuilder<T> AddProperty(
-        Expression<Func<T, object>> valueSelector)
+    public ServiceBusPublisherBuilder<TMessage> AddProperty(
+        Expression<Func<TMessage, object>> valueSelector)
     {
         var name = valueSelector.Body switch
         {
@@ -39,8 +39,8 @@ public class ServiceBusPublisherBuilder<T>
         return AddProperty(name, valueSelector.Compile());
     }
 
-    public ServiceBusPublisherBuilder<T> AddPartitionKey(
-        Func<T, string> valueSelector)
+    public ServiceBusPublisherBuilder<TMessage> AddPartitionKey(
+        Func<TMessage, string> valueSelector)
     {
         PartitionKey = valueSelector;
         return this;

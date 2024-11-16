@@ -4,6 +4,6 @@ namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public interface IServiceBusSenderProvider
 {
-    ServiceBusSender GetSender<T>(
+    ServiceBusSender GetSender<TMessage>(
         string? connectionName = null);
 }

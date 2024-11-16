@@ -16,14 +16,14 @@ public class EventHubPublisherFactory(
     private readonly Dictionary<PublisherKey, EventHubPublisherRegistration> publishers
         = registrations.ToDictionary(r => new PublisherKey(r.ConnectionName, r.Type));
 
-    public IEventHubPublisher<T> Create<T>(
+    public IEventHubPublisher<TMessage> Create<TMessage>(
         string? connectionName = null)
     {
-        var key = new PublisherKey(connectionName, typeof(T));
+        var key = new PublisherKey(connectionName, typeof(TMessage));
         if (!publishers.TryGetValue(key, out var publisher))
         {
             throw new ArgumentException(
-                $"Type {typeof(T).Name} not configured as an EventHub publisher");
+                $"Type {typeof(TMessage).Name} not configured as an EventHub publisher");
         }
 
         var client = clientCache.GetOrAdd(
@@ -31,7 +31,7 @@ public class EventHubPublisherFactory(
             CreateClient);
 
         var config = options.Get(connectionName);
-        return new EventHubPublisher<T>(
+        return new EventHubPublisher<TMessage>(
             config.SerializerOptions,
             client,
             publisher.PropertiesFactory,

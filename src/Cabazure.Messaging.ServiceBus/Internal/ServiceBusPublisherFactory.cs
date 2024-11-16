@@ -11,19 +11,19 @@ public class ServiceBusPublisherFactory(
     private readonly Dictionary<Type, ServiceBusPublisherRegistration> publishers
         = registrations.ToDictionary(r => r.Type);
 
-    public IServiceBusPublisher<T> Create<T>(
+    public IServiceBusPublisher<TMessage> Create<TMessage>(
         string? connectionName = null)
     {
-        if (!publishers.TryGetValue(typeof(T), out var publisher))
+        if (!publishers.TryGetValue(typeof(TMessage), out var publisher))
         {
             throw new ArgumentException(
-                $"Type {typeof(T).Name} not configured as a ServiceBus publisher");
+                $"Type {typeof(TMessage).Name} not configured as a ServiceBus publisher");
         }
 
         var config = options.Get(connectionName);
-        var sender = senderProvider.GetSender<T>(connectionName);
+        var sender = senderProvider.GetSender<TMessage>(connectionName);
 
-        return new ServiceBusPublisher<T>(
+        return new ServiceBusPublisher<TMessage>(
             config.SerializerOptions,
             sender,
             publisher.PropertiesFactory,

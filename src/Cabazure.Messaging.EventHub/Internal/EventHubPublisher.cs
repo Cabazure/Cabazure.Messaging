@@ -4,16 +4,16 @@ using Azure.Messaging.EventHubs.Producer;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
-public class EventHubPublisher<T>(
+public class EventHubPublisher<TMessage>(
     JsonSerializerOptions serializerOptions,
     EventHubProducerClient client,
     Func<object, Dictionary<string, object>>? propertiesFactory,
     Func<object, string>? partitionKeyFactory)
-    : IEventHubPublisher<T>
-    , IMessagePublisher<T>
+    : IEventHubPublisher<TMessage>
+    , IMessagePublisher<TMessage>
 {
     public async Task PublishAsync(
-        T message,
+        TMessage message,
         EventHubPublishingOptions options,
         CancellationToken cancellationToken)
         => await PerformPublishAsync(
@@ -22,7 +22,7 @@ public class EventHubPublisher<T>(
             cancellationToken);
 
     public async Task PublishAsync(
-        T message,
+        TMessage message,
         CancellationToken cancellationToken)
         => await PerformPublishAsync(
             message,
@@ -30,7 +30,7 @@ public class EventHubPublisher<T>(
             cancellationToken);
 
     public async Task PublishAsync(
-        T message,
+        TMessage message,
         PublishingOptions options,
         CancellationToken cancellationToken)
         => await PerformPublishAsync(
@@ -39,7 +39,7 @@ public class EventHubPublisher<T>(
             cancellationToken);
 
     private async Task PerformPublishAsync(
-        T message,
+        TMessage message,
         PublishingOptions? options,
         CancellationToken cancellationToken)
     {

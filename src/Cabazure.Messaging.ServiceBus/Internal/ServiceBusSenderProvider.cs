@@ -16,13 +16,13 @@ public class ServiceBusSenderProvider(
     private readonly Dictionary<Type, ServiceBusPublisherRegistration> publishers
         = registrations.ToDictionary(r => r.Type);
 
-    public ServiceBusSender GetSender<T>(
+    public ServiceBusSender GetSender<TMessage>(
         string? connectionName = null)
     {
-        if (!publishers.TryGetValue(typeof(T), out var publisher))
+        if (!publishers.TryGetValue(typeof(TMessage), out var publisher))
         {
             throw new ArgumentException(
-                $"Type {typeof(T).Name} not configured as a ServiceBus publisher");
+                $"Type {typeof(TMessage).Name} not configured as a ServiceBus publisher");
         }
 
         var config = options.Get(connectionName);

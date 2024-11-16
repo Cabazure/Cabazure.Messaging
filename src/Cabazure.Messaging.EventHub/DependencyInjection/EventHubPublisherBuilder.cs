@@ -2,20 +2,20 @@
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
-public class EventHubPublisherBuilder<T>
+public class EventHubPublisherBuilder<TMessage>
 {
-    public Dictionary<string, Func<T, object>> Properties { get; } = [];
-    public Func<T, string>? PartitionKey { get; private set; }
+    public Dictionary<string, Func<TMessage, object>> Properties { get; } = [];
+    public Func<TMessage, string>? PartitionKey { get; private set; }
 
-    public EventHubPublisherBuilder<T> AddProperty(
+    public EventHubPublisherBuilder<TMessage> AddProperty(
         string name,
-        Func<T, object> valueSelector)
+        Func<TMessage, object> valueSelector)
     {
         Properties.Add(name, valueSelector);
         return this;
     }
 
-    public EventHubPublisherBuilder<T> AddProperty(
+    public EventHubPublisherBuilder<TMessage> AddProperty(
         string name,
         object value)
     {
@@ -23,8 +23,8 @@ public class EventHubPublisherBuilder<T>
         return this;
     }
 
-    public EventHubPublisherBuilder<T> AddProperty(
-        Expression<Func<T, object>> valueSelector)
+    public EventHubPublisherBuilder<TMessage> AddProperty(
+        Expression<Func<TMessage, object>> valueSelector)
     {
         var name = valueSelector.Body switch
         {
@@ -39,8 +39,8 @@ public class EventHubPublisherBuilder<T>
         return AddProperty(name, valueSelector.Compile());
     }
 
-    public EventHubPublisherBuilder<T> AddPartitionKey(
-        Func<T, string> valueSelector)
+    public EventHubPublisherBuilder<TMessage> AddPartitionKey(
+        Func<TMessage, string> valueSelector)
     {
         PartitionKey = valueSelector;
         return this;

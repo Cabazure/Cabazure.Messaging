@@ -2,6 +2,6 @@
 
 public interface IServiceBusPublisherFactory
 {
-    IServiceBusPublisher<T> Create<T>(
+    IServiceBusPublisher<TMessage> Create<TMessage>(
         string? connectionName = null);
 }

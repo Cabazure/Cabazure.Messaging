@@ -1,10 +1,10 @@
 ﻿namespace Cabazure.Messaging.ServiceBus;
 
-public interface IServiceBusPublisher<in T>
-    : IMessagePublisher<T>
+public interface IServiceBusPublisher<in TMessage>
+    : IMessagePublisher<TMessage>
 {
     Task PublishAsync(
-        T message,
+        TMessage message,
         ServiceBusPublishingOptions options,
         CancellationToken cancellationToken);
 }

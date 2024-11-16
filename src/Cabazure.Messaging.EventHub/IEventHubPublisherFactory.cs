@@ -2,6 +2,6 @@
 
 public interface IEventHubPublisherFactory
 {
-    IEventHubPublisher<T> Create<T>(
+    IEventHubPublisher<TMessage> Create<TMessage>(
         string? connectionName = null);
 }
