@@ -83,8 +83,8 @@ public class ServiceBusBuilder(
 
         Services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
         Services.TryAddSingleton<IServiceBusProcessorFactory, ServiceBusProcessorFactory>();
+        Services.TryAddSingleton<TProcessor>();
 
-        Services.AddSingleton<TProcessor>();
         Services.AddSingleton(s =>
         {
             var config = s

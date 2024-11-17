@@ -13,6 +13,10 @@ public class EventHubBuilderTests
     {
         public void Configure(CabazureEventHubOptions options) => throw new NotImplementedException();
     }
+    public class TProcessor : IMessageProcessor<TMessage>
+    {
+        public virtual Task ProcessAsync(TMessage message, MessageMetadata metadata, CancellationToken cancellationToken) => Task.CompletedTask;
+    }
 
     [Theory, AutoNSubstituteData]
     public void Should_Expose_Services_Add_ConnectionName(
@@ -178,5 +182,77 @@ public class EventHubBuilderTests
         factory
             .Received(1)
             .Create<TMessage>();
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_Registers_Dependencies(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        [Frozen(Matching.ParameterName)]
+        string connectionName,
+        string eventHubName,
+        EventHubBuilder sut)
+    {
+        sut.AddProcessor<TMessage, TProcessor>(eventHubName);
+
+        services
+            .Should()
+            .Contain<IBlobStorageClientFactory, BlobStorageClientFactory>()
+            .And.Contain<IEventHubProcessorFactory, EventHubProcessorFactory>()
+            .And.Contain<TProcessor, TProcessor>();
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_Calls_Builder(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        [Frozen(Matching.ParameterName)]
+        string connectionName,
+        string eventHubName,
+        string consumerGroupName,
+        [Substitute] Action<EventHubProcessorBuilder> builder,
+        EventHubBuilder sut)
+    {
+        sut.AddProcessor<TMessage, TProcessor>(
+            eventHubName,
+            consumerGroupName,
+            builder);
+
+        builder
+            .Received(1)
+            .Invoke(Arg.Any<EventHubProcessorBuilder>());
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_Registers_EventHubProcessorService_Using_Factory(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        string eventHubName,
+        string consumerGroupName,
+        EventHubBuilder sut,
+        IEventHubProcessorFactory factory,
+        [Substitute] TProcessor processor)
+    {
+        services.AddOptions<CabazureEventHubOptions>();
+        services.AddSingleton(factory);
+        services.AddSingleton(processor);
+
+        sut.AddProcessor<TMessage, TProcessor>(
+            eventHubName,
+            consumerGroupName);
+
+        var result = services
+            .BuildServiceProvider()
+            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
+
+        factory
+            .Received(1)
+            .Create(
+                sut.ConnectionName,
+                eventHubName,
+                consumerGroupName);
+        result.Processor
+            .Should()
+            .Be(processor);
     }
 }

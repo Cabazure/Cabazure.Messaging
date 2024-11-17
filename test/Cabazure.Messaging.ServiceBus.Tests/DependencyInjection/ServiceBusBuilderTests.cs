@@ -13,6 +13,10 @@ public class ServiceBusBuilderTests
     {
         public void Configure(CabazureServiceBusOptions options) => throw new NotImplementedException();
     }
+    public class TProcessor : IMessageProcessor<TMessage>
+    {
+        public virtual Task ProcessAsync(TMessage message, MessageMetadata metadata, CancellationToken cancellationToken) => Task.CompletedTask;
+    }
 
     [Theory, AutoNSubstituteData]
     public void Should_Expose_Services_Add_ConnectionName(
@@ -179,5 +183,77 @@ public class ServiceBusBuilderTests
         factory
             .Received(1)
             .Create<TMessage>();
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_Registers_Dependencies(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        [Frozen(Matching.ParameterName)]
+        string connectionName,
+        string eventHubName,
+        ServiceBusBuilder sut)
+    {
+        sut.AddProcessor<TMessage, TProcessor>(eventHubName);
+
+        services
+            .Should()
+            .Contain<IServiceBusClientProvider, ServiceBusClientProvider>()
+            .And.Contain<IServiceBusProcessorFactory, ServiceBusProcessorFactory>()
+            .And.Contain<TProcessor, TProcessor>();
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_Calls_Builder(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        [Frozen(Matching.ParameterName)]
+        string connectionName,
+        string eventHubName,
+        string consumerGroupName,
+        [Substitute] Action<ServiceBusProcessorBuilder> builder,
+        ServiceBusBuilder sut)
+    {
+        sut.AddProcessor<TMessage, TProcessor>(
+            eventHubName,
+            consumerGroupName,
+            builder);
+
+        builder
+            .Received(1)
+            .Invoke(Arg.Any<ServiceBusProcessorBuilder>());
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_Registers_ServiceBusProcessorService_Using_Factory(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        string eventHubName,
+        string consumerGroupName,
+        ServiceBusBuilder sut,
+        IServiceBusProcessorFactory factory,
+        [Substitute] TProcessor processor)
+    {
+        services.AddOptions<CabazureServiceBusOptions>();
+        services.AddSingleton(factory);
+        services.AddSingleton(processor);
+
+        sut.AddProcessor<TMessage, TProcessor>(
+            eventHubName,
+            consumerGroupName);
+
+        var result = services
+            .BuildServiceProvider()
+            .GetRequiredService<ServiceBusProcessorService<TMessage, TProcessor>>();
+
+        factory
+            .Received(1)
+            .Create(
+                sut.ConnectionName,
+                eventHubName,
+                consumerGroupName);
+        result.Processor
+            .Should()
+            .Be(processor);
     }
 }

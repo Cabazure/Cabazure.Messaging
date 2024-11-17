@@ -64,8 +64,8 @@ public class EventHubBuilder(
 
         Services.TryAddSingleton<IBlobStorageClientFactory, BlobStorageClientFactory>();
         Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
+        Services.TryAddSingleton<TProcessor>();
 
-        Services.AddSingleton<TProcessor>();
         Services.AddSingleton(s =>
         {
             var config = s
