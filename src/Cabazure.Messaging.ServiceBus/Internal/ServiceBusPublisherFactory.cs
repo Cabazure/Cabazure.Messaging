@@ -3,7 +3,7 @@
 namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public class ServiceBusPublisherFactory(
-    IOptionsMonitor<CabazureServiceBusOptions> options,
+    IOptionsMonitor<CabazureServiceBusOptions> monitor,
     IEnumerable<ServiceBusPublisherRegistration> registrations,
     IServiceBusSenderProvider senderProvider)
     : IServiceBusPublisherFactory
@@ -20,11 +20,11 @@ public class ServiceBusPublisherFactory(
                 $"Type {typeof(TMessage).Name} not configured as a ServiceBus publisher");
         }
 
-        var config = options.Get(connectionName);
+        var options = monitor.Get(connectionName);
         var sender = senderProvider.GetSender<TMessage>(connectionName);
 
         return new ServiceBusPublisher<TMessage>(
-            config.SerializerOptions,
+            options.SerializerOptions,
             sender,
             publisher.PropertiesFactory,
             publisher.PartitionKeyFactory);

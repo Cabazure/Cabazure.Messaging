@@ -44,6 +44,7 @@ public class ServiceBusBuilder(
                 ConnectionName,
                 typeof(T),
                 topicOrQueueName,
+                publisherBuilder.SenderOptions,
                 publisherBuilder.GetPropertyFactory(),
                 publisherBuilder.GetPartitionKeyFactory()));
         Services.AddSingleton(s => s
@@ -61,8 +62,7 @@ public class ServiceBusBuilder(
         Action<ServiceBusProcessorBuilder>? builder = null)
         where TProcessor : class, IMessageProcessor<TMessage>
         => AddProcessorInternal<TMessage, TProcessor>(
-            topicName,
-            subscriptionName,
+            (f, o) => f.Create(ConnectionName, topicName, subscriptionName, o),
             builder);
 
     public ServiceBusBuilder AddProcessor<TMessage, TProcessor>(
@@ -70,18 +70,19 @@ public class ServiceBusBuilder(
         Action<ServiceBusProcessorBuilder>? builder = null)
         where TProcessor : class, IMessageProcessor<TMessage>
         => AddProcessorInternal<TMessage, TProcessor>(
-            queueName,
-            subscriptionName: null,
+            (f, o) => f.Create(ConnectionName, queueName, o),
             builder);
 
     private ServiceBusBuilder AddProcessorInternal<TMessage, TProcessor>(
-        string topicOrQueueName,
-        string? subscriptionName,
-        Action<ServiceBusProcessorBuilder>? builder)
+        Func<IServiceBusProcessorFactory, ServiceBusProcessorOptions?, ServiceBusProcessor> processorFactory,
+        Action<ServiceBusProcessorBuilder>? builder = null)
         where TProcessor : class, IMessageProcessor<TMessage>
     {
         var processorBuilder = new ServiceBusProcessorBuilder();
         builder?.Invoke(processorBuilder);
+
+        Services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
+        Services.TryAddSingleton<IServiceBusProcessorFactory, ServiceBusProcessorFactory>();
 
         Services.AddSingleton<TProcessor>();
         Services.AddSingleton(s =>
@@ -90,28 +91,12 @@ public class ServiceBusBuilder(
                 .GetRequiredService<IOptionsMonitor<CabazureServiceBusOptions>>()
                 .Get(ConnectionName);
 
-            var client = config switch
-            {
-                { FullyQualifiedNamespace: { } ns, Credential: { } cred }
-                    => new ServiceBusClient(ns, cred, processorBuilder.ClientOptions),
-                { ConnectionString: { } cs }
-                    => new ServiceBusClient(cs, processorBuilder.ClientOptions),
-                _ => throw new ArgumentException(
-                    $"Connection not configured for ServiceBus processor `{typeof(TProcessor).Name}`"),
-            };
+            var factory = s
+                .GetRequiredService<IServiceBusProcessorFactory>();
 
-            var processor = (topicOrQueueName, subscriptionName) switch
-            {
-                ({ } topic, { } subscription)
-                    => client.CreateProcessor(
-                        topic,
-                        subscription,
-                        processorBuilder.ProcessorOptions),
-                ({ } queue, _)
-                    => client.CreateProcessor(
-                        queue,
-                        processorBuilder.ProcessorOptions),
-            };
+            var processor = processorFactory.Invoke(
+                factory,
+                processorBuilder.ProcessorOptions);
 
             return new ServiceBusProcessorService<TMessage, TProcessor>(
                 s.GetRequiredService<TProcessor>(),

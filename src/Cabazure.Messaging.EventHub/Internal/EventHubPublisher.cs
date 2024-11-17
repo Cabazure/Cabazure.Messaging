@@ -6,7 +6,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 
 public class EventHubPublisher<TMessage>(
     JsonSerializerOptions serializerOptions,
-    EventHubProducerClient client,
+    EventHubProducerClient producer,
     Func<object, Dictionary<string, object>>? propertiesFactory,
     Func<object, string>? partitionKeyFactory)
     : IEventHubPublisher<TMessage>
@@ -57,14 +57,14 @@ public class EventHubPublisher<TMessage>(
         var partitionKey = partitionKeyFactory?.Invoke(message!);
         if (GetSendEventOptions(options, partitionKey) is { } sendOptions)
         {
-            await client.SendAsync(
+            await producer.SendAsync(
                 [eventData],
                 sendOptions,
                 cancellationToken);
         }
         else
         {
-            await client.SendAsync(
+            await producer.SendAsync(
                 [eventData],
                 cancellationToken);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Azure.Messaging.ServiceBus;
 
 namespace Cabazure.Messaging.ServiceBus.DependencyInjection;
 
@@ -6,8 +7,9 @@ public class ServiceBusPublisherBuilder<TMessage>
 {
     public Dictionary<string, Func<TMessage, object>> Properties { get; } = [];
     public Func<TMessage, string>? PartitionKey { get; private set; }
+    public ServiceBusSenderOptions? SenderOptions { get; private set; }
 
-    public ServiceBusPublisherBuilder<TMessage> AddProperty(
+    public ServiceBusPublisherBuilder<TMessage> WithProperty(
         string name,
         Func<TMessage, object> valueSelector)
     {
@@ -15,7 +17,7 @@ public class ServiceBusPublisherBuilder<TMessage>
         return this;
     }
 
-    public ServiceBusPublisherBuilder<TMessage> AddProperty(
+    public ServiceBusPublisherBuilder<TMessage> WithProperty(
         string name,
         object value)
     {
@@ -23,7 +25,7 @@ public class ServiceBusPublisherBuilder<TMessage>
         return this;
     }
 
-    public ServiceBusPublisherBuilder<TMessage> AddProperty(
+    public ServiceBusPublisherBuilder<TMessage> WithProperty(
         Expression<Func<TMessage, object>> valueSelector)
     {
         var name = valueSelector.Body switch
@@ -36,20 +38,27 @@ public class ServiceBusPublisherBuilder<TMessage>
                 nameof(valueSelector)),
         };
 
-        return AddProperty(name, valueSelector.Compile());
+        return WithProperty(name, valueSelector.Compile());
     }
 
-    public ServiceBusPublisherBuilder<TMessage> AddPartitionKey(
+    public ServiceBusPublisherBuilder<TMessage> WithPartitionKey(
         Func<TMessage, string> valueSelector)
     {
         PartitionKey = valueSelector;
         return this;
     }
 
-    public ServiceBusPublisherBuilder<TMessage> AddPartitionKey(
+    public ServiceBusPublisherBuilder<TMessage> WithPartitionKey(
         string partitionKey)
     {
         PartitionKey = _ => partitionKey;
+        return this;
+    }
+
+    public ServiceBusPublisherBuilder<TMessage> WithSenderOptions(
+        ServiceBusSenderOptions senderOptions)
+    {
+        SenderOptions = senderOptions;
         return this;
     }
 

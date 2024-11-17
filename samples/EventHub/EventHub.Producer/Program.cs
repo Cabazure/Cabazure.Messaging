@@ -13,7 +13,7 @@ builder.Services
             .WithConnection(eventHubConnection))
         .AddPublisher<MyEvent>(
             "eventHub",
-            b => b.AddProperty(e => e.Date.Year)));
+            b => b.WithProperty(e => e.Date.Year)));
 
 var app = builder.Build();
 

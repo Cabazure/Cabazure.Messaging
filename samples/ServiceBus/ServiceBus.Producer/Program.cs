@@ -13,7 +13,7 @@ builder.Services
             .WithConnection(connectionString))
         .AddPublisher<MyEvent>(
             "topic",
-            b => b.AddProperty(e => e.Date.Year)));
+            b => b.WithProperty(e => e.Date.Year)));
 
 var app = builder.Build();
 

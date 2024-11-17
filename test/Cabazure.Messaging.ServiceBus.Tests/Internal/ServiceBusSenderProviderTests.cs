@@ -75,7 +75,7 @@ public class ServiceBusSenderProviderTests
 
         client
             .Received(1)
-            .CreateSender(registration.TopicOrQueueName);
+            .CreateSender(registration.TopicOrQueueName, registration.SenderOptions);
     }
 
 
@@ -91,7 +91,7 @@ public class ServiceBusSenderProviderTests
             .GetClient(default)
             .ReturnsForAnyArgs(client);
         client
-            .CreateSender(default)
+            .CreateSender(default, default)
             .ReturnsForAnyArgs(sender);
         registration = registration with
         {
@@ -122,7 +122,7 @@ public class ServiceBusSenderProviderTests
             .GetClient(default)
             .ReturnsForAnyArgs(client);
         client
-            .CreateSender(default)
+            .CreateSender(default, default)
             .ReturnsForAnyArgs(sender);
         registration = registration with
         {

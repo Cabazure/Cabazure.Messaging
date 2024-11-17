@@ -8,7 +8,7 @@ public class EventHubPublisherBuilder<TMessage>
 
     public Func<TMessage, string>? PartitionKey { get; private set; }
 
-    public EventHubPublisherBuilder<TMessage> AddProperty(
+    public EventHubPublisherBuilder<TMessage> WithProperty(
         string name,
         Func<TMessage, object> valueSelector)
     {
@@ -16,7 +16,7 @@ public class EventHubPublisherBuilder<TMessage>
         return this;
     }
 
-    public EventHubPublisherBuilder<TMessage> AddProperty(
+    public EventHubPublisherBuilder<TMessage> WithProperty(
         string name,
         object value)
     {
@@ -24,7 +24,7 @@ public class EventHubPublisherBuilder<TMessage>
         return this;
     }
 
-    public EventHubPublisherBuilder<TMessage> AddProperty(
+    public EventHubPublisherBuilder<TMessage> WithProperty(
         Expression<Func<TMessage, object>> valueSelector)
     {
         var name = valueSelector.Body switch
@@ -37,17 +37,17 @@ public class EventHubPublisherBuilder<TMessage>
                 nameof(valueSelector)),
         };
 
-        return AddProperty(name, valueSelector.Compile());
+        return WithProperty(name, valueSelector.Compile());
     }
 
-    public EventHubPublisherBuilder<TMessage> AddPartitionKey(
+    public EventHubPublisherBuilder<TMessage> WithPartitionKey(
         Func<TMessage, string> valueSelector)
     {
         PartitionKey = valueSelector;
         return this;
     }
 
-    public EventHubPublisherBuilder<TMessage> AddPartitionKey(
+    public EventHubPublisherBuilder<TMessage> WithPartitionKey(
         string partitionKey)
     {
         PartitionKey = _ => partitionKey;

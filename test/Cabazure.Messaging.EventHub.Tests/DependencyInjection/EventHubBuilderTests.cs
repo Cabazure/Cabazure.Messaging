@@ -86,7 +86,7 @@ public class EventHubBuilderTests
         services
             .Should()
             .Contain<IEventHubPublisherFactory, EventHubPublisherFactory>()
-            .And.Contain<IEventHubProducerClientProvider, EventHubProducerClientProvider>();
+            .And.Contain<IEventHubProducerProvider, EventHubProducerProvider>();
     }
 
     [Theory, AutoNSubstituteData]

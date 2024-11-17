@@ -11,7 +11,7 @@ public interface IServiceBusClientProvider
 }
 
 public class ServiceBusClientProvider(
-    IOptionsMonitor<CabazureServiceBusOptions> options)
+    IOptionsMonitor<CabazureServiceBusOptions> monitor)
     : IServiceBusClientProvider
     , IAsyncDisposable
 {
@@ -26,7 +26,7 @@ public class ServiceBusClientProvider(
 
     private ServiceBusClient CreateClient(
         ClientKey key)
-        => options.Get(key.Connection) switch
+        => monitor.Get(key.Connection) switch
         {
             { FullyQualifiedNamespace: { } n, Credential: { } c } => new(n, c),
             { ConnectionString: { } cs } => new(cs),

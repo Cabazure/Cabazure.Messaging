@@ -6,12 +6,12 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Tests.Internal;
 
-public class EventHubProducerClientFactoryTests
+public class EventHubProducerFactoryTests
 {
     [Theory, AutoNSubstituteData]
     public void Create_Throws_If_No_Options(
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string connectionName,
         string eventHubName)
     {
@@ -30,7 +30,7 @@ public class EventHubProducerClientFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string connectionName,
         string eventHubName)
     {
@@ -49,7 +49,7 @@ public class EventHubProducerClientFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string fullyQualifiedNamespace,
         TokenCredential credential,
         string connectionName,
@@ -71,7 +71,7 @@ public class EventHubProducerClientFactoryTests
        [Frozen, NoAutoProperties]
        JsonSerializerOptions serializerOptions,
        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-       EventHubProducerClientProvider sut,
+       EventHubProducerProvider sut,
        string fqns,
        TokenCredential credential,
        string connectionName,
@@ -98,7 +98,7 @@ public class EventHubProducerClientFactoryTests
        [Frozen, NoAutoProperties]
        JsonSerializerOptions serializerOptions,
        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-       EventHubProducerClientProvider sut,
+       EventHubProducerProvider sut,
        string connectionName,
        string eventHubName,
        string fqns)
@@ -127,7 +127,7 @@ public class EventHubProducerClientFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string connectionName,
         string eventHubName)
     {
@@ -146,7 +146,7 @@ public class EventHubProducerClientFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string connectionName1,
         string connectionName2,
         string eventHubName)
@@ -166,7 +166,7 @@ public class EventHubProducerClientFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string connectionName,
         string eventHubName1,
         string eventHubName2)
@@ -186,7 +186,7 @@ public class EventHubProducerClientFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-        EventHubProducerClientProvider sut,
+        EventHubProducerProvider sut,
         string connectionName,
         string eventHubName)
     {

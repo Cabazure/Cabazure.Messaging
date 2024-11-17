@@ -128,8 +128,9 @@ public class ServiceBusBuilderTests
                     connectionName,
                     typeof(TMessage),
                     eventHubName,
-                    null,
-                    null));
+                    SenderOptions: null,
+                    PropertiesFactory: null,
+                    PartitionKeyFactory: null));
     }
 
     [Theory, AutoNSubstituteData]

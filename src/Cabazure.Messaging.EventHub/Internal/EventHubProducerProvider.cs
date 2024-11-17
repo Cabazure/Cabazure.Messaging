@@ -4,16 +4,16 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
-public interface IEventHubProducerClientProvider
+public interface IEventHubProducerProvider
 {
     EventHubProducerClient GetClient(
         string? connectionName,
         string eventHubName);
 }
 
-public class EventHubProducerClientProvider(
-    IOptionsMonitor<CabazureEventHubOptions> options)
-    : IEventHubProducerClientProvider
+public class EventHubProducerProvider(
+    IOptionsMonitor<CabazureEventHubOptions> monitor)
+    : IEventHubProducerProvider
     , IAsyncDisposable
 {
     private sealed record ClientKey(string? Connection, string EventHub);
@@ -28,9 +28,9 @@ public class EventHubProducerClientProvider(
 
     private EventHubProducerClient CreateClient(
         ClientKey clientKey)
-        => options.Get(clientKey.Connection) switch
+        => monitor.Get(clientKey.Connection) switch
         {
-            { FullyQualifiedNamespace: { } n, Credential: { } c } => new(n, clientKey.EventHub, c),
+            { FullyQualifiedNamespace: { } n, Credential: { } c } => new EventHubProducerClient(n, clientKey.EventHub, c),
             { ConnectionString: { } cs } => new(cs, clientKey.EventHub),
             _ => throw new ArgumentException(
                 $"Missing configuration for Event Hub connection `{clientKey.Connection}`"),

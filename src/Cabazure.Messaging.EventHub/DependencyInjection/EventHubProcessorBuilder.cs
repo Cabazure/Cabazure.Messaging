@@ -6,7 +6,7 @@ public class EventHubProcessorBuilder
 {
     public List<Func<IDictionary<string, object>, bool>> Filters { get; } = [];
 
-    public EventProcessorClientOptions? ClientOptions { get; private set; }
+    public EventProcessorClientOptions? ProcessorOptions { get; private set; }
 
     public EventHubProcessorBuilder WithFilter(
         Func<IDictionary<string, object>, bool> predicate)
@@ -18,7 +18,7 @@ public class EventHubProcessorBuilder
     public EventHubProcessorBuilder WithClientOptions(
         EventProcessorClientOptions options)
     {
-        ClientOptions = options;
+        ProcessorOptions = options;
         return this;
     }
 }

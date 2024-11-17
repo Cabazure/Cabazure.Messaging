@@ -33,7 +33,7 @@ public class ServiceBusSenderProvider(
             new(connectionName, publisher.TopicOrQueueName),
             key => clientProvider
                 .GetClient(key.Connection)
-                .CreateSender(key.Topic));
+                .CreateSender(key.Topic, publisher.SenderOptions));
     }
 
     public async ValueTask DisposeAsync()

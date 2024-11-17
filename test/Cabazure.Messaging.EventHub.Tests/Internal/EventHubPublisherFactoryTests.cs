@@ -14,14 +14,14 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientProvider clientFactory,
+        IEventHubProducerProvider producerFactory,
         string connectionName)
     {
         monitor.Get(default).ReturnsForAnyArgs(options);
         var sut = new EventHubPublisherFactory(
             monitor,
             [],
-            clientFactory);
+            producerFactory);
 
         FluentActions
             .Invoking(() =>
@@ -38,7 +38,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientProvider clientFactory,
+        IEventHubProducerProvider producerProvider,
         EventHubPublisherRegistration registration,
         string connectionName)
     {
@@ -51,12 +51,12 @@ public class EventHubPublisherFactoryTests
         var sut = new EventHubPublisherFactory(
             monitor,
             [registration],
-            clientFactory);
+            producerProvider);
 
         sut.Create<TMessage>(
             connectionName);
 
-        clientFactory
+        producerProvider
             .Received(1)
             .GetClient(
                 connectionName,
@@ -69,7 +69,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientProvider clientFactory,
+        IEventHubProducerProvider producerProvider,
         EventHubPublisherRegistration registration,
         string connectionName)
     {
@@ -82,7 +82,7 @@ public class EventHubPublisherFactoryTests
         var sut = new EventHubPublisherFactory(
             monitor,
             [registration],
-            clientFactory);
+            producerProvider);
 
         sut.Create<TMessage>(
             connectionName);
@@ -96,7 +96,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientProvider clientFactory,
+        IEventHubProducerProvider producerProvider,
         EventHubPublisherRegistration registration,
         string connectionName)
     {
@@ -109,7 +109,7 @@ public class EventHubPublisherFactoryTests
         var sut = new EventHubPublisherFactory(
             monitor,
             [registration],
-            clientFactory);
+            producerProvider);
 
         var publisher = sut.Create<TMessage>(
             connectionName);

@@ -1,6 +1,4 @@
-﻿using Azure.Messaging.EventHubs;
-using Azure.Storage.Blobs;
-using Cabazure.Messaging.EventHub.Internal;
+﻿using Cabazure.Messaging.EventHub.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -37,7 +35,7 @@ public class EventHubBuilder(
         builder?.Invoke(publisherBuilder);
 
         Services.TryAddSingleton<IEventHubPublisherFactory, EventHubPublisherFactory>();
-        Services.TryAddSingleton<IEventHubProducerClientProvider, EventHubProducerClientProvider>();
+        Services.TryAddSingleton<IEventHubProducerProvider, EventHubProducerProvider>();
 
         Services.AddSingleton(
             new EventHubPublisherRegistration(
@@ -64,6 +62,9 @@ public class EventHubBuilder(
         var processorBuilder = new EventHubProcessorBuilder();
         builder?.Invoke(processorBuilder);
 
+        Services.TryAddSingleton<IBlobStorageClientFactory, BlobStorageClientFactory>();
+        Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
+
         Services.AddSingleton<TProcessor>();
         Services.AddSingleton(s =>
         {
@@ -71,41 +72,13 @@ public class EventHubBuilder(
                 .GetRequiredService<IOptionsMonitor<CabazureEventHubOptions>>()
                 .Get(ConnectionName);
 
-            var storageClient = config.BlobStorage switch
-            {
-                { ConnectionString: { } cs, ContainerName: { } cont } => new BlobContainerClient(cs, cont),
-                { ContainerUri: { } uri, Credential: { } cred } => new BlobContainerClient(uri, cred),
-                { ContainerUri: { } uri } => new BlobContainerClient(uri, config.Credential),
-
-                _ => throw new ArgumentException(
-                    $"Blob storage not configured for EventHub processor `{typeof(TProcessor).Name}`"),
-            };
-
-            if (config.BlobStorage.CreateIfNotExist)
-            {
-                storageClient.CreateIfNotExists();
-            }
-
-            var client = config switch
-            {
-                { FullyQualifiedNamespace: { } ns, Credential: { } cred }
-                    => new EventProcessorClient(
-                        checkpointStore: storageClient,
-                        consumerGroup,
-                        ns,
-                        eventHubName,
-                        cred,
-                        processorBuilder.ClientOptions),
-                { ConnectionString: { } cs }
-                    => new EventProcessorClient(
-                        checkpointStore: storageClient,
-                        consumerGroup,
-                        cs,
-                        eventHubName,
-                        processorBuilder.ClientOptions),
-                _ => throw new ArgumentException(
-                    $"Connection not configured for EventHub processor `{typeof(TProcessor).Name}`"),
-            };
+            var client = s
+                .GetRequiredService<IEventHubProcessorFactory>()
+                .Create(
+                    ConnectionName,
+                    eventHubName,
+                    consumerGroup,
+                    processorBuilder.ProcessorOptions);
 
             return new EventHubProcessorService<TMessage, TProcessor>(
                 s.GetRequiredService<TProcessor>(),
