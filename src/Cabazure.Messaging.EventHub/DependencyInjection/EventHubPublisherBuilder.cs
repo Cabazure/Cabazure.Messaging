@@ -5,6 +5,7 @@ namespace Cabazure.Messaging.EventHub.DependencyInjection;
 public class EventHubPublisherBuilder<TMessage>
 {
     public Dictionary<string, Func<TMessage, object>> Properties { get; } = [];
+
     public Func<TMessage, string>? PartitionKey { get; private set; }
 
     public EventHubPublisherBuilder<TMessage> AddProperty(
@@ -45,4 +46,16 @@ public class EventHubPublisherBuilder<TMessage>
         PartitionKey = valueSelector;
         return this;
     }
+
+    public Func<object, Dictionary<string, object>>? GetPropertyFactory()
+        => Properties.Count == 0
+         ? null
+         : o => Properties.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value((TMessage)o));
+
+    public Func<object, string>? GetPartitionKeyFactory()
+        => PartitionKey == null
+         ? null
+         : o => PartitionKey.Invoke((TMessage)o);
 }

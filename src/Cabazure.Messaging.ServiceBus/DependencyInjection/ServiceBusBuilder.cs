@@ -10,17 +10,21 @@ public class ServiceBusBuilder(
     IServiceCollection services,
     string? connectionName)
 {
+    public IServiceCollection Services { get; } = services;
+
+    public string? ConnectionName { get; } = connectionName;
+
     public ServiceBusBuilder Configure(
         Action<CabazureServiceBusOptions> configure)
     {
-        services.Configure(connectionName, configure);
+        Services.Configure(ConnectionName, configure);
         return this;
     }
 
     public ServiceBusBuilder Configure<TConfigureOptions>()
         where TConfigureOptions : class, IConfigureOptions<CabazureServiceBusOptions>
     {
-        services.ConfigureOptions<TConfigureOptions>();
+        Services.ConfigureOptions<TConfigureOptions>();
         return this;
     }
 
@@ -28,49 +32,24 @@ public class ServiceBusBuilder(
         string topicOrQueueName,
         Action<ServiceBusPublisherBuilder<T>>? builder = null)
     {
-        Func<object, Dictionary<string, object>>? propertiesFactory = null;
-        Func<object, string>? partitionKeyFactory = null;
-        if (builder != null)
-        {
-            var publisherBuilder = new ServiceBusPublisherBuilder<T>();
-            builder.Invoke(publisherBuilder);
+        var publisherBuilder = new ServiceBusPublisherBuilder<T>();
+        builder?.Invoke(publisherBuilder);
 
-            if (publisherBuilder.Properties.Count > 0)
-            {
-                propertiesFactory = delegate (object obj)
-                {
-                    var message = (T)obj;
-                    return publisherBuilder.Properties
-                        .ToDictionary(
-                            kvp => kvp.Key,
-                            kvp => kvp.Value(message));
-                };
-            }
+        Services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
+        Services.TryAddSingleton<IServiceBusSenderProvider, ServiceBusSenderProvider>();
+        Services.TryAddSingleton<IServiceBusPublisherFactory, ServiceBusPublisherFactory>();
 
-            if (publisherBuilder.PartitionKey != null)
-            {
-                partitionKeyFactory = delegate (object obj)
-                {
-                    var message = (T)obj;
-                    return publisherBuilder.PartitionKey.Invoke(message);
-                };
-            }
-        }
-
-        services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
-        services.TryAddSingleton<IServiceBusSenderProvider, ServiceBusSenderProvider>();
-        services.TryAddSingleton<IServiceBusPublisherFactory, ServiceBusPublisherFactory>();
-
-        services.AddSingleton(new ServiceBusPublisherRegistration(
-            connectionName,
-            typeof(T),
-            topicOrQueueName,
-            propertiesFactory,
-            partitionKeyFactory));
-        services.AddSingleton(s => s
+        Services.AddSingleton(
+            new ServiceBusPublisherRegistration(
+                ConnectionName,
+                typeof(T),
+                topicOrQueueName,
+                publisherBuilder.GetPropertyFactory(),
+                publisherBuilder.GetPartitionKeyFactory()));
+        Services.AddSingleton(s => s
             .GetRequiredService<IServiceBusPublisherFactory>()
             .Create<T>());
-        services.AddSingleton<IMessagePublisher<T>>(s => s
+        Services.AddSingleton<IMessagePublisher<T>>(s => s
             .GetRequiredService<IServiceBusPublisher<T>>());
 
         return this;
@@ -104,12 +83,12 @@ public class ServiceBusBuilder(
         var processorBuilder = new ServiceBusProcessorBuilder();
         builder?.Invoke(processorBuilder);
 
-        services.AddSingleton<TProcessor>();
-        services.AddSingleton(s =>
+        Services.AddSingleton<TProcessor>();
+        Services.AddSingleton(s =>
         {
             var config = s
                 .GetRequiredService<IOptionsMonitor<CabazureServiceBusOptions>>()
-                .Get(connectionName);
+                .Get(ConnectionName);
 
             var client = config switch
             {
@@ -140,9 +119,9 @@ public class ServiceBusBuilder(
                 config.SerializerOptions,
                 processorBuilder.Filters);
         });
-        services.AddSingleton<IMessageProcessorService<TProcessor>>(s
+        Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<ServiceBusProcessorService<TMessage, TProcessor>>());
-        services.AddHostedService(s
+        Services.AddHostedService(s
             => s.GetRequiredService<ServiceBusProcessorService<TMessage, TProcessor>>());
 
         return this;

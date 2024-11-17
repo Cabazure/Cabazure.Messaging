@@ -45,4 +45,16 @@ public class ServiceBusPublisherBuilder<TMessage>
         PartitionKey = valueSelector;
         return this;
     }
+
+    public Func<object, Dictionary<string, object>>? GetPropertyFactory()
+        => Properties.Count == 0
+         ? null
+         : o => Properties.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value((TMessage)o));
+
+    public Func<object, string>? GetPartitionKeyFactory()
+        => PartitionKey == null
+         ? null
+         : o => PartitionKey.Invoke((TMessage)o);
 }
