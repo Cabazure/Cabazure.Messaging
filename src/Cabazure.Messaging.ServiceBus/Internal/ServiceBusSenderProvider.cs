@@ -1,11 +1,15 @@
 using System.Collections.Concurrent;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.ServiceBus.Internal;
 
+public interface IServiceBusSenderProvider
+{
+    ServiceBusSender GetSender<TMessage>(
+        string? connectionName = null);
+}
+
 public class ServiceBusSenderProvider(
-    IOptionsMonitor<CabazureServiceBusOptions> options,
     IEnumerable<ServiceBusPublisherRegistration> registrations,
     IServiceBusClientProvider clientProvider)
     : IServiceBusSenderProvider
@@ -24,8 +28,6 @@ public class ServiceBusSenderProvider(
             throw new ArgumentException(
                 $"Type {typeof(TMessage).Name} not configured as a ServiceBus publisher");
         }
-
-        var config = options.Get(connectionName);
 
         return senders.GetOrAdd(
             new(connectionName, publisher.TopicOrQueueName),

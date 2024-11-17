@@ -8,18 +8,16 @@ namespace Cabazure.Messaging.EventHub.Tests.Internal;
 
 public class EventHubProducerClientFactoryTests
 {
-    private const string EventHubConnectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
-
     [Theory, AutoNSubstituteData]
     public void Create_Throws_If_No_Options(
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
         EventHubProducerClientFactory sut,
         string connectionName,
-        string topicName)
+        string eventHubName)
     {
         FluentActions
             .Invoking(() =>
-                sut.Create(connectionName, topicName))
+                sut.Create(connectionName, eventHubName))
             .Should()
             .Throw<ArgumentException>()
             .WithMessage(
@@ -34,35 +32,34 @@ public class EventHubProducerClientFactoryTests
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
         EventHubProducerClientFactory sut,
         string connectionName,
-        string topicName)
+        string eventHubName)
     {
         monitor.Get(default).ReturnsForAnyArgs(options);
 
         sut.Create(
             connectionName,
-            topicName);
+            eventHubName);
 
         monitor.Received(1).Get(connectionName);
     }
 
     [Theory, AutoNSubstituteData]
-    public void Creates_Client_From_ConnectionString(
-       [Frozen, NoAutoProperties]
-       JsonSerializerOptions serializerOptions,
-       [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
-       EventHubProducerClientFactory sut,
-       string connectionName,
-       string topicName)
+    public void Creates_Client_Returns_Client(
+        [Frozen, NoAutoProperties]
+        JsonSerializerOptions serializerOptions,
+        CabazureEventHubOptions options,
+        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        EventHubProducerClientFactory sut,
+        string fullyQualifiedNamespace,
+        TokenCredential credential,
+        string connectionName,
+        string eventHubName)
     {
-        var options = new CabazureEventHubOptions
-        {
-            ConnectionString = EventHubConnectionString,
-        };
         monitor.Get(default).ReturnsForAnyArgs(options);
 
         var client = sut.Create(
             connectionName,
-            topicName);
+            eventHubName);
 
         client
             .Should()
@@ -75,24 +72,52 @@ public class EventHubProducerClientFactoryTests
        JsonSerializerOptions serializerOptions,
        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
        EventHubProducerClientFactory sut,
-       string fullyQualifiedNamespace,
+       string fqns,
        TokenCredential credential,
        string connectionName,
-       string topicName)
+       string eventHubName)
     {
         var options = new CabazureEventHubOptions
         {
-            FullyQualifiedNamespace = fullyQualifiedNamespace,
+            FullyQualifiedNamespace = fqns,
             Credential = credential,
         };
         monitor.Get(default).ReturnsForAnyArgs(options);
 
         var client = sut.Create(
             connectionName,
-            topicName);
+            eventHubName);
 
-        client
+        client.FullyQualifiedNamespace
             .Should()
-            .BeOfType<EventHubProducerClient>();
+            .Be(fqns);
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void Creates_Uses_Namespace_From_ConnectionString_In_Options(
+       [Frozen, NoAutoProperties]
+       JsonSerializerOptions serializerOptions,
+       [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+       EventHubProducerClientFactory sut,
+       string connectionName,
+       string fqns,
+       string eventHubName)
+    {
+        var options = new CabazureEventHubOptions
+        {
+            ConnectionString =
+                $"Endpoint=sb://{fqns};" +
+                $"SharedAccessKeyName=RootManageSharedAccessKey;" +
+                $"SharedAccessKey=SAS_KEY_VALUE;",
+        };
+        monitor.Get(default).ReturnsForAnyArgs(options);
+
+        var client = sut.Create(
+            connectionName,
+            eventHubName);
+
+        client.FullyQualifiedNamespace
+            .Should()
+            .Be(fqns);
     }
 }
