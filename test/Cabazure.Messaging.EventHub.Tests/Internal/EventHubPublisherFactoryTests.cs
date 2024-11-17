@@ -14,7 +14,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientFactory clientFactory,
+        IEventHubProducerClientProvider clientFactory,
         string connectionName)
     {
         monitor.Get(default).ReturnsForAnyArgs(options);
@@ -38,7 +38,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientFactory clientFactory,
+        IEventHubProducerClientProvider clientFactory,
         EventHubPublisherRegistration registration,
         string connectionName)
     {
@@ -58,7 +58,7 @@ public class EventHubPublisherFactoryTests
 
         clientFactory
             .Received(1)
-            .Create(
+            .GetClient(
                 connectionName,
                 registration.EventHubName);
     }
@@ -69,7 +69,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientFactory clientFactory,
+        IEventHubProducerClientProvider clientFactory,
         EventHubPublisherRegistration registration,
         string connectionName)
     {
@@ -96,7 +96,7 @@ public class EventHubPublisherFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         IOptionsMonitor<CabazureEventHubOptions> monitor,
-        IEventHubProducerClientFactory clientFactory,
+        IEventHubProducerClientProvider clientFactory,
         EventHubPublisherRegistration registration,
         string connectionName)
     {

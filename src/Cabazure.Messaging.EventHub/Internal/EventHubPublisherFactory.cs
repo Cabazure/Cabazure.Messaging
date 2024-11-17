@@ -5,7 +5,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 public class EventHubPublisherFactory(
     IOptionsMonitor<CabazureEventHubOptions> options,
     IEnumerable<EventHubPublisherRegistration> registrations,
-    IEventHubProducerClientFactory clientFactory)
+    IEventHubProducerClientProvider clientFactory)
     : IEventHubPublisherFactory
 {
     private sealed record PublisherKey(string? Connection, Type Type);
@@ -22,7 +22,7 @@ public class EventHubPublisherFactory(
                 $"Type {typeof(TMessage).Name} not configured as an EventHub publisher");
         }
 
-        var client = clientFactory.Create(
+        var client = clientFactory.GetClient(
             connectionName,
             publisher.EventHubName);
 
