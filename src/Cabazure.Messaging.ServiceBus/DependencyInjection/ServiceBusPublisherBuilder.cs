@@ -46,6 +46,13 @@ public class ServiceBusPublisherBuilder<TMessage>
         return this;
     }
 
+    public ServiceBusPublisherBuilder<TMessage> AddPartitionKey(
+        string partitionKey)
+    {
+        PartitionKey = _ => partitionKey;
+        return this;
+    }
+
     public Func<object, Dictionary<string, object>>? GetPropertyFactory()
         => Properties.Count == 0
          ? null
