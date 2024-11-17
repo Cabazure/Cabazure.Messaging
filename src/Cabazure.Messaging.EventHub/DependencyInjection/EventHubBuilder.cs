@@ -64,7 +64,7 @@ public class EventHubBuilder(
         builder?.Invoke(processorBuilder);
 
         Services.AddLogging();
-        Services.TryAddSingleton<IBlobStorageClientFactory, BlobStorageClientFactory>();
+        Services.TryAddSingleton<IBlobStorageClientProvider, BlobStorageClientProvider>();
         Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
         Services.TryAddSingleton<TProcessor>();
 

@@ -1,22 +1,31 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Collections.Concurrent;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
-public interface IBlobStorageClientFactory
+public interface IBlobStorageClientProvider
 {
-    BlobContainerClient Create(
+    BlobContainerClient GetClient(
         string? connectionName = null);
 }
 
-public class BlobStorageClientFactory(
+public class BlobStorageClientProvider(
     IOptionsMonitor<CabazureEventHubOptions> monitor)
-    : IBlobStorageClientFactory
+    : IBlobStorageClientProvider
 {
-    public BlobContainerClient Create(
-        string? connectionName = null)
+    private sealed record ClientKey(string? Connection);
+    private readonly ConcurrentDictionary<ClientKey, BlobContainerClient> clients = new();
+
+    public BlobContainerClient GetClient(
+        string? connectionName)
+        => clients.GetOrAdd(
+            new(connectionName),
+            CreateClient);
+
+    private BlobContainerClient CreateClient(ClientKey key)
     {
-        var options = monitor.Get(connectionName);
+        var options = monitor.Get(key.Connection);
         var storageClient = options.BlobStorage switch
         {
             { ConnectionString: { } cs, ContainerName: { } cont } => new BlobContainerClient(cs, cont),
@@ -24,7 +33,7 @@ public class BlobStorageClientFactory(
             { ContainerUri: { } uri } => new BlobContainerClient(uri, options.Credential),
 
             _ => throw new ArgumentException(
-                $"Missing blob storage configuration for connection `{connectionName}`"),
+                $"Missing blob storage configuration for connection `{key.Connection}`"),
         };
 
         if (options.BlobStorage.CreateIfNotExist)

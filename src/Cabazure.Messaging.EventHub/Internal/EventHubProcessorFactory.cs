@@ -14,7 +14,7 @@ public interface IEventHubProcessorFactory
 
 public class EventHubProcessorFactory(
     IOptionsMonitor<CabazureEventHubOptions> monitor,
-    IBlobStorageClientFactory storageFactory)
+    IBlobStorageClientProvider storageProvider)
     : IEventHubProcessorFactory
 {
     public EventProcessorClient Create(
@@ -26,7 +26,7 @@ public class EventHubProcessorFactory(
         {
             { FullyQualifiedNamespace: { } ns, Credential: { } cred }
                 => new EventProcessorClient(
-                    storageFactory.Create(connectionName),
+                    storageProvider.GetClient(connectionName),
                     consumerGroup,
                     ns,
                     eventHubName,
@@ -34,7 +34,7 @@ public class EventHubProcessorFactory(
                     options),
             { ConnectionString: { } cs }
                 => new EventProcessorClient(
-                    storageFactory.Create(connectionName),
+                    storageProvider.GetClient(connectionName),
                     consumerGroup,
                     cs,
                     eventHubName,

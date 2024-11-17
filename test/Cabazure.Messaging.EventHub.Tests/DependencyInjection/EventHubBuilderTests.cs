@@ -197,7 +197,7 @@ public class EventHubBuilderTests
 
         services
             .Should()
-            .Contain<IBlobStorageClientFactory, BlobStorageClientFactory>()
+            .Contain<IBlobStorageClientProvider, BlobStorageClientProvider>()
             .And.Contain<IEventHubProcessorFactory, EventHubProcessorFactory>()
             .And.Contain<TProcessor, TProcessor>();
     }
