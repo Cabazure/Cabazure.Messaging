@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
+[ExcludeFromCodeCoverage]
 public static partial class LoggerExtensions
 {
     [LoggerMessage(LogLevel.Warning, "Failed to process {MessageType} message in {ProcessorType} type")]

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Tests.Internal;
 
-public class EventHubProducerFactoryTests
+public class EventHubProducerProviderTests
 {
     [Theory, AutoNSubstituteData]
     public void Create_Throws_If_No_Options(

@@ -13,15 +13,13 @@ public class ServiceBusClientProviderTests
         [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
         ServiceBusClientProvider sut,
         string connectionName)
-    {
-        FluentActions
+        => FluentActions
             .Invoking(() =>
                 sut.GetClient(connectionName))
             .Should()
             .Throw<ArgumentException>()
             .WithMessage(
                 $"Missing configuration for Service Bus connection `{connectionName}`");
-    }
 
     [Theory, AutoNSubstituteData]
     public void GetClient_Gets_Options(
@@ -42,12 +40,12 @@ public class ServiceBusClientProviderTests
 
     [Theory, AutoNSubstituteData]
     public void GetClient_Returns_Client(
-       [Frozen, NoAutoProperties]
+        [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
-       CabazureServiceBusOptions options,
-       [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
-       ServiceBusClientProvider sut,
-       string connectionName)
+        CabazureServiceBusOptions options,
+        [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
+        ServiceBusClientProvider sut,
+        string connectionName)
     {
         monitor.Get(default).ReturnsForAnyArgs(options);
         var result = sut.GetClient(connectionName);
@@ -59,13 +57,13 @@ public class ServiceBusClientProviderTests
 
     [Theory, AutoNSubstituteData]
     public void GetClient_Uses_Namespace_From_Options(
-       [Frozen, NoAutoProperties]
+        [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
-       [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
-       ServiceBusClientProvider sut,
-       string connectionName,
-       string fqns,
-       TokenCredential credential)
+        [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
+        ServiceBusClientProvider sut,
+        string connectionName,
+        string fqns,
+        TokenCredential credential)
     {
         var options = new CabazureServiceBusOptions
         {
@@ -82,13 +80,13 @@ public class ServiceBusClientProviderTests
 
     [Theory, AutoNSubstituteData]
     public void GetClient_Uses_Namespace_From_ConnectionString_In_Options(
-       [Frozen, NoAutoProperties]
+        [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
-       [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
-       ServiceBusClientProvider sut,
-       string connectionName,
-       string fqns,
-       TokenCredential credential)
+        [Frozen] IOptionsMonitor<CabazureServiceBusOptions> monitor,
+        ServiceBusClientProvider sut,
+        string connectionName,
+        string fqns,
+        TokenCredential credential)
     {
         var options = new CabazureServiceBusOptions
         {
