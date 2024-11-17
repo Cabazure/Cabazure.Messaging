@@ -2,6 +2,7 @@
 using Cabazure.Messaging.ServiceBus.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.ServiceBus.DependencyInjection;
@@ -81,6 +82,7 @@ public class ServiceBusBuilder(
         var processorBuilder = new ServiceBusProcessorBuilder();
         builder?.Invoke(processorBuilder);
 
+        Services.AddLogging();
         Services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
         Services.TryAddSingleton<IServiceBusProcessorFactory, ServiceBusProcessorFactory>();
         Services.TryAddSingleton<TProcessor>();
@@ -99,6 +101,7 @@ public class ServiceBusBuilder(
                 processorBuilder.ProcessorOptions);
 
             return new ServiceBusProcessorService<TMessage, TProcessor>(
+                s.GetRequiredService<ILogger<TProcessor>>(),
                 s.GetRequiredService<TProcessor>(),
                 processor,
                 config.SerializerOptions,

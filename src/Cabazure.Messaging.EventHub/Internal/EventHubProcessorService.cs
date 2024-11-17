@@ -2,10 +2,12 @@
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Processor;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
 public class EventHubProcessorService<TMessage, TProcessor>(
+    ILogger<TProcessor> logger,
     TProcessor processor,
     EventProcessorClient client,
     JsonSerializerOptions serializerOptions,
@@ -54,17 +56,20 @@ public class EventHubProcessorService<TMessage, TProcessor>(
             args.CancellationToken);
     }
 
-    private Task OnProcessErrorAsync(ProcessErrorEventArgs args)
+    private async Task OnProcessErrorAsync(ProcessErrorEventArgs args)
     {
-        //telemetry.MessageProcessingFailed(args.Exception);
-
-        //if (args.Exception
-        //    is UnauthorizedAccessException
-        //    or EventHubsException { Reason: EventHubsException.FailureReason.ResourceNotFound })
-        //{
-        //    IsFaulted = true;
-        //    await StopProcessingAsync(CancellationToken.None);
-        //}
-        return Task.CompletedTask;
+        if (processor is IProcessErrorHandler handler)
+        {
+            await handler.ProcessErrorAsync(
+                args.Exception,
+                args.CancellationToken);
+        }
+        else
+        {
+            logger.FailedToProcessMessage(
+                typeof(TMessage).Name,
+                typeof(TProcessor).Name,
+                args.Exception);
+        }
     }
 }

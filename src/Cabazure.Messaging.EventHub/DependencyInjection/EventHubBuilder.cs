@@ -1,6 +1,7 @@
 ﻿using Cabazure.Messaging.EventHub.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
@@ -62,6 +63,7 @@ public class EventHubBuilder(
         var processorBuilder = new EventHubProcessorBuilder();
         builder?.Invoke(processorBuilder);
 
+        Services.AddLogging();
         Services.TryAddSingleton<IBlobStorageClientFactory, BlobStorageClientFactory>();
         Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
         Services.TryAddSingleton<TProcessor>();
@@ -81,6 +83,7 @@ public class EventHubBuilder(
                     processorBuilder.ProcessorOptions);
 
             return new EventHubProcessorService<TMessage, TProcessor>(
+                s.GetRequiredService<ILogger<TProcessor>>(),
                 s.GetRequiredService<TProcessor>(),
                 client,
                 config.SerializerOptions,
