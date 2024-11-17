@@ -26,7 +26,7 @@ public class BlobStorageClientProvider(
     private BlobContainerClient CreateClient(ClientKey key)
     {
         var options = monitor.Get(key.Connection);
-        var storageClient = options.BlobStorage switch
+        var storageClient = options?.BlobStorage switch
         {
             { ConnectionString: { } cs, ContainerName: { } cont } => new BlobContainerClient(cs, cont),
             { ContainerUri: { } uri, Credential: { } cred } => new BlobContainerClient(uri, cred),
