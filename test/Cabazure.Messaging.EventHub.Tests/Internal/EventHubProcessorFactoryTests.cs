@@ -73,7 +73,7 @@ public class EventHubProcessorFactoryTests
 
         result
             .Should()
-            .BeOfType<EventProcessorClient>();
+            .BeOfType<EventProcessorClientWrapper>();
     }
 
     [Theory, AutoNSubstituteData]

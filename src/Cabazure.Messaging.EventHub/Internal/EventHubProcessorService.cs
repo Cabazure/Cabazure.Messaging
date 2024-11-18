@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Processor;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 public class EventHubProcessorService<TMessage, TProcessor>(
     ILogger<TProcessor> logger,
     TProcessor processor,
-    EventProcessorClient client,
+    IEventProcessorClient client,
     JsonSerializerOptions serializerOptions,
     List<Func<IDictionary<string, object>, bool>> filters)
     : IMessageProcessorService<TProcessor>
