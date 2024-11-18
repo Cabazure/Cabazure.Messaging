@@ -27,7 +27,7 @@ public class EventHubProcessorServiceTests
     public async Task StartAsync_Starts_Processing(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         EventHubProcessorService<TMessage, TProcessor> sut,
         CancellationToken cancellationToken)
     {
@@ -45,7 +45,7 @@ public class EventHubProcessorServiceTests
         bool isRunning,
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen] IEventProcessorClient client,
+        [Frozen] IEventHubProcessor client,
         EventHubProcessorService<TMessage, TProcessor> sut,
         CancellationToken cancellationToken)
     {
@@ -58,7 +58,7 @@ public class EventHubProcessorServiceTests
     public async Task StopAsync_Stops_Processing(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         EventHubProcessorService<TMessage, TProcessor> sut,
         CancellationToken cancellationToken)
     {
@@ -74,7 +74,7 @@ public class EventHubProcessorServiceTests
     public async Task Processor_Is_Called_When_Client_Receives_Message(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
         EventHubProcessorService<TMessage, TProcessor> sut,
         [Frozen, Substitute] PartitionContext partitionContext,
@@ -107,7 +107,7 @@ public class EventHubProcessorServiceTests
     public async Task Processor_Is_Not_Called_When_Filter_Does_Not_Match(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
         EventHubProcessorService<TMessage, TProcessor> sut,
         [Frozen, Substitute] PartitionContext partitionContext,
@@ -138,7 +138,7 @@ public class EventHubProcessorServiceTests
     public async Task Processor_Is_Called_When_Filter_Does_Match(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
         EventHubProcessorService<TMessage, TProcessor> sut,
         [Frozen, Substitute] PartitionContext partitionContext,
@@ -176,7 +176,7 @@ public class EventHubProcessorServiceTests
     public async Task Processor_Is_Not_Called_When_Processor_Is_Stopped(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
         EventHubProcessorService<TMessage, TProcessor> sut,
         [Frozen, Substitute] PartitionContext partitionContext,
@@ -202,7 +202,7 @@ public class EventHubProcessorServiceTests
         [Frozen] ILogger<TProcessor> logger,
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessor processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         EventHubProcessorService<TMessage, TProcessor> sut,
         ProcessErrorEventArgs args,
         CancellationToken cancellationToken)
@@ -222,7 +222,7 @@ public class EventHubProcessorServiceTests
     public async Task Processor_Is_Called_When_Processing_Error_Occurs(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessorWithErrorHandling processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         EventHubProcessorService<TMessage, TProcessorWithErrorHandling> sut,
         ProcessErrorEventArgs args,
         CancellationToken cancellationToken)
@@ -241,7 +241,7 @@ public class EventHubProcessorServiceTests
     public async Task Processor_Is_Not_Called_When_Processing_Error_Occurs_And_Processor_Is_Stopped(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] TProcessorWithErrorHandling processor,
-        [Frozen, Substitute] IEventProcessorClient client,
+        [Frozen, Substitute] IEventHubProcessor client,
         EventHubProcessorService<TMessage, TProcessorWithErrorHandling> sut,
         ProcessErrorEventArgs args,
         CancellationToken cancellationToken)

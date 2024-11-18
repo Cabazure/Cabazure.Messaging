@@ -75,7 +75,7 @@ public class ServiceBusBuilder(
             builder);
 
     private ServiceBusBuilder AddProcessorInternal<TMessage, TProcessor>(
-        Func<IServiceBusProcessorFactory, ServiceBusProcessorOptions?, ServiceBusProcessor> processorFactory,
+        Func<IServiceBusProcessorFactory, ServiceBusProcessorOptions?, IServiceBusProcessor> processorFactory,
         Action<ServiceBusProcessorBuilder>? builder = null)
         where TProcessor : class, IMessageProcessor<TMessage>
     {

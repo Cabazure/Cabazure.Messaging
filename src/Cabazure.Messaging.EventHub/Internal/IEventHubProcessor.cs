@@ -3,7 +3,7 @@ using Azure.Messaging.EventHubs.Processor;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
-public interface IEventProcessorClient
+public interface IEventHubProcessor
 {
     bool IsRunning { get; }
 
@@ -22,10 +22,12 @@ public interface IEventProcessorClient
     Task StopProcessingAsync(CancellationToken cancellationToken = default);
 }
 
-public class EventProcessorClientWrapper(
+public class EventHubProcessorWrapper(
     EventProcessorClient client)
-    : IEventProcessorClient
+    : IEventHubProcessor
 {
+    public EventProcessorClient Client => client;
+
     public bool IsRunning => client.IsRunning;
 
     public string FullyQualifiedNamespace => client.FullyQualifiedNamespace;

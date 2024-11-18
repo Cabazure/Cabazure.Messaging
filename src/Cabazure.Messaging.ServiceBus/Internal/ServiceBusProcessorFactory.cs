@@ -4,12 +4,12 @@ namespace Cabazure.Messaging.ServiceBus.Internal;
 
 public interface IServiceBusProcessorFactory
 {
-    ServiceBusProcessor Create(
+    IServiceBusProcessor Create(
         string? connectionName,
         string queueName,
         ServiceBusProcessorOptions? options = null);
 
-    ServiceBusProcessor Create(
+    IServiceBusProcessor Create(
         string? connectionName,
         string topicName,
         string subscriptionName,
@@ -20,25 +20,27 @@ public class ServiceBusProcessorFactory(
     IServiceBusClientProvider clientProvider)
     : IServiceBusProcessorFactory
 {
-    public ServiceBusProcessor Create(
+    public IServiceBusProcessor Create(
         string? connectionName,
         string topicName,
         string subscriptionName,
         ServiceBusProcessorOptions? options = null)
-        => clientProvider
-            .GetClient(connectionName)
-            .CreateProcessor(
-                topicName,
-                subscriptionName,
-                options);
+        => new ServiceBusProcessorWrapper(
+            clientProvider
+                .GetClient(connectionName)
+                .CreateProcessor(
+                    topicName,
+                    subscriptionName,
+                    options));
 
-    public ServiceBusProcessor Create(
+    public IServiceBusProcessor Create(
         string? connectionName,
         string queueName,
         ServiceBusProcessorOptions? options = null)
-        => clientProvider
-            .GetClient(connectionName)
-            .CreateProcessor(
-                queueName,
-                options);
+        => new ServiceBusProcessorWrapper(
+            clientProvider
+                .GetClient(connectionName)
+                .CreateProcessor(
+                    queueName,
+                    options));
 }

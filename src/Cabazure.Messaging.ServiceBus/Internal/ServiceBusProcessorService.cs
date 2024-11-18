@@ -8,7 +8,7 @@ namespace Cabazure.Messaging.ServiceBus.Internal;
 public class ServiceBusProcessorService<TMessage, TProcessor>(
     ILogger<TProcessor> logger,
     TProcessor processor,
-    ServiceBusProcessor client,
+    IServiceBusProcessor client,
     JsonSerializerOptions serializerOptions,
     List<Func<IReadOnlyDictionary<string, object>, bool>> filters)
     : IMessageProcessorService<TProcessor>

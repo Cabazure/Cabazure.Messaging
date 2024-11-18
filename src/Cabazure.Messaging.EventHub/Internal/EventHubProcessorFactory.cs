@@ -5,7 +5,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 
 public interface IEventHubProcessorFactory
 {
-    IEventProcessorClient Create(
+    IEventHubProcessor Create(
         string? connectionName,
         string eventHubName,
         string consumerGroup,
@@ -17,7 +17,7 @@ public class EventHubProcessorFactory(
     IBlobStorageClientProvider storageProvider)
     : IEventHubProcessorFactory
 {
-    public IEventProcessorClient Create(
+    public IEventHubProcessor Create(
         string? connectionName,
         string eventHubName,
         string consumerGroup,
@@ -25,7 +25,7 @@ public class EventHubProcessorFactory(
         => monitor.Get(connectionName) switch
         {
             { FullyQualifiedNamespace: { } ns, Credential: { } cred }
-                => new EventProcessorClientWrapper(
+                => new EventHubProcessorWrapper(
                     new EventProcessorClient(
                         storageProvider.GetClient(connectionName),
                         consumerGroup,
@@ -34,7 +34,7 @@ public class EventHubProcessorFactory(
                         cred,
                         options)),
             { ConnectionString: { } cs }
-                => new EventProcessorClientWrapper(
+                => new EventHubProcessorWrapper(
                     new EventProcessorClient(
                         storageProvider.GetClient(connectionName),
                         consumerGroup,

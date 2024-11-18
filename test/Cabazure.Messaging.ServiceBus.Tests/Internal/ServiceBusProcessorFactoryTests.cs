@@ -84,6 +84,11 @@ public class ServiceBusProcessorFactoryTests
 
         result
             .Should()
+            .BeOfType<ServiceBusProcessorWrapper>();
+
+        ((ServiceBusProcessorWrapper)result)
+            .Processor
+            .Should()
             .Be(processor);
     }
 
@@ -158,6 +163,11 @@ public class ServiceBusProcessorFactoryTests
             options);
 
         result
+            .Should()
+            .BeOfType<ServiceBusProcessorWrapper>();
+
+        ((ServiceBusProcessorWrapper)result)
+            .Processor
             .Should()
             .Be(processor);
     }

@@ -8,7 +8,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 public class EventHubProcessorService<TMessage, TProcessor>(
     ILogger<TProcessor> logger,
     TProcessor processor,
-    IEventProcessorClient client,
+    IEventHubProcessor client,
     JsonSerializerOptions serializerOptions,
     List<Func<IDictionary<string, object>, bool>> filters)
     : IMessageProcessorService<TProcessor>
