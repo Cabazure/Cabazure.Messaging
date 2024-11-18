@@ -92,15 +92,15 @@ An optional builder can be passed to the `AddPublisher<TMessage>()` method. This
 builder.Services.AddCabazureEventHub(b => b
     .AddPublisher<MyEvent>("eventHub1",
     b => b
-      .AddPartitionKey(m => m.PartitionKey)
-      .AddProperty("Property1", m => m.Property1));
+      .WithPartitionKey(m => m.PartitionKey)
+      .WithProperty("Property1", m => m.Property1));
 
 // Service Bus publisher
 builder.Services.AddCabazureServiceBus(b => b
     .AddPublisher<MyEvent>("topic1",
     b => b
-      .AddPartitionKey(m => m.PartitionKey)
-      .AddProperty("Property1", m => m.Property1));
+      .WithPartitionKey(m => m.PartitionKey)
+      .WithProperty("Property1", m => m.Property1));
 ```
 
 Properties and partition key can also be specified using the `PublishingOptions` that can be passed to the `IMessagePublisher<TMessage>.PublishAsync()` method when publishing messages.
