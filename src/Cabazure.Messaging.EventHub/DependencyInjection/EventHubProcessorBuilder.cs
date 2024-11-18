@@ -15,7 +15,7 @@ public class EventHubProcessorBuilder
         return this;
     }
 
-    public EventHubProcessorBuilder WithClientOptions(
+    public EventHubProcessorBuilder WithProcessorOptions(
         EventProcessorClientOptions options)
     {
         ProcessorOptions = options;

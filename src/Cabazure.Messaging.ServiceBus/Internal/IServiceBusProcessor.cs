@@ -1,4 +1,5 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Messaging.ServiceBus;
 
 namespace Cabazure.Messaging.ServiceBus.Internal;
 
@@ -15,6 +16,7 @@ public interface IServiceBusProcessor
     Task StopProcessingAsync(CancellationToken cancellationToken);
 }
 
+[ExcludeFromCodeCoverage]
 public class ServiceBusProcessorWrapper(
     ServiceBusProcessor processor)
     : IServiceBusProcessor

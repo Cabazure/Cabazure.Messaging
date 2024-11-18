@@ -136,7 +136,7 @@ builder.Services.AddCabazureEventHub(b => b
         "eventhub1"
         "consumerGroup1",
         b => b
-          .WithClientOptions(new EventProcessorClientOptions
+          .WithProcessorOptions(new EventProcessorClientOptions
           {
               PrefetchCount = 300,
           })
@@ -148,10 +148,6 @@ builder.Services.AddCabazureServiceBus(b => b
         "topic1",
         "subscription1",
         b => b
-          .WithClientOptions(new ServiceBusClientOptions
-          {
-              Identifier = "Processor1",
-          })
           .WithProcessorOptions(new ServiceBusProcessorOptions
           {
               MaxConcurrentCalls = 16,

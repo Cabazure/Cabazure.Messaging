@@ -1,4 +1,5 @@
-﻿using Azure.Messaging.EventHubs;
+﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Processor;
 
 namespace Cabazure.Messaging.EventHub.Internal;
@@ -22,6 +23,7 @@ public interface IEventHubProcessor
     Task StopProcessingAsync(CancellationToken cancellationToken = default);
 }
 
+[ExcludeFromCodeCoverage]
 public class EventHubProcessorWrapper(
     EventProcessorClient client)
     : IEventHubProcessor
