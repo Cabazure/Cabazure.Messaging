@@ -39,29 +39,23 @@ public class CabazureEventHubOptions
     }
 
     public CabazureEventHubOptions WithBlobStorage(
-        Uri containerUri,
-        TokenCredential credential,
-        bool createIfNotExist = false)
+        Uri serviceUri,
+        TokenCredential credential)
     {
         BlobStorage = new()
         {
-            ContainerUri = containerUri,
+            ServiceUri = serviceUri,
             Credential = credential,
-            CreateIfNotExist = createIfNotExist,
         };
         return this;
     }
 
     public CabazureEventHubOptions WithBlobStorage(
-        string connectionString,
-        string blobContainerName,
-        bool createIfNotExist = false)
+        string connectionString)
     {
         BlobStorage = new()
         {
             ConnectionString = connectionString,
-            ContainerName = blobContainerName,
-            CreateIfNotExist = createIfNotExist,
         };
         return this;
     }
@@ -70,13 +64,9 @@ public class CabazureEventHubOptions
 
 public class BlobStorageOptions
 {
-    public Uri? ContainerUri { get; set; }
+    public Uri? ServiceUri { get; set; }
 
     public TokenCredential? Credential { get; set; }
 
     public string? ConnectionString { get; set; }
-
-    public string? ContainerName { get; set; }
-
-    public bool CreateIfNotExist { get; set; }
 }

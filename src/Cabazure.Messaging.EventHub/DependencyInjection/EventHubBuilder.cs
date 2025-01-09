@@ -60,7 +60,7 @@ public class EventHubBuilder(
         Action<EventHubProcessorBuilder>? builder = null)
         where TProcessor : class, IMessageProcessor<TMessage>
     {
-        var processorBuilder = new EventHubProcessorBuilder();
+        var processorBuilder = new EventHubProcessorBuilder(eventHubName);
         builder?.Invoke(processorBuilder);
 
         Services.AddLogging();
@@ -80,6 +80,7 @@ public class EventHubBuilder(
                     ConnectionName,
                     eventHubName,
                     consumerGroup,
+                    processorBuilder.BlobContainer,
                     processorBuilder.ProcessorOptions);
 
             return new EventHubProcessorService<TMessage, TProcessor>(

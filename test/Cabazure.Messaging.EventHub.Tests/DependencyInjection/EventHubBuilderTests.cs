@@ -224,7 +224,7 @@ public class EventHubBuilderTests
     }
 
     [Theory, AutoNSubstituteData]
-    public void AddProcessor_Registers_EventHubProcessorService_Using_Factory(
+    public void AddProcessor_With_Default_BlobContainer_Registers_EventHubProcessorService_Using_Factory(
         [Frozen(Matching.ImplementedInterfaces)]
         ServiceCollection services,
         string eventHubName,
@@ -250,7 +250,48 @@ public class EventHubBuilderTests
             .Create(
                 sut.ConnectionName,
                 eventHubName,
-                consumerGroupName);
+                consumerGroupName,
+                new BlobContainerOptions(
+                    ContainerName: eventHubName,
+                    CreateIfNotExist: true));
+        result.Processor
+            .Should()
+            .Be(processor);
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_With_BlobCOntainerOptions_Registers_EventHubProcessorService_Using_Factory(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        string eventHubName,
+        string consumerGroupName,
+        BlobContainerOptions containerOptions,
+        EventHubBuilder sut,
+        IEventHubProcessorFactory factory,
+        [Substitute] TProcessor processor)
+    {
+        services.AddOptions<CabazureEventHubOptions>();
+        services.AddSingleton(factory);
+        services.AddSingleton(processor);
+
+        sut.AddProcessor<TMessage, TProcessor>(
+            eventHubName,
+            consumerGroupName,
+            b => b.WithBlobContainer(
+                containerOptions.ContainerName,
+                containerOptions.CreateIfNotExist));
+
+        var result = services
+            .BuildServiceProvider()
+            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
+
+        factory
+            .Received(1)
+            .Create(
+                sut.ConnectionName,
+                eventHubName,
+                consumerGroupName,
+                containerOptions);
         result.Processor
             .Should()
             .Be(processor);

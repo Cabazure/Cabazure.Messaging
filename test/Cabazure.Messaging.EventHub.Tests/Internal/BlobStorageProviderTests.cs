@@ -8,8 +8,7 @@ namespace Cabazure.Messaging.EventHub.Tests.Internal;
 
 public class BlobStorageProviderTests
 {
-    private readonly Uri containerUri;
-    private readonly string containerName;
+    private readonly Uri serviceUri;
     private readonly string accountName;
     private readonly string connectionString;
     private readonly TokenCredential credential;
@@ -17,8 +16,7 @@ public class BlobStorageProviderTests
 
     public BlobStorageProviderTests()
     {
-        containerUri = new Uri("https://localhost");
-        containerName = "container1";
+        serviceUri = new Uri("https://localhost");
         accountName = "account1";
         connectionString = $"AccountName={accountName};AccountKey=;";
         credential = Substitute.For<TokenCredential>();
@@ -28,10 +26,8 @@ public class BlobStorageProviderTests
             BlobStorage = new()
             {
                 ConnectionString = connectionString,
-                ContainerName = containerName,
-                ContainerUri = containerUri,
+                ServiceUri = serviceUri,
                 Credential = credential,
-                CreateIfNotExist = false,
             },
         };
     }
@@ -74,7 +70,7 @@ public class BlobStorageProviderTests
 
         result
             .Should()
-            .BeOfType<BlobContainerClient>();
+            .BeOfType<BlobServiceClient>();
     }
 
     [Theory, AutoNSubstituteData]
@@ -87,7 +83,7 @@ public class BlobStorageProviderTests
         {
             BlobStorage = new BlobStorageOptions
             {
-                ContainerUri = containerUri,
+                ServiceUri = serviceUri,
                 Credential = credential,
             },
         };
@@ -96,7 +92,7 @@ public class BlobStorageProviderTests
 
         result.Uri
             .Should()
-            .Be(containerUri);
+            .Be(serviceUri);
     }
 
     [Theory, AutoNSubstituteData]
@@ -112,15 +108,14 @@ public class BlobStorageProviderTests
             BlobStorage = new BlobStorageOptions
             {
                 ConnectionString = connectionString,
-                ContainerName = connectionName,
             }
         };
         monitor.Get(default).ReturnsForAnyArgs(options);
         var result = sut.GetClient(connectionName);
 
-        result.Name
+        result.AccountName
             .Should()
-            .Be(connectionName);
+            .Be(accountName);
     }
 
     [Theory, AutoNSubstituteData]
