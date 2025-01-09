@@ -12,8 +12,9 @@ var blobsConnection = builder.Configuration
 builder.Services.AddCabazureEventHub(b => b
     .Configure(o => o
         .WithConnection(connectionString)
-        .WithBlobStorage(blobsConnection, "container1", createIfNotExist: true))
-    .AddProcessor<MyEvent, MyEventprocessor>("eventhub"));
+        .WithBlobStorage(blobsConnection))
+    .AddProcessor<MyEvent, MyEventprocessor>("eventhub", "$default", b => b
+        .WithBlobContainer("container1", createIfNotExist: true)));
 
 var app = builder.Build();
 

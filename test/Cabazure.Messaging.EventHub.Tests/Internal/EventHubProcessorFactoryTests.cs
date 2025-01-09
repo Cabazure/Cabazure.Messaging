@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using Azure.Core;
 using Azure.Messaging.EventHubs;
+using Azure.Storage.Blobs;
+using Cabazure.Messaging.EventHub.DependencyInjection;
 using Cabazure.Messaging.EventHub.Internal;
 using Microsoft.Extensions.Options;
 
@@ -15,6 +17,7 @@ public class EventHubProcessorFactoryTests
         string connectionName,
         string eventHubName,
         string consumerGroup,
+        BlobContainerOptions containerOptions,
         [NoAutoProperties] EventProcessorClientOptions clientOptions)
         => FluentActions
             .Invoking(() =>
@@ -22,6 +25,7 @@ public class EventHubProcessorFactoryTests
                     connectionName,
                     eventHubName,
                     consumerGroup,
+                    containerOptions,
                     clientOptions))
             .Should()
             .Throw<ArgumentException>()
@@ -34,17 +38,22 @@ public class EventHubProcessorFactoryTests
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        [Frozen] IBlobStorageClientProvider storageProvider,
+        [Substitute] BlobServiceClient blobClient,
         EventHubProcessorFactory sut,
         string connectionName,
         string eventHubName,
         string consumerGroup,
+        BlobContainerOptions containerOptions,
         [NoAutoProperties] EventProcessorClientOptions clientOptions)
     {
+        storageProvider.GetClient(default).ReturnsForAnyArgs(blobClient);
         monitor.Get(default).ReturnsForAnyArgs(options);
         sut.Create(
             connectionName,
             eventHubName,
             consumerGroup,
+            containerOptions,
             clientOptions);
 
         monitor
@@ -53,22 +62,56 @@ public class EventHubProcessorFactoryTests
     }
 
     [Theory, AutoNSubstituteData]
+    public void Create_Gets_StorageClient(
+        [Frozen, NoAutoProperties]
+        JsonSerializerOptions serializerOptions,
+        CabazureEventHubOptions options,
+        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        [Frozen] IBlobStorageClientProvider storageProvider,
+        [Substitute] BlobServiceClient blobClient,
+        EventHubProcessorFactory sut,
+        string connectionName,
+        string eventHubName,
+        string consumerGroup,
+        BlobContainerOptions containerOptions,
+        [NoAutoProperties] EventProcessorClientOptions clientOptions)
+    {
+        storageProvider.GetClient(default).ReturnsForAnyArgs(blobClient);
+        monitor.Get(default).ReturnsForAnyArgs(options);
+        sut.Create(
+            connectionName,
+            eventHubName,
+            consumerGroup,
+            containerOptions,
+            clientOptions);
+
+        storageProvider
+            .Received(1)
+            .GetClient(connectionName);
+    }
+
+    [Theory, AutoNSubstituteData]
     public void Create_Returns_Client(
         [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
         CabazureEventHubOptions options,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        [Frozen] IBlobStorageClientProvider storageProvider,
+        [Substitute] BlobServiceClient blobClient,
         EventHubProcessorFactory sut,
         string connectionName,
         string eventHubName,
         string consumerGroup,
+        BlobContainerOptions containerOptions,
         [NoAutoProperties] EventProcessorClientOptions clientOptions)
     {
+        storageProvider.GetClient(default).ReturnsForAnyArgs(blobClient);
         monitor.Get(default).ReturnsForAnyArgs(options);
         var result = sut.Create(
             connectionName,
             eventHubName,
             consumerGroup,
+            containerOptions,
             clientOptions);
 
         result
@@ -81,10 +124,13 @@ public class EventHubProcessorFactoryTests
         [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        [Frozen] IBlobStorageClientProvider storageProvider,
+        [Substitute] BlobServiceClient blobClient,
         EventHubProcessorFactory sut,
         string connectionName,
         string eventHubName,
         string consumerGroup,
+        BlobContainerOptions containerOptions,
         [NoAutoProperties] EventProcessorClientOptions clientOptions,
         string fqns,
         TokenCredential credential)
@@ -94,11 +140,13 @@ public class EventHubProcessorFactoryTests
             FullyQualifiedNamespace = fqns,
             Credential = credential,
         };
+        storageProvider.GetClient(default).ReturnsForAnyArgs(blobClient);
         monitor.Get(default).ReturnsForAnyArgs(options);
         var result = sut.Create(
             connectionName,
             eventHubName,
             consumerGroup,
+            containerOptions,
             clientOptions);
 
         result.FullyQualifiedNamespace
@@ -117,10 +165,13 @@ public class EventHubProcessorFactoryTests
         [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
         [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        [Frozen] IBlobStorageClientProvider storageProvider,
+        [Substitute] BlobServiceClient blobClient,
         EventHubProcessorFactory sut,
         string connectionName,
         string eventHubName,
         string consumerGroup,
+        BlobContainerOptions containerOptions,
         [NoAutoProperties] EventProcessorClientOptions clientOptions,
         string fqns,
         TokenCredential credential)
@@ -132,11 +183,13 @@ public class EventHubProcessorFactoryTests
                 $"SharedAccessKeyName=RootManageSharedAccessKey;" +
                 $"SharedAccessKey=SAS_KEY_VALUE;",
         };
+        storageProvider.GetClient(default).ReturnsForAnyArgs(blobClient);
         monitor.Get(default).ReturnsForAnyArgs(options);
         var result = sut.Create(
             connectionName,
             eventHubName,
             consumerGroup,
+            containerOptions,
             clientOptions);
 
         result.FullyQualifiedNamespace

@@ -6,7 +6,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 
 public interface IBlobStorageClientProvider
 {
-    BlobContainerClient GetClient(
+    BlobServiceClient GetClient(
         string? connectionName = null);
 }
 
@@ -15,32 +15,22 @@ public class BlobStorageClientProvider(
     : IBlobStorageClientProvider
 {
     private sealed record ClientKey(string? Connection);
-    private readonly ConcurrentDictionary<ClientKey, BlobContainerClient> clients = new();
+    private readonly ConcurrentDictionary<ClientKey, BlobServiceClient> clients = new();
 
-    public BlobContainerClient GetClient(
+    public BlobServiceClient GetClient(
         string? connectionName)
         => clients.GetOrAdd(
             new(connectionName),
             CreateClient);
 
-    private BlobContainerClient CreateClient(ClientKey key)
-    {
-        var options = monitor.Get(key.Connection);
-        var storageClient = options?.BlobStorage switch
+    private BlobServiceClient CreateClient(ClientKey key)
+        => monitor.Get(key.Connection) switch
         {
-            { ConnectionString: { } cs, ContainerName: { } cont } => new BlobContainerClient(cs, cont),
-            { ContainerUri: { } uri, Credential: { } cred } => new BlobContainerClient(uri, cred),
-            { ContainerUri: { } uri } => new BlobContainerClient(uri, options.Credential),
+            { BlobStorage.ConnectionString: { } cs } => new BlobServiceClient(cs),
+            { BlobStorage: { ServiceUri: { } uri, Credential: { } cred } } => new BlobServiceClient(uri, cred),
+            { BlobStorage.ServiceUri: { } uri, Credential: { } cred } => new BlobServiceClient(uri, cred),
 
             _ => throw new ArgumentException(
                 $"Missing blob storage configuration for connection `{key.Connection}`"),
         };
-
-        if (options.BlobStorage.CreateIfNotExist)
-        {
-            storageClient.CreateIfNotExists();
-        }
-
-        return storageClient;
-    }
 }

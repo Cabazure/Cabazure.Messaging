@@ -37,38 +37,32 @@ public class CabazureEventHubOptionsTests
     [Theory, AutoNSubstituteData]
     public void WithBlobStorage_Sets_BlobStorageOptions_With_ContainerUri(
         [NoAutoProperties] CabazureEventHubOptions sut,
-        Uri containerUri,
-        TokenCredential credential,
-        bool createIfNotExist)
+        Uri serviceUri,
+        TokenCredential credential)
     {
-        sut.WithBlobStorage(containerUri, credential, createIfNotExist);
+        sut.WithBlobStorage(serviceUri, credential);
         sut.BlobStorage
             .Should()
             .BeEquivalentTo(
                 new BlobStorageOptions
                 {
-                    ContainerUri = containerUri,
+                    ServiceUri = serviceUri,
                     Credential = credential,
-                    CreateIfNotExist = createIfNotExist,
                 });
     }
 
     [Theory, AutoNSubstituteData]
     public void WithBlobStorage_Sets_BlobStorageOptions_With_ConnectionString(
         [NoAutoProperties] CabazureEventHubOptions sut,
-        string connectionString,
-        string blobContainerName,
-        bool createIfNotExist)
+        string connectionString)
     {
-        sut.WithBlobStorage(connectionString, blobContainerName, createIfNotExist);
+        sut.WithBlobStorage(connectionString);
         sut.BlobStorage
             .Should()
             .BeEquivalentTo(
                 new BlobStorageOptions
                 {
                     ConnectionString = connectionString,
-                    ContainerName = blobContainerName,
-                    CreateIfNotExist = createIfNotExist,
                 });
     }
 }
