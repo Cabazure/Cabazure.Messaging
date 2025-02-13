@@ -12,6 +12,7 @@ public class BlobStorageProviderTests
     private readonly string accountName;
     private readonly string connectionString;
     private readonly TokenCredential credential;
+    private readonly BlobClientOptions clientOptions;
     private readonly CabazureEventHubOptions defaultOptions;
 
     public BlobStorageProviderTests()
@@ -20,6 +21,7 @@ public class BlobStorageProviderTests
         accountName = "account1";
         connectionString = $"AccountName={accountName};AccountKey=;";
         credential = Substitute.For<TokenCredential>();
+        clientOptions = new();
 
         defaultOptions = new()
         {
@@ -67,7 +69,6 @@ public class BlobStorageProviderTests
     {
         monitor.Get(default).ReturnsForAnyArgs(defaultOptions);
         var result = sut.GetClient(connectionName);
-
         result
             .Should()
             .BeOfType<BlobServiceClient>();
@@ -96,6 +97,29 @@ public class BlobStorageProviderTests
     }
 
     [Theory, AutoNSubstituteData]
+    public void GetClient_Uses_Namespace_From_Options_With_ClientOptions(
+        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        BlobStorageClientProvider sut,
+        string connectionName)
+    {
+        var options = new CabazureEventHubOptions
+        {
+            BlobStorage = new BlobStorageOptions
+            {
+                ServiceUri = serviceUri,
+                Credential = credential,
+                BlobClientOptions = clientOptions,
+            },
+        };
+        monitor.Get(default).ReturnsForAnyArgs(options);
+        var result = sut.GetClient(connectionName);
+
+        result.Uri
+            .Should()
+            .Be(serviceUri);
+    }
+
+    [Theory, AutoNSubstituteData]
     public void GetClient_Uses_Namespace_From_ConnectionString_In_Options(
         [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,
@@ -108,6 +132,30 @@ public class BlobStorageProviderTests
             BlobStorage = new BlobStorageOptions
             {
                 ConnectionString = connectionString,
+            }
+        };
+        monitor.Get(default).ReturnsForAnyArgs(options);
+        var result = sut.GetClient(connectionName);
+
+        result.AccountName
+            .Should()
+            .Be(accountName);
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void GetClient_Uses_Namespace_From_ConnectionString_In_Options_With_ClientOptions(
+        [Frozen, NoAutoProperties]
+        JsonSerializerOptions serializerOptions,
+        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        BlobStorageClientProvider sut,
+        string connectionName)
+    {
+        var options = new CabazureEventHubOptions
+        {
+            BlobStorage = new BlobStorageOptions
+            {
+                ConnectionString = connectionString,
+                BlobClientOptions = clientOptions,
             }
         };
         monitor.Get(default).ReturnsForAnyArgs(options);

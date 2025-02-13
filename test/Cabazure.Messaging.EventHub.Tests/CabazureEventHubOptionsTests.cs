@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Azure.Core;
+using Azure.Storage.Blobs;
 
 namespace Cabazure.Messaging.EventHub.Tests;
 
@@ -52,6 +53,25 @@ public class CabazureEventHubOptionsTests
     }
 
     [Theory, AutoNSubstituteData]
+    public void WithBlobStorage_Sets_BlobStorageOptions_With_BlobClientOptions(
+        [NoAutoProperties] CabazureEventHubOptions sut,
+        Uri serviceUri,
+        TokenCredential credential)
+    {
+        var options = new BlobClientOptions();
+        sut.WithBlobStorage(serviceUri, credential, options);
+        sut.BlobStorage
+            .Should()
+            .BeEquivalentTo(
+                new BlobStorageOptions
+                {
+                    ServiceUri = serviceUri,
+                    Credential = credential,
+                    BlobClientOptions = options,
+                });
+    }
+
+    [Theory, AutoNSubstituteData]
     public void WithBlobStorage_Sets_BlobStorageOptions_With_ConnectionString(
         [NoAutoProperties] CabazureEventHubOptions sut,
         string connectionString)
@@ -63,6 +83,23 @@ public class CabazureEventHubOptionsTests
                 new BlobStorageOptions
                 {
                     ConnectionString = connectionString,
+                });
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void WithBlobStorage_Sets_BlobStorageOptions_WithBlobClientOptions(
+        [NoAutoProperties] CabazureEventHubOptions sut,
+        string connectionString)
+    {
+        var options = new BlobClientOptions();
+        sut.WithBlobStorage(connectionString, options);
+        sut.BlobStorage
+            .Should()
+            .BeEquivalentTo(
+                new BlobStorageOptions
+                {
+                    ConnectionString = connectionString,
+                    BlobClientOptions = options,
                 });
     }
 }

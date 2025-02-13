@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Azure.Core;
+using Azure.Storage.Blobs;
 
 namespace Cabazure.Messaging.EventHub;
 
@@ -40,22 +41,26 @@ public class CabazureEventHubOptions
 
     public CabazureEventHubOptions WithBlobStorage(
         Uri serviceUri,
-        TokenCredential credential)
+        TokenCredential credential,
+        BlobClientOptions? options = null)
     {
         BlobStorage = new()
         {
             ServiceUri = serviceUri,
             Credential = credential,
+            BlobClientOptions = options,
         };
         return this;
     }
 
     public CabazureEventHubOptions WithBlobStorage(
-        string connectionString)
+        string connectionString,
+        BlobClientOptions? options = null)
     {
         BlobStorage = new()
         {
             ConnectionString = connectionString,
+            BlobClientOptions = options,
         };
         return this;
     }
@@ -69,4 +74,6 @@ public class BlobStorageOptions
     public TokenCredential? Credential { get; set; }
 
     public string? ConnectionString { get; set; }
+
+    public BlobClientOptions? BlobClientOptions { get; set; }
 }
