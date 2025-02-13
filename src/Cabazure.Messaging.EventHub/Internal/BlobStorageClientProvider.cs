@@ -26,8 +26,11 @@ public class BlobStorageClientProvider(
     private BlobServiceClient CreateClient(ClientKey key)
         => monitor.Get(key.Connection) switch
         {
+            { BlobStorage.ConnectionString: { } cs, BlobStorage.BlobClientOptions: { } o } => new BlobServiceClient(cs, o),
             { BlobStorage.ConnectionString: { } cs } => new BlobServiceClient(cs),
+            { BlobStorage: { ServiceUri: { } uri, Credential: { } cred }, BlobStorage.BlobClientOptions: { } o } => new BlobServiceClient(uri, cred, o),
             { BlobStorage: { ServiceUri: { } uri, Credential: { } cred } } => new BlobServiceClient(uri, cred),
+            { BlobStorage.ServiceUri: { } uri, Credential: { } cred, BlobStorage.BlobClientOptions: { } o } => new BlobServiceClient(uri, cred, o),
             { BlobStorage.ServiceUri: { } uri, Credential: { } cred } => new BlobServiceClient(uri, cred),
 
             _ => throw new ArgumentException(
