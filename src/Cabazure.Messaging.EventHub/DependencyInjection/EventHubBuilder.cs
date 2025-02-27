@@ -88,7 +88,9 @@ public class EventHubBuilder(
                 s.GetRequiredService<TProcessor>(),
                 client,
                 config.SerializerOptions,
-                processorBuilder.Filters);
+                processorBuilder.Filters,
+                processorBuilder.CheckpointMaxAge,
+                processorBuilder.CheckpointMaxEvents);
         });
         Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());
