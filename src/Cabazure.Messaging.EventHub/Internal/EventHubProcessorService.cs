@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 using Azure.Messaging.EventHubs.Processor;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,11 +11,16 @@ public class EventHubProcessorService<TMessage, TProcessor>(
     TProcessor processor,
     IEventHubProcessor client,
     JsonSerializerOptions serializerOptions,
-    List<Func<IDictionary<string, object>, bool>> filters)
+    List<Func<IDictionary<string, object>, bool>> filters,
+    TimeSpan checkpointMaxAge,
+    int checkpointMaxCount)
     : IMessageProcessorService<TProcessor>
     , IHostedService
     where TProcessor : class, IMessageProcessor<TMessage>
 {
+    private readonly ConcurrentDictionary<string, int> partitionEventCount = new();
+    private readonly ConcurrentDictionary<string, DateTimeOffset> partitionCheckpoints = new();
+
     public bool IsRunning => client.IsRunning;
 
     public TProcessor Processor => processor;
@@ -38,21 +44,35 @@ public class EventHubProcessorService<TMessage, TProcessor>(
 
     private async Task OnProcessMessageAsync(ProcessEventArgs args)
     {
-        if (!filters.TrueForAll(f => f.Invoke(args.Data.Properties)))
+        try
         {
-            return;
+            if (!filters.TrueForAll(f => f.Invoke(args.Data.Properties)))
+            {
+                return;
+            }
+
+            var message = args.Data.EventBody
+                .ToObjectFromJson<TMessage>(serializerOptions);
+
+            var metadata = EventHubMetadata
+                .Create(args.Data);
+
+            await processor.ProcessAsync(
+                message!,
+                metadata,
+                args.CancellationToken);
+
+            await UpdateCheckpointAsync(args);
         }
-
-        var message = args.Data.EventBody
-            .ToObjectFromJson<TMessage>(serializerOptions);
-
-        var metadata = EventHubMetadata
-            .Create(args.Data);
-
-        await processor.ProcessAsync(
-            message!,
-            metadata,
-            args.CancellationToken);
+        catch (Exception ex)
+        {
+            await OnProcessErrorAsync(
+                new ProcessErrorEventArgs(
+                    args.Partition.PartitionId,
+                    nameof(OnProcessMessageAsync),
+                    ex,
+                    args.CancellationToken));
+        }
     }
 
     private async Task OnProcessErrorAsync(ProcessErrorEventArgs args)
@@ -69,6 +89,27 @@ public class EventHubProcessorService<TMessage, TProcessor>(
                 typeof(TMessage).Name,
                 typeof(TProcessor).Name,
                 args.Exception);
+        }
+    }
+
+    private async Task UpdateCheckpointAsync(ProcessEventArgs args)
+    {
+        string partition = args.Partition.PartitionId;
+
+        var eventsSinceLastCheckpoint = partitionEventCount.AddOrUpdate(
+            key: partition,
+            addValue: 1,
+            updateValueFactory: (_, currentValue) => currentValue + 1);
+        var lastCheckpoint = partitionCheckpoints.GetOrAdd(
+            key: partition,
+            DateTimeOffset.UtcNow);
+
+        if (eventsSinceLastCheckpoint >= checkpointMaxCount || lastCheckpoint.Add(checkpointMaxAge) < DateTimeOffset.UtcNow)
+        {
+            await args.UpdateCheckpointAsync();
+
+            partitionEventCount[partition] = 0;
+            partitionCheckpoints[partition] = DateTimeOffset.UtcNow;
         }
     }
 }
