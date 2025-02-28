@@ -65,32 +65,24 @@ public class EventHubBuilder(
 
         Services.AddLogging();
         Services.TryAddSingleton<IBlobStorageClientProvider, BlobStorageClientProvider>();
-        Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
+        Services.TryAddSingleton<IEventHubBatchProcessorFactory, EventHubBatchProcessorFactory>();
         Services.TryAddSingleton<TProcessor>();
 
         Services.AddSingleton(s =>
         {
-            var config = s
-                .GetRequiredService<IOptionsMonitor<CabazureEventHubOptions>>()
-                .Get(ConnectionName);
-
-            var client = s
-                .GetRequiredService<IEventHubProcessorFactory>()
-                .Create(
+            var processor = s.GetRequiredService<TProcessor>();
+            var batchProcessor = s
+                .GetRequiredService<IEventHubBatchProcessorFactory>()
+                .Create<TMessage, TProcessor>(
+                    processor,
                     ConnectionName,
                     eventHubName,
                     consumerGroup,
+                    processorBuilder.Filters,
                     processorBuilder.BlobContainer,
                     processorBuilder.ProcessorOptions);
 
-            return new EventHubProcessorService<TMessage, TProcessor>(
-                s.GetRequiredService<ILogger<TProcessor>>(),
-                s.GetRequiredService<TProcessor>(),
-                client,
-                config.SerializerOptions,
-                processorBuilder.Filters,
-                processorBuilder.CheckpointMaxAge,
-                processorBuilder.CheckpointMaxEvents);
+            return new EventHubProcessorService<TMessage, TProcessor>(batchProcessor);
         });
         Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Azure.Messaging.EventHubs.Primitives;
 using Cabazure.Messaging.EventHub.DependencyInjection;
 using Cabazure.Messaging.EventHub.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -198,7 +199,7 @@ public class EventHubBuilderTests
         services
             .Should()
             .Contain<IBlobStorageClientProvider, BlobStorageClientProvider>()
-            .And.Contain<IEventHubProcessorFactory, EventHubProcessorFactory>()
+            .And.Contain<IEventHubBatchProcessorFactory, EventHubBatchProcessorFactory>()
             .And.Contain<TProcessor, TProcessor>();
     }
 
@@ -224,15 +225,19 @@ public class EventHubBuilderTests
     }
 
     [Theory, AutoNSubstituteData]
-    public void AddProcessor_With_Default_BlobContainer_Registers_EventHubProcessorService_Using_Factory(
+    public void AddProcessor_With_Default_BlobContainer_Registers_EventHubBatchProcessor_Using_Factory(
         [Frozen(Matching.ImplementedInterfaces)]
         ServiceCollection services,
         string eventHubName,
         string consumerGroupName,
         EventHubBuilder sut,
-        IEventHubProcessorFactory factory,
+        IEventHubBatchProcessorFactory factory,
+        IEventHubBatchProcessor<TProcessor> batchProcessor,
         [Substitute] TProcessor processor)
     {
+        factory
+            .Create<TMessage, TProcessor>(default, default, default, default, default, default, default)
+            .ReturnsForAnyArgs(batchProcessor);
         services.AddOptions<CabazureEventHubOptions>();
         services.AddSingleton(factory);
         services.AddSingleton(processor);
@@ -243,33 +248,40 @@ public class EventHubBuilderTests
 
         var result = services
             .BuildServiceProvider()
-            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
+            .GetRequiredService<EventHubBatchProcessor<TMessage, TProcessor>>();
+        result
+            .Should()
+            .Be(batchProcessor);
 
         factory
             .Received(1)
-            .Create(
-                sut.ConnectionName,
-                eventHubName,
-                consumerGroupName,
-                new BlobContainerOptions(
+            .Create<TMessage, TProcessor>(
+                processor: Arg.Any<TProcessor>(),
+                connectionName: sut.ConnectionName,
+                eventHubName: eventHubName,
+                consumerGroup: consumerGroupName,
+                filters: Arg.Is<List<Func<IDictionary<string, object>, bool>>>(l => l.Count == 0),
+                containerOptions: new BlobContainerOptions(
                     ContainerName: eventHubName,
-                    CreateIfNotExist: true));
-        result.Processor
-            .Should()
-            .Be(processor);
+                    CreateIfNotExist: true),
+                processorOptions: null);
     }
 
     [Theory, AutoNSubstituteData]
-    public void AddProcessor_With_BlobCOntainerOptions_Registers_EventHubProcessorService_Using_Factory(
+    public void AddProcessor_With_BlobContainerOptions_Registers_EventHubBatchProcessor_Using_Factory(
         [Frozen(Matching.ImplementedInterfaces)]
         ServiceCollection services,
         string eventHubName,
         string consumerGroupName,
         BlobContainerOptions containerOptions,
         EventHubBuilder sut,
-        IEventHubProcessorFactory factory,
+        IEventHubBatchProcessorFactory factory,
+        IEventHubBatchProcessor<TProcessor> batchProcessor,
         [Substitute] TProcessor processor)
     {
+        factory
+            .Create<TMessage, TProcessor>(default, default, default, default, default, default, default)
+            .ReturnsForAnyArgs(batchProcessor);
         services.AddOptions<CabazureEventHubOptions>();
         services.AddSingleton(factory);
         services.AddSingleton(processor);
@@ -283,17 +295,64 @@ public class EventHubBuilderTests
 
         var result = services
             .BuildServiceProvider()
-            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
+            .GetRequiredService<EventHubBatchProcessor<TMessage, TProcessor>>();
+        result
+            .Should()
+            .Be(batchProcessor);
 
         factory
             .Received(1)
-            .Create(
-                sut.ConnectionName,
-                eventHubName,
-                consumerGroupName,
-                containerOptions);
+            .Create<TMessage, TProcessor>(
+                processor: processor,
+                connectionName: sut.ConnectionName,
+                eventHubName: eventHubName,
+                consumerGroup: consumerGroupName,
+                filters: Arg.Is<List<Func<IDictionary<string, object>, bool>>>(l => l.Count == 0),
+                containerOptions: containerOptions,
+                processorOptions: null);
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void AddProcessor_With_EventprocessorOptions_Registers_EventHubBatchProcessor_Using_Factory(
+        [Frozen(Matching.ImplementedInterfaces)]
+        ServiceCollection services,
+        string eventHubName,
+        string consumerGroupName,
+        EventProcessorOptions processorOptions,
+        EventHubBuilder sut,
+        IEventHubBatchProcessorFactory factory,
+        IEventHubBatchProcessor<TProcessor> batchProcessor,
+        [Substitute] TProcessor processor)
+    {
+        factory
+            .Create<TMessage, TProcessor>(default, default, default, default, default, default, default)
+            .ReturnsForAnyArgs(batchProcessor);
+        services.AddOptions<CabazureEventHubOptions>();
+        services.AddSingleton(factory);
+        services.AddSingleton(processor);
+
+        sut.AddProcessor<TMessage, TProcessor>(
+            eventHubName,
+            consumerGroupName,
+            b => b
+                .WithProcessorOptions(processorOptions));
+
+        var result = services
+            .BuildServiceProvider()
+            .GetRequiredService<EventHubBatchProcessor<TMessage, TProcessor>>();
         result.Processor
             .Should()
-            .Be(processor);
+            .Be(batchProcessor.Processor);
+
+        factory
+            .Received(1)
+            .Create<TMessage, TProcessor>(
+                processor: Arg.Any<TProcessor>(),
+                connectionName: sut.ConnectionName,
+                eventHubName: eventHubName,
+                consumerGroup: consumerGroupName,
+                filters: Arg.Is<List<Func<IDictionary<string, object>, bool>>>(l => l.Count == 0),
+                containerOptions: Arg.Any<BlobContainerOptions>(),
+                processorOptions: processorOptions);
     }
 }
