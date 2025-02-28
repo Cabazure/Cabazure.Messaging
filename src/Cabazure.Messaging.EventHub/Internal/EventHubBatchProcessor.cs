@@ -1,10 +1,27 @@
-﻿using System.Text.Json;
-using Azure.Core;
+﻿using Azure.Core;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Primitives;
-using Microsoft.Extensions.Logging;
 
 namespace Cabazure.Messaging.EventHub.Internal;
+
+public interface IEventHubBatchProcessor<TProcessor>
+{
+    string FullyQualifiedNamespace { get; }
+
+    string EventHubName { get; }
+
+    string ConsumerGroup { get; }
+
+    TProcessor Processor { get; }
+
+    bool IsRunning { get; }
+
+    Task StartProcessingAsync(
+        CancellationToken cancellationToken);
+
+    Task StopProcessingAsync(
+        CancellationToken cancellationToken);
+}
 
 public class EventHubBatchProcessor<TMessage, TProcessor>
     : PluggableCheckpointStoreEventProcessor<EventProcessorPartition>
@@ -13,15 +30,10 @@ public class EventHubBatchProcessor<TMessage, TProcessor>
 {
     private const int MaxBatchCount = 25;
 
-    private readonly ILogger<TProcessor> logger;
-    private readonly JsonSerializerOptions serializerOptions;
-    private readonly List<Func<IDictionary<string, object>, bool>> filters;
+    private readonly IEventHubBatchHandler<TMessage, TProcessor> batchHandler;
 
     public EventHubBatchProcessor(
-        ILogger<TProcessor> logger,
-        TProcessor processor,
-        JsonSerializerOptions serializerOptions,
-        List<Func<IDictionary<string, object>, bool>> filters,
+        IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         CheckpointStore checkpointStore,
         string fullyQualifiedNamespace,
         TokenCredential credential,
@@ -29,89 +41,52 @@ public class EventHubBatchProcessor<TMessage, TProcessor>
         string consumerGroup,
         EventProcessorOptions? processorOptions)
         : base(
-            checkpointStore,
-            MaxBatchCount,
-            consumerGroup,
-            fullyQualifiedNamespace,
-            eventhubName,
-            credential,
-            processorOptions)
-    {
-        this.logger = logger;
-        Processor = processor;
-        this.serializerOptions = serializerOptions;
-        this.filters = filters;
-    }
+            checkpointStore: checkpointStore,
+            eventBatchMaximumCount: MaxBatchCount,
+            consumerGroup: consumerGroup,
+            fullyQualifiedNamespace: fullyQualifiedNamespace,
+            eventHubName: eventhubName,
+            credential: credential,
+            options: processorOptions)
+        => this.batchHandler = batchHandler;
 
     public EventHubBatchProcessor(
-        ILogger<TProcessor> logger,
-        TProcessor processor,
-        JsonSerializerOptions serializerOptions,
-        List<Func<IDictionary<string, object>, bool>> filters,
+        IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         CheckpointStore checkpointStore,
         string connectionString,
         string eventhubName,
         string consumerGroup,
         EventProcessorOptions? processorOptions)
         : base(
-            checkpointStore,
-            MaxBatchCount,
-            consumerGroup,
-            connectionString,
-            eventhubName,
-            processorOptions)
-    {
-        this.logger = logger;
-        Processor = processor;
-        this.serializerOptions = serializerOptions;
-        this.filters = filters;
-    }
+            checkpointStore: checkpointStore,
+            eventBatchMaximumCount: MaxBatchCount,
+            consumerGroup: consumerGroup,
+            connectionString: connectionString,
+            eventHubName: eventhubName,
+            options: processorOptions)
+        => this.batchHandler = batchHandler;
 
-    public TProcessor Processor { get; }
+    public TProcessor Processor => batchHandler.Processor;
 
     protected override async Task OnProcessingEventBatchAsync(
         IEnumerable<EventData> events,
         EventProcessorPartition partition,
         CancellationToken cancellationToken)
-    {
-        foreach (var evt in events)
-        {
-            if (!filters.TrueForAll(f => f.Invoke(evt.Properties)))
-            {
-                continue;
-            }
-
-            var message = evt.EventBody
-                .ToObjectFromJson<TMessage>(serializerOptions);
-
-            var metadata = EventHubMetadata
-                .Create(evt, partition.PartitionId);
-
-            await Processor.ProcessAsync(
-                message!,
-                metadata,
-                cancellationToken);
-        }
-    }
+        => await batchHandler
+            .ProcessBatchAsync(
+                events,
+                partition,
+                cancellationToken)
+            .ConfigureAwait(false);
 
     protected override async Task OnProcessingErrorAsync(
         Exception exception,
         EventProcessorPartition partition,
         string operationDescription,
         CancellationToken cancellationToken)
-    {
-        if (Processor is IProcessErrorHandler handler)
-        {
-            await handler.ProcessErrorAsync(
+        => await batchHandler
+            .ProcessErrorAsync(
                 exception,
-                cancellationToken);
-        }
-        else
-        {
-            logger.FailedToProcessMessage(
-                typeof(TMessage).Name,
-                typeof(TProcessor).Name,
-                exception);
-        }
-    }
+                cancellationToken)
+            .ConfigureAwait(false);
 }

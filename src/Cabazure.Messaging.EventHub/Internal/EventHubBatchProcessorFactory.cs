@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.EventHubs.Primitives;
 using Cabazure.Messaging.EventHub.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Internal;
@@ -8,38 +7,33 @@ namespace Cabazure.Messaging.EventHub.Internal;
 public interface IEventHubBatchProcessorFactory
 {
     IEventHubBatchProcessor<TProcessor> Create<TMessage, TProcessor>(
-        TProcessor processor,
+        IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         string? connectionName,
         string eventHubName,
         string consumerGroup,
-        List<Func<IDictionary<string, object>, bool>> filters,
         BlobContainerOptions containerOptions,
         EventProcessorOptions? processorOptions)
         where TProcessor : IMessageProcessor<TMessage>;
 }
 
 public class EventHubBatchProcessorFactory(
-    ILoggerFactory loggerProvider,
     IBlobStorageClientProvider storageProvider,
-    IOptionsMonitor<CabazureEventHubOptions> monitor) : IEventHubBatchProcessorFactory
+    IOptionsMonitor<CabazureEventHubOptions> monitor)
+    : IEventHubBatchProcessorFactory
 {
     public IEventHubBatchProcessor<TProcessor> Create<TMessage, TProcessor>(
-        TProcessor processor,
+        IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         string? connectionName,
         string eventHubName,
         string consumerGroup,
-        List<Func<IDictionary<string, object>, bool>> filters,
         BlobContainerOptions containerOptions,
         EventProcessorOptions? processorOptions)
         where TProcessor : IMessageProcessor<TMessage>
         => monitor.Get(connectionName) switch
         {
-            { FullyQualifiedNamespace: { } ns, Credential: { } cred, } o
+            { FullyQualifiedNamespace: { } ns, Credential: { } cred, }
                 => new EventHubBatchProcessor<TMessage, TProcessor>(
-                    loggerProvider.CreateLogger<TProcessor>(),
-                    processor,
-                    o.SerializerOptions,
-                    filters,
+                    batchHandler,
                     GetCheckpointStore(connectionName, containerOptions),
                     ns,
                     cred,
@@ -47,12 +41,9 @@ public class EventHubBatchProcessorFactory(
                     consumerGroup,
                     processorOptions),
 
-            { ConnectionString: { } cs } o
+            { ConnectionString: { } cs }
                 => new EventHubBatchProcessor<TMessage, TProcessor>(
-                    loggerProvider.CreateLogger<TProcessor>(),
-                    processor,
-                    o.SerializerOptions,
-                    filters,
+                    batchHandler,
                     GetCheckpointStore(connectionName, containerOptions),
                     cs,
                     eventHubName,

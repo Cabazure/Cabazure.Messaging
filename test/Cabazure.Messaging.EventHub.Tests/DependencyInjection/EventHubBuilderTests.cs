@@ -236,7 +236,7 @@ public class EventHubBuilderTests
         [Substitute] TProcessor processor)
     {
         factory
-            .Create<TMessage, TProcessor>(default, default, default, default, default, default, default)
+            .Create<TMessage, TProcessor>(default, default, default, default, default, default)
             .ReturnsForAnyArgs(batchProcessor);
         services.AddOptions<CabazureEventHubOptions>();
         services.AddSingleton(factory);
@@ -255,12 +255,11 @@ public class EventHubBuilderTests
 
         factory
             .Received(1)
-            .Create<TMessage, TProcessor>(
-                processor: Arg.Any<TProcessor>(),
+            .Create(
+                batchHandler: Arg.Any<IEventHubBatchHandler<TMessage, TProcessor>>(),
                 connectionName: sut.ConnectionName,
                 eventHubName: eventHubName,
                 consumerGroup: consumerGroupName,
-                filters: Arg.Is<List<Func<IDictionary<string, object>, bool>>>(l => l.Count == 0),
                 containerOptions: new BlobContainerOptions(
                     ContainerName: eventHubName,
                     CreateIfNotExist: true),
@@ -280,7 +279,7 @@ public class EventHubBuilderTests
         [Substitute] TProcessor processor)
     {
         factory
-            .Create<TMessage, TProcessor>(default, default, default, default, default, default, default)
+            .Create<TMessage, TProcessor>(default, default, default, default, default, default)
             .ReturnsForAnyArgs(batchProcessor);
         services.AddOptions<CabazureEventHubOptions>();
         services.AddSingleton(factory);
@@ -302,12 +301,11 @@ public class EventHubBuilderTests
 
         factory
             .Received(1)
-            .Create<TMessage, TProcessor>(
-                processor: processor,
+            .Create(
+                batchHandler: Arg.Any<IEventHubBatchHandler<TMessage, TProcessor>>(),
                 connectionName: sut.ConnectionName,
                 eventHubName: eventHubName,
                 consumerGroup: consumerGroupName,
-                filters: Arg.Is<List<Func<IDictionary<string, object>, bool>>>(l => l.Count == 0),
                 containerOptions: containerOptions,
                 processorOptions: null);
     }
@@ -325,7 +323,7 @@ public class EventHubBuilderTests
         [Substitute] TProcessor processor)
     {
         factory
-            .Create<TMessage, TProcessor>(default, default, default, default, default, default, default)
+            .Create<TMessage, TProcessor>(default, default, default, default, default, default)
             .ReturnsForAnyArgs(batchProcessor);
         services.AddOptions<CabazureEventHubOptions>();
         services.AddSingleton(factory);
@@ -346,12 +344,11 @@ public class EventHubBuilderTests
 
         factory
             .Received(1)
-            .Create<TMessage, TProcessor>(
-                processor: Arg.Any<TProcessor>(),
+            .Create(
+                batchHandler: Arg.Any<IEventHubBatchHandler<TMessage, TProcessor>>(),
                 connectionName: sut.ConnectionName,
                 eventHubName: eventHubName,
                 consumerGroup: consumerGroupName,
-                filters: Arg.Is<List<Func<IDictionary<string, object>, bool>>>(l => l.Count == 0),
                 containerOptions: Arg.Any<BlobContainerOptions>(),
                 processorOptions: processorOptions);
     }

@@ -70,15 +70,23 @@ public class EventHubBuilder(
 
         Services.AddSingleton(s =>
         {
-            var processor = s.GetRequiredService<TProcessor>();
+            var config = s
+                .GetRequiredService<IOptionsMonitor<CabazureEventHubOptions>>()
+                .Get(ConnectionName);
+
+            var batchHandler = new EventHubBatchHandler<TMessage, TProcessor>(
+                s.GetRequiredService<ILogger<TProcessor>>(),
+                s.GetRequiredService<TProcessor>(),
+                config.SerializerOptions,
+                processorBuilder.Filters);
+
             var batchProcessor = s
                 .GetRequiredService<IEventHubBatchProcessorFactory>()
-                .Create<TMessage, TProcessor>(
-                    processor,
+                .Create(
+                    batchHandler,
                     ConnectionName,
                     eventHubName,
                     consumerGroup,
-                    processorBuilder.Filters,
                     processorBuilder.BlobContainer,
                     processorBuilder.ProcessorOptions);
 
