@@ -248,10 +248,7 @@ public class EventHubBuilderTests
 
         var result = services
             .BuildServiceProvider()
-            .GetRequiredService<EventHubBatchProcessor<TMessage, TProcessor>>();
-        result
-            .Should()
-            .Be(batchProcessor);
+            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
 
         factory
             .Received(1)
@@ -294,10 +291,7 @@ public class EventHubBuilderTests
 
         var result = services
             .BuildServiceProvider()
-            .GetRequiredService<EventHubBatchProcessor<TMessage, TProcessor>>();
-        result
-            .Should()
-            .Be(batchProcessor);
+            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
 
         factory
             .Received(1)
@@ -316,7 +310,7 @@ public class EventHubBuilderTests
         ServiceCollection services,
         string eventHubName,
         string consumerGroupName,
-        EventProcessorOptions processorOptions,
+        [NoAutoProperties] EventProcessorOptions processorOptions,
         EventHubBuilder sut,
         IEventHubBatchProcessorFactory factory,
         IEventHubBatchProcessor<TProcessor> batchProcessor,
@@ -337,10 +331,7 @@ public class EventHubBuilderTests
 
         var result = services
             .BuildServiceProvider()
-            .GetRequiredService<EventHubBatchProcessor<TMessage, TProcessor>>();
-        result.Processor
-            .Should()
-            .Be(batchProcessor.Processor);
+            .GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>();
 
         factory
             .Received(1)

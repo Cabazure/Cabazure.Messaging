@@ -10,14 +10,6 @@ public class EventHubProcessorServiceTests
         public virtual Task ProcessAsync(TMessage message, MessageMetadata metadata, CancellationToken cancellationToken)
             => Task.CompletedTask;
     }
-    public class TProcessorWithErrorHandling : IMessageProcessor<TMessage>, IProcessErrorHandler
-    {
-        public virtual Task ProcessAsync(TMessage message, MessageMetadata metadata, CancellationToken cancellationToken)
-            => Task.CompletedTask;
-
-        public virtual Task ProcessErrorAsync(Exception exception, CancellationToken cancellationToken)
-            => Task.CompletedTask;
-    }
 
     [Theory, AutoNSubstituteData]
     public async Task StartAsync_Starts_Processing(
