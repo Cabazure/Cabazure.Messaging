@@ -1,10 +1,10 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var eventHub = builder
-    .AddAzureEventHubs("eventhub")
-    .AddEventHub("eventhub")
+    .AddAzureEventHubs("eh")
     .RunAsEmulator(b => b
-        .WithGatewayPort(5672));
+        .WithHostPort(5672))
+    .AddHub("eventhub");
 
 var blobs = builder
     .AddAzureStorage("storage")
@@ -20,7 +20,5 @@ builder.AddProject<Projects.EventHub_Producer>("eventhub-producer")
 builder.AddProject<Projects.EventHub_Processor>("eventhub-processor")
     .WithReference(eventHub)
     .WithReference(blobs);
-
-builder.AddProject<Projects.ServiceBus_Producer>("servicebus-producer");
 
 builder.Build().Run();
