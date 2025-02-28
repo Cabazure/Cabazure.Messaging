@@ -1,4 +1,4 @@
-﻿using Azure.Messaging.EventHubs;
+﻿using Azure.Messaging.EventHubs.Primitives;
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
@@ -7,11 +7,7 @@ public class EventHubProcessorBuilder(
 {
     public List<Func<IDictionary<string, object>, bool>> Filters { get; } = [];
 
-    public TimeSpan CheckpointMaxAge { get; set; } = TimeSpan.FromHours(1);
-
-    public int CheckpointMaxEvents { get; set; } = 25;
-
-    public EventProcessorClientOptions? ProcessorOptions { get; private set; }
+    public EventProcessorOptions? ProcessorOptions { get; private set; }
 
     public BlobContainerOptions BlobContainer { get; private set; } = new(eventHubName, true);
 
@@ -23,7 +19,7 @@ public class EventHubProcessorBuilder(
     }
 
     public EventHubProcessorBuilder WithProcessorOptions(
-        EventProcessorClientOptions options)
+        EventProcessorOptions options)
     {
         ProcessorOptions = options;
         return this;
@@ -34,20 +30,6 @@ public class EventHubProcessorBuilder(
         bool createIfNotExist = true)
     {
         BlobContainer = new(containerName, createIfNotExist);
-        return this;
-    }
-
-    public EventHubProcessorBuilder WithCheckpointMaxAge(
-        TimeSpan age)
-    {
-        CheckpointMaxAge = age;
-        return this;
-    }
-
-    public EventHubProcessorBuilder WithCheckpointMaxEvents(
-        int eventCount)
-    {
-        CheckpointMaxEvents = eventCount;
         return this;
     }
 }

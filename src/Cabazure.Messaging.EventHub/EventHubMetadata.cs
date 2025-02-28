@@ -4,12 +4,15 @@ namespace Cabazure.Messaging.EventHub;
 
 public class EventHubMetadata : MessageMetadata
 {
+    public required string PartitionId { get; init; }
+
     public long SequenceNumber { get; init; }
 
     public long Offset { get; init; }
 
     public static EventHubMetadata Create(
-        EventData eventData)
+        EventData eventData,
+        string partitionId)
         => new()
         {
             MessageId = eventData.MessageId,
@@ -17,6 +20,7 @@ public class EventHubMetadata : MessageMetadata
             CorrelationId = eventData.CorrelationId,
             EnqueuedTime = eventData.EnqueuedTime,
             PartitionKey = eventData.PartitionKey,
+            PartitionId = partitionId,
             SequenceNumber = eventData.SequenceNumber,
             Offset = eventData.Offset,
             Properties = new Dictionary<string, object>(

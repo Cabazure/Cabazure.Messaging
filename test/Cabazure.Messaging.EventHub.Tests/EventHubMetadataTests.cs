@@ -6,9 +6,10 @@ public class EventHubMetadataTests
 {
     [Theory, AutoNSubstituteData]
     public void Create_Should_Map_Properties_Correctly(
-        EventData eventData)
+        EventData eventData,
+        string partitionId)
         => EventHubMetadata
-            .Create(eventData)
+            .Create(eventData, partitionId)
             .Should()
             .BeEquivalentTo(new EventHubMetadata
             {
@@ -18,6 +19,7 @@ public class EventHubMetadataTests
                 MessageId = eventData.MessageId,
                 Offset = eventData.Offset,
                 PartitionKey = eventData.PartitionKey,
+                PartitionId = partitionId,
                 Properties = eventData.Properties.ToDictionary(),
                 SequenceNumber = eventData.SequenceNumber,
             });

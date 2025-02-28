@@ -1,4 +1,4 @@
-﻿using Azure.Messaging.EventHubs;
+﻿using Azure.Messaging.EventHubs.Primitives;
 using Cabazure.Messaging.EventHub.DependencyInjection;
 
 namespace Cabazure.Messaging.EventHub.Tests.DependencyInjection;
@@ -18,7 +18,7 @@ public class EventHubProcessorBuilderTests
     [Theory, AutoNSubstituteData]
     public void WithProcessorOptions_Sets_ProcessorOptions(
         EventHubProcessorBuilder sut,
-        [NoAutoProperties] EventProcessorClientOptions options)
+        [NoAutoProperties] EventProcessorOptions options)
     {
         sut.WithProcessorOptions(options);
 

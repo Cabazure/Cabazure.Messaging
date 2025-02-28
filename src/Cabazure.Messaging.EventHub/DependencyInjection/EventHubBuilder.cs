@@ -65,7 +65,7 @@ public class EventHubBuilder(
 
         Services.AddLogging();
         Services.TryAddSingleton<IBlobStorageClientProvider, BlobStorageClientProvider>();
-        Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
+        Services.TryAddSingleton<IEventHubBatchProcessorFactory, EventHubBatchProcessorFactory>();
         Services.TryAddSingleton<TProcessor>();
 
         Services.AddSingleton(s =>
@@ -74,23 +74,23 @@ public class EventHubBuilder(
                 .GetRequiredService<IOptionsMonitor<CabazureEventHubOptions>>()
                 .Get(ConnectionName);
 
-            var client = s
-                .GetRequiredService<IEventHubProcessorFactory>()
+            var batchHandler = new EventHubBatchHandler<TMessage, TProcessor>(
+                s.GetRequiredService<ILogger<TProcessor>>(),
+                s.GetRequiredService<TProcessor>(),
+                config.SerializerOptions,
+                processorBuilder.Filters);
+
+            var batchProcessor = s
+                .GetRequiredService<IEventHubBatchProcessorFactory>()
                 .Create(
+                    batchHandler,
                     ConnectionName,
                     eventHubName,
                     consumerGroup,
                     processorBuilder.BlobContainer,
                     processorBuilder.ProcessorOptions);
 
-            return new EventHubProcessorService<TMessage, TProcessor>(
-                s.GetRequiredService<ILogger<TProcessor>>(),
-                s.GetRequiredService<TProcessor>(),
-                client,
-                config.SerializerOptions,
-                processorBuilder.Filters,
-                processorBuilder.CheckpointMaxAge,
-                processorBuilder.CheckpointMaxEvents);
+            return new EventHubProcessorService<TMessage, TProcessor>(batchProcessor);
         });
         Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());
