@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 var connectionString = builder.Configuration
-    .GetConnectionString("servicebus")!;
+    .GetConnectionString("topic")!;
 
 builder.Services
     .AddCabazureServiceBus(b => b

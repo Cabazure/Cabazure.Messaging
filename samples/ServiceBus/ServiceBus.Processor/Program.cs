@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 var connectionString = builder.Configuration
-    .GetConnectionString("servicebus")!;
+    .GetConnectionString("subscription")!;
 
 builder.Services.AddCabazureServiceBus(b => b
     .Configure(o => o
