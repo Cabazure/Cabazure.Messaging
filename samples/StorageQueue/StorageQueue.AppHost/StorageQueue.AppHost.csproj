@@ -14,12 +14,12 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.1.0" />
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.EventHubs" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventHub.Processor\EventHub.Processor.csproj" />
-    <ProjectReference Include="..\EventHub.Producer\EventHub.Producer.csproj" />
+    <ProjectReference Include="..\StorageQueue.Processor\StorageQueue.Processor.csproj" />
+    <ProjectReference Include="..\StorageQueue.Producer\StorageQueue.Producer.csproj" />
   </ItemGroup>
 
 </Project>
