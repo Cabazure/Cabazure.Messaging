@@ -70,6 +70,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageQueue.Processor", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageQueue.AppHost", "samples\StorageQueue\StorageQueue.AppHost\StorageQueue.AppHost.csproj", "{BC1382D8-FB56-FC09-977B-4D50D8696375}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cabazure.Messaging.StorageQueue.Tests", "test\Cabazure.Messaging.StorageQueue.Tests\Cabazure.Messaging.StorageQueue.Tests.csproj", "{A955E179-609C-6A3F-7447-3BC36E7DD774}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +150,10 @@ Global
 		{BC1382D8-FB56-FC09-977B-4D50D8696375}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC1382D8-FB56-FC09-977B-4D50D8696375}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC1382D8-FB56-FC09-977B-4D50D8696375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A955E179-609C-6A3F-7447-3BC36E7DD774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A955E179-609C-6A3F-7447-3BC36E7DD774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A955E179-609C-6A3F-7447-3BC36E7DD774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A955E179-609C-6A3F-7447-3BC36E7DD774}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -175,6 +181,7 @@ Global
 		{9B82A429-95FD-B359-5609-9710ED6012D8} = {E6CAEEED-7264-4882-8F44-8EB806B329CC}
 		{914821EA-ACB4-1FF6-756E-B0C783BF3D4E} = {E6CAEEED-7264-4882-8F44-8EB806B329CC}
 		{BC1382D8-FB56-FC09-977B-4D50D8696375} = {E6CAEEED-7264-4882-8F44-8EB806B329CC}
+		{A955E179-609C-6A3F-7447-3BC36E7DD774} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0138CC49-8843-44F6-A197-36ED64EA185E}
