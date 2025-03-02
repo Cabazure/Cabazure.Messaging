@@ -17,9 +17,9 @@ public class StorageQueueClientProvider(
         string? connectionName)
         => monitor.Get(connectionName) switch
         {
-            { ConnectionString: { } cs } => new(cs),
             { QueueServiceUri: { } uri, Credential: { } cred } => new(uri, cred),
-            _ => throw new InvalidOperationException(
+            { ConnectionString: { } cs } => new(cs),
+            _ => throw new ArgumentException(
                 $"Missing configuration for Storage Queue connection `{connectionName}`"),
         };
 }
