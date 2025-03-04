@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 namespace Cabazure.Messaging.StorageQueue.Internal;
 
 public class StorageQueueProcessorService<TMessage, TProcessor>(
+    TimeProvider timeProvider,
     ILogger<TProcessor> logger,
     TProcessor processor,
+    StorageQueueProcessorOptions options,
     JsonSerializerOptions serializerOptions,
-    QueueClient queueClient,
-    TimeSpan pollingInterval,
-    bool createIfNotExists)
+    QueueClient queueClient)
     : BackgroundService
     , IMessageProcessorService<TProcessor>
     where TProcessor : IMessageProcessor<TMessage>
@@ -34,7 +34,7 @@ public class StorageQueueProcessorService<TMessage, TProcessor>(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (createIfNotExists)
+        if (options.CreateIfNotExists)
         {
             await queueClient.CreateIfNotExistsAsync(
                 cancellationToken: stoppingToken);
@@ -66,7 +66,8 @@ public class StorageQueueProcessorService<TMessage, TProcessor>(
 
             if (messages.Value.Length == 0)
             {
-                await Task.Delay(pollingInterval, stoppingToken);
+                await timeProvider.Delay(options.PollingInterval, stoppingToken);
+                return;
             }
         }
     }

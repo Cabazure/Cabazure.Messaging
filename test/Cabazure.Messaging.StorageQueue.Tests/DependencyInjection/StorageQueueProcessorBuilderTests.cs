@@ -11,7 +11,7 @@ public class StorageQueueProcessorBuilderTests
     {
         sut.WithPollingInterval(pollingInterval);
 
-        sut.PollingInterval.Should().Be(pollingInterval);
+        sut.Options.PollingInterval.Should().Be(pollingInterval);
     }
 
     [Theory]
@@ -23,6 +23,6 @@ public class StorageQueueProcessorBuilderTests
     {
         sut.WithInitialization(createIfNotExists);
 
-        sut.CreateIfNotExists.Should().Be(createIfNotExists);
+        sut.Options.CreateIfNotExists.Should().Be(createIfNotExists);
     }
 }

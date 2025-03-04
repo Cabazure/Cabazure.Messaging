@@ -1,6 +1,5 @@
 ﻿using Atc.Test.Customizations;
 using Atc.Test.Customizations.Generators;
-using AutoFixture;
 using AutoFixture.Kernel;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
@@ -17,7 +16,7 @@ public class QueueModelsGenerator : ISpecimenBuilder
         {
             return new QueueClientOptions();
         }
-        
+
         if (request.IsRequestFor<QueueMessage>())
         {
             return QueuesModelFactory.QueueMessage(

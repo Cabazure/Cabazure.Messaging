@@ -72,12 +72,12 @@ public class StorageQueueBuilder(
                 .GetQueueClient(queueName);
 
             return new StorageQueueProcessorService<TMessage, TProcessor>(
+                TimeProvider.System,
                 s.GetRequiredService<ILogger<TProcessor>>(),
                 s.GetRequiredService<TProcessor>(),
+                processorBuilder.Options,
                 config.SerializerOptions,
-                client,
-                processorBuilder.PollingInterval,
-                processorBuilder.CreateIfNotExists);
+                client);
         });
         Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<StorageQueueProcessorService<TMessage, TProcessor>>());

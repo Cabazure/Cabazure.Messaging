@@ -1,21 +1,22 @@
-﻿namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
+﻿using Cabazure.Messaging.StorageQueue.Internal;
+
+namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
 
 public class StorageQueueProcessorBuilder
 {
-    public TimeSpan PollingInterval { get; private set; } = TimeSpan.FromSeconds(5);
-    public bool CreateIfNotExists { get; set; } = true;
+    public StorageQueueProcessorOptions Options { get; set; } = new();
 
     public StorageQueueProcessorBuilder WithPollingInterval(
         TimeSpan pollingInterval)
     {
-        PollingInterval = pollingInterval;
+        Options.PollingInterval = pollingInterval;
         return this;
     }
 
     public StorageQueueProcessorBuilder WithInitialization(
         bool createIfNotExists)
     {
-        CreateIfNotExists = createIfNotExists;
+        Options.CreateIfNotExists = createIfNotExists;
         return this;
     }
 }
