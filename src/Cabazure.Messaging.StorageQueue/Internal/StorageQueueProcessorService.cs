@@ -67,7 +67,6 @@ public class StorageQueueProcessorService<TMessage, TProcessor>(
             if (messages.Value.Length == 0)
             {
                 await timeProvider.Delay(options.PollingInterval, stoppingToken);
-                return;
             }
         }
     }
