@@ -4,9 +4,9 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
-public interface IEventHubBatchProcessorFactory
+public interface IEventHubProcessorFactory
 {
-    IEventHubBatchProcessor<TProcessor> Create<TMessage, TProcessor>(
+    IEventHubProcessor<TProcessor> Create<TMessage, TProcessor>(
         IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         string? connectionName,
         string eventHubName,
@@ -16,12 +16,12 @@ public interface IEventHubBatchProcessorFactory
         where TProcessor : IMessageProcessor<TMessage>;
 }
 
-public class EventHubBatchProcessorFactory(
+public class EventHubProcessorFactory(
     IBlobStorageClientProvider storageProvider,
     IOptionsMonitor<CabazureEventHubOptions> monitor)
-    : IEventHubBatchProcessorFactory
+    : IEventHubProcessorFactory
 {
-    public IEventHubBatchProcessor<TProcessor> Create<TMessage, TProcessor>(
+    public IEventHubProcessor<TProcessor> Create<TMessage, TProcessor>(
         IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         string? connectionName,
         string eventHubName,
@@ -32,7 +32,7 @@ public class EventHubBatchProcessorFactory(
         => monitor.Get(connectionName) switch
         {
             { FullyQualifiedNamespace: { } ns, Credential: { } cred, }
-                => new EventHubBatchProcessor<TMessage, TProcessor>(
+                => new EventHubProcessor<TMessage, TProcessor>(
                     batchHandler,
                     GetCheckpointStore(connectionName, containerOptions),
                     ns,
@@ -42,7 +42,7 @@ public class EventHubBatchProcessorFactory(
                     processorOptions),
 
             { ConnectionString: { } cs }
-                => new EventHubBatchProcessor<TMessage, TProcessor>(
+                => new EventHubProcessor<TMessage, TProcessor>(
                     batchHandler,
                     GetCheckpointStore(connectionName, containerOptions),
                     cs,

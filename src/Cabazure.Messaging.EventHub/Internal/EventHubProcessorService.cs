@@ -3,7 +3,7 @@
 namespace Cabazure.Messaging.EventHub.Internal;
 
 public class EventHubProcessorService<TMessage, TProcessor>(
-    IEventHubBatchProcessor<TProcessor> batchProcessor)
+    IEventHubProcessor<TProcessor> batchProcessor)
     : IMessageProcessorService<TProcessor>
     , IHostedService
     where TProcessor : class, IMessageProcessor<TMessage>

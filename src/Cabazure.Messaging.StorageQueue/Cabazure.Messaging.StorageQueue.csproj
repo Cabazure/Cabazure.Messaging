@@ -25,11 +25,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Queues" Version="12.21.0" />
-        <PackageReference Include="Microsoft.Bcl.TimeProvider" Version="9.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
-        <PackageReference Include="System.Text.Json" Version="9.0.2" />
+        <PackageReference Include="Azure.Storage.Queues" Version="12.22.0" />
+        <PackageReference Include="Microsoft.Bcl.TimeProvider" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
+        <PackageReference Include="System.Text.Json" Version="9.0.3" />
     </ItemGroup>
     
     <ItemGroup>

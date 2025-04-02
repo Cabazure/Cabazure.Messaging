@@ -199,7 +199,7 @@ public class EventHubBuilderTests
         services
             .Should()
             .Contain<IBlobStorageClientProvider, BlobStorageClientProvider>()
-            .And.Contain<IEventHubBatchProcessorFactory, EventHubBatchProcessorFactory>()
+            .And.Contain<IEventHubProcessorFactory, EventHubProcessorFactory>()
             .And.Contain<TProcessor, TProcessor>();
     }
 
@@ -231,8 +231,8 @@ public class EventHubBuilderTests
         string eventHubName,
         string consumerGroupName,
         EventHubBuilder sut,
-        IEventHubBatchProcessorFactory factory,
-        IEventHubBatchProcessor<TProcessor> batchProcessor,
+        IEventHubProcessorFactory factory,
+        IEventHubProcessor<TProcessor> batchProcessor,
         [Substitute] TProcessor processor)
     {
         factory
@@ -271,8 +271,8 @@ public class EventHubBuilderTests
         string consumerGroupName,
         BlobContainerOptions containerOptions,
         EventHubBuilder sut,
-        IEventHubBatchProcessorFactory factory,
-        IEventHubBatchProcessor<TProcessor> batchProcessor,
+        IEventHubProcessorFactory factory,
+        IEventHubProcessor<TProcessor> batchProcessor,
         [Substitute] TProcessor processor)
     {
         factory
@@ -312,8 +312,8 @@ public class EventHubBuilderTests
         string consumerGroupName,
         [NoAutoProperties] EventProcessorOptions processorOptions,
         EventHubBuilder sut,
-        IEventHubBatchProcessorFactory factory,
-        IEventHubBatchProcessor<TProcessor> batchProcessor,
+        IEventHubProcessorFactory factory,
+        IEventHubProcessor<TProcessor> batchProcessor,
         [Substitute] TProcessor processor)
     {
         factory
