@@ -4,35 +4,16 @@ using Azure.Messaging.EventHubs.Primitives;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
-public interface IEventHubBatchProcessor<TProcessor>
-{
-    string FullyQualifiedNamespace { get; }
-
-    string EventHubName { get; }
-
-    string ConsumerGroup { get; }
-
-    TProcessor Processor { get; }
-
-    bool IsRunning { get; }
-
-    Task StartProcessingAsync(
-        CancellationToken cancellationToken);
-
-    Task StopProcessingAsync(
-        CancellationToken cancellationToken);
-}
-
-public class EventHubBatchProcessor<TMessage, TProcessor>
+public class EventHubProcessor<TMessage, TProcessor>
     : PluggableCheckpointStoreEventProcessor<EventProcessorPartition>
-    , IEventHubBatchProcessor<TProcessor>
+    , IEventHubProcessor<TProcessor>
     where TProcessor : IMessageProcessor<TMessage>
 {
     private const int MaxBatchCount = 25;
 
     private readonly IEventHubBatchHandler<TMessage, TProcessor> batchHandler;
 
-    public EventHubBatchProcessor(
+    public EventHubProcessor(
         IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         CheckpointStore checkpointStore,
         string fullyQualifiedNamespace,
@@ -50,7 +31,7 @@ public class EventHubBatchProcessor<TMessage, TProcessor>
             options: processorOptions)
         => this.batchHandler = batchHandler;
 
-    public EventHubBatchProcessor(
+    public EventHubProcessor(
         IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
         CheckpointStore checkpointStore,
         string connectionString,

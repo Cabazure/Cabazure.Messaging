@@ -65,7 +65,7 @@ public class EventHubBuilder(
 
         Services.AddLogging();
         Services.TryAddSingleton<IBlobStorageClientProvider, BlobStorageClientProvider>();
-        Services.TryAddSingleton<IEventHubBatchProcessorFactory, EventHubBatchProcessorFactory>();
+        Services.TryAddSingleton<IEventHubProcessorFactory, EventHubProcessorFactory>();
         Services.TryAddSingleton<TProcessor>();
 
         Services.AddSingleton(s =>
@@ -81,7 +81,7 @@ public class EventHubBuilder(
                 processorBuilder.Filters);
 
             var batchProcessor = s
-                .GetRequiredService<IEventHubBatchProcessorFactory>()
+                .GetRequiredService<IEventHubProcessorFactory>()
                 .Create(
                     batchHandler,
                     ConnectionName,
@@ -91,6 +91,47 @@ public class EventHubBuilder(
                     processorBuilder.ProcessorOptions);
 
             return new EventHubProcessorService<TMessage, TProcessor>(batchProcessor);
+        });
+        Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
+            => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());
+        Services.AddHostedService(s
+            => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());
+
+        return this;
+    }
+
+    public EventHubBuilder AddStatelessProcessor<TMessage, TProcessor>(
+        string eventHubName,
+        string consumerGroup = "$default",
+        Action<EventHubStatelessProcessorBuilder>? builder = null)
+        where TProcessor : class, IMessageProcessor<TMessage>
+    {
+        var processorBuilder = new EventHubStatelessProcessorBuilder();
+        builder?.Invoke(processorBuilder);
+
+        Services.AddLogging();
+        Services.TryAddSingleton<IEventHubConsumerClientFactory, EventHubConsumerClientFactory>();
+        Services.TryAddSingleton<TProcessor>();
+
+        Services.AddSingleton(s =>
+        {
+            var config = s
+                .GetRequiredService<IOptionsMonitor<CabazureEventHubOptions>>()
+                .Get(ConnectionName);
+
+            var client = s
+                .GetRequiredService<IEventHubConsumerClientFactory>()
+                .Create(ConnectionName, eventHubName, consumerGroup);
+
+            var processor = new EventHubStatelessProcessor<TMessage, TProcessor>(
+                client,
+                s.GetRequiredService<ILogger<TProcessor>>(),
+                s.GetRequiredService<TProcessor>(),
+                config.SerializerOptions,
+                processorBuilder.ReadOptions,
+                processorBuilder.Filters);
+
+            return new EventHubProcessorService<TMessage, TProcessor>(processor);
         });
         Services.AddSingleton<IMessageProcessorService<TProcessor>>(s
             => s.GetRequiredService<EventHubProcessorService<TMessage, TProcessor>>());

@@ -1,4 +1,5 @@
 using Cabazure.Messaging;
+using Cabazure.Messaging.EventHub;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,10 @@ app.MapGet(
 
         await publisher.PublishAsync(
             evt,
+            new EventHubPublishingOptions
+            {
+                PartitionKey = evt.Identifier,
+            },
             cancellationToken);
 
         return Results.Ok(evt);

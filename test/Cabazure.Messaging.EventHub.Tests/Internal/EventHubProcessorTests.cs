@@ -4,7 +4,7 @@ using Cabazure.Messaging.EventHub.Internal;
 
 namespace Cabazure.Messaging.EventHub.Tests.Internal;
 
-public class EventHubBatchProcessorTests
+public class EventHubProcessorTests
 {
     public record TMessage(string Data);
     public class TProcessor : IMessageProcessor<TMessage>
@@ -17,7 +17,7 @@ public class EventHubBatchProcessorTests
     public async Task OnProcessingEventBatchAsync_Should_Call_BatchHandler(
         [Frozen, NoAutoProperties] EventProcessorOptions processorOptions,
         [Frozen] IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
-        [Greedy] EventHubBatchProcessor<TMessage, TProcessor> sut,
+        [Greedy] EventHubProcessor<TMessage, TProcessor> sut,
         IEnumerable<EventData> events,
         EventProcessorPartition partition,
         CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ public class EventHubBatchProcessorTests
     public async Task OnProcessingErrorAsync_Should_Call_BatchHandler(
         [Frozen, NoAutoProperties] EventProcessorOptions processorOptions,
         [Frozen] IEventHubBatchHandler<TMessage, TProcessor> batchHandler,
-        [Greedy] EventHubBatchProcessor<TMessage, TProcessor> sut,
+        [Greedy] EventHubProcessor<TMessage, TProcessor> sut,
         Exception exception,
         EventProcessorPartition partition,
         string operationDescription,
@@ -62,7 +62,7 @@ public class EventHubBatchProcessorTests
 public static class EventHubBatchProcessorExtensions
 {
     public static Task OnProcessingEventBatchAsync<TMessage, TProcessor>(
-        this EventHubBatchProcessor<TMessage, TProcessor> processor,
+        this EventHubProcessor<TMessage, TProcessor> processor,
         IEnumerable<EventData> events,
         EventProcessorPartition partition,
         CancellationToken cancellationToken)
@@ -74,7 +74,7 @@ public static class EventHubBatchProcessorExtensions
             cancellationToken)!;
 
     public static Task OnProcessingErrorAsync<TMessage, TProcessor>(
-        this EventHubBatchProcessor<TMessage, TProcessor> processor,
+        this EventHubProcessor<TMessage, TProcessor> processor,
         Exception exception,
         EventProcessorPartition partition,
         string operationDescription,
