@@ -113,6 +113,6 @@ public class StorageQueueClientProviderTests
 
         client.AccountName
             .Should()
-            .Be(accountName.ToLowerInvariant());
+            .Be(accountName);
     }
 }
