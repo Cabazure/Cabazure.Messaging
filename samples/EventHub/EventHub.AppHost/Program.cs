@@ -1,24 +1,37 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var eventHub = builder
-    .AddAzureEventHubs("eh")
-    .RunAsEmulator(b => b
-        .WithHostPort(5672))
-    .AddHub("eventhub");
-
 var blobs = builder
     .AddAzureStorage("storage")
-    .RunAsEmulator(c => c
-        .WithBlobPort(10000)
-        .WithQueuePort(10001)
-        .WithTablePort(10002))
+    .RunAsEmulator()
     .AddBlobs("blobs");
+var eventHub = builder
+    .AddAzureEventHubs("eh")
+    .RunAsEmulator()
+    .AddHub("eventhub");
+eventHub.AddConsumerGroup("consumerGroup1");
+eventHub.AddConsumerGroup("consumerGroup2");
+
+for (int i = 1; i <= 4; i++)
+{
+    builder.AddProject<Projects.EventHub_Processor>(
+        name: $"eventhub-processor{i}",
+        launchProfileName: $"processor{i}")
+        .WithEnvironment("CONSUMER_GROUP", "consumerGroup1")
+        .WithReference(eventHub).WaitFor(eventHub)
+        .WithReference(blobs).WaitFor(blobs);
+}
+
+for (int i = 1; i <= 4; i++)
+{
+    builder.AddProject<Projects.EventHub_Processor>(
+        name: $"eventhub-processor-stateless{i}",
+        launchProfileName: $"stateless{i}")
+        .WithEnvironment("CONSUMER_GROUP", "consumerGroup2")
+        .WithEnvironment("STATELESS", "true")
+        .WithReference(eventHub).WaitFor(eventHub);
+}
 
 builder.AddProject<Projects.EventHub_Producer>("eventhub-producer")
-    .WithReference(eventHub);
-
-builder.AddProject<Projects.EventHub_Processor>("eventhub-processor")
-    .WithReference(eventHub)
-    .WithReference(blobs);
+    .WithReference(eventHub).WaitFor(eventHub);
 
 builder.Build().Run();
