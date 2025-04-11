@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Primitives;
+using Azure.Messaging.EventHubs.Processor;
 
 namespace Cabazure.Messaging.EventHub.Internal;
 
@@ -53,12 +54,23 @@ public class EventHubProcessor<TMessage, TProcessor>
         IEnumerable<EventData> events,
         EventProcessorPartition partition,
         CancellationToken cancellationToken)
-        => await batchHandler
+    {
+        var lastEvent = await batchHandler
             .ProcessBatchAsync(
                 events,
                 partition,
                 cancellationToken)
             .ConfigureAwait(false);
+
+        if (lastEvent != null)
+        {
+            await UpdateCheckpointAsync(
+                    partition.PartitionId,
+                    CheckpointPosition.FromEvent(lastEvent),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+    }
 
     protected override async Task OnProcessingErrorAsync(
         Exception exception,

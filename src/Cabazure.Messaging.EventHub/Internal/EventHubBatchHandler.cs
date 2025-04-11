@@ -9,7 +9,7 @@ public interface IEventHubBatchHandler<TMessage, TProcessor>
 {
     public TProcessor Processor { get; }
 
-    Task ProcessBatchAsync(
+    Task<EventData?> ProcessBatchAsync(
         IEnumerable<EventData> events,
         EventProcessorPartition partition,
         CancellationToken cancellationToken);
@@ -29,29 +29,47 @@ public class EventHubBatchHandler<TMessage, TProcessor>(
 {
     public TProcessor Processor => processor;
 
-    public async Task ProcessBatchAsync(
+    public async Task<EventData?> ProcessBatchAsync(
        IEnumerable<EventData> events,
        EventProcessorPartition partition,
        CancellationToken cancellationToken)
     {
+        EventData? lastEvent = null;
         foreach (var evt in events)
         {
-            if (!filters.TrueForAll(f => f.Invoke(evt.Properties)))
+            lastEvent = evt;
+
+            try
             {
-                continue;
+                if (!filters.TrueForAll(f => f.Invoke(evt.Properties)))
+                {
+                    continue;
+                }
+
+                var message = evt.EventBody
+                    .ToObjectFromJson<TMessage>(serializerOptions);
+
+                if (message != null)
+                {
+                    var metadata = EventHubMetadata
+                        .Create(evt, partition.PartitionId);
+
+                    await processor
+                        .ProcessAsync(
+                            message!,
+                            metadata,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
-
-            var message = evt.EventBody
-                .ToObjectFromJson<TMessage>(serializerOptions);
-
-            var metadata = EventHubMetadata
-                .Create(evt, partition.PartitionId);
-
-            await processor.ProcessAsync(
-                message!,
-                metadata,
-                cancellationToken);
+            catch (Exception ex)
+            {
+                await ProcessErrorAsync(ex, cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
+
+        return lastEvent;
     }
 
     public async Task ProcessErrorAsync(
