@@ -7,9 +7,9 @@ public class MessageMetadata
 
     public string? CorrelationId { get; init; }
 
-    public DateTimeOffset EnqueuedTime { get; init; }
+    public required DateTimeOffset EnqueuedTime { get; init; }
 
-    public string? MessageId { get; init; }
+    public required string MessageId { get; init; }
 
     public string? PartitionKey { get; init; }
 
