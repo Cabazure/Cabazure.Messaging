@@ -70,47 +70,23 @@ public class ServiceBusPublisherTests
     }
 
     [Theory, AutoNSubstituteData]
-    public async Task PublishAsync_Sends_Properties_From_Factory(
+    public async Task PublishAsync_Calls_EventDataModifier(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] ServiceBusSender sender,
-        [Frozen, Substitute] Func<object, Dictionary<string, object>> propertiesFactory,
-        Dictionary<string, object> properties,
+        [Frozen, Substitute] Action<object, ServiceBusMessage> eventDataModifier,
         ServiceBusPublisher<TMessage> sut,
         TMessage message,
         CancellationToken cancellationToken)
     {
-        propertiesFactory.Invoke(message).Returns(properties);
         await sut.PublishAsync(
             message,
             cancellationToken);
 
         var eventData = sender
             .ReceivedCallWithArgument<ServiceBusMessage>();
-        eventData.ApplicationProperties
-            .Should()
-            .BeEquivalentTo(properties);
-    }
-
-    [Theory, AutoNSubstituteData]
-    public async Task PublishAsync_Sends_PartitionKey_From_Factory(
-        [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
-        [Frozen, Substitute] ServiceBusSender sender,
-        [Frozen, Substitute] Func<object, string> partitionKeySelector,
-        string partitionKey,
-        ServiceBusPublisher<TMessage> sut,
-        TMessage message,
-        CancellationToken cancellationToken)
-    {
-        partitionKeySelector.Invoke(message).Returns(partitionKey);
-        await sut.PublishAsync(
-            message,
-            cancellationToken);
-
-        var eventData = sender
-            .ReceivedCallWithArgument<ServiceBusMessage>();
-        eventData.PartitionKey
-            .Should()
-            .BeEquivalentTo(partitionKey);
+        eventDataModifier
+            .Received(1)
+            .Invoke(message, eventData);
     }
 
     [Theory, AutoNSubstituteData]

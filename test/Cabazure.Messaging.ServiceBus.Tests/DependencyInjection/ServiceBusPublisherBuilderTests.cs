@@ -21,25 +21,26 @@ public class ServiceBusPublisherBuilderTests
     public void WithProperty_Adds_Property_With_Name(
         ServiceBusPublisherBuilder<TMessage> sut,
         string name,
-        Func<TMessage, object> valueSelector)
+        Func<TMessage, object> valueSelector,
+        TMessage message,
+        [NoAutoProperties] ServiceBusMessage eventData)
     {
         sut.WithProperty(name, valueSelector);
 
-        sut.Properties.Should().Contain(name, valueSelector);
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.ApplicationProperties.Should().Contain(name, valueSelector(message));
     }
 
     [Theory, AutoNSubstituteData]
     public void WithProperty_Adds_Property_With_Resolved_Name(
         ServiceBusPublisherBuilder<TMessage> sut,
-        TMessage message)
+        TMessage message,
+        [NoAutoProperties] ServiceBusMessage eventData)
     {
         sut.WithProperty(m => m.Property1);
 
-        sut.Properties.Should().ContainKey(nameof(TMessage.Property1));
-        sut.Properties[nameof(TMessage.Property1)]
-            .Invoke(message)
-            .Should()
-            .Be(message.Property1);
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.ApplicationProperties.Should().Contain(nameof(TMessage.Property1), message.Property1);
     }
 
     [Theory, AutoNSubstituteData]
@@ -47,71 +48,38 @@ public class ServiceBusPublisherBuilderTests
         ServiceBusPublisherBuilder<TMessage> sut,
         string name,
         object value,
-        TMessage message)
+        TMessage message,
+        [NoAutoProperties] ServiceBusMessage eventData)
     {
         sut.WithProperty(name, value);
 
-        sut.Properties.Should().ContainKey(name);
-        sut.Properties[name]
-            .Invoke(message)
-            .Should()
-            .Be(value);
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.ApplicationProperties.Should().Contain(name, value);
     }
 
     [Theory, AutoNSubstituteData]
     public void WithPartitionKey_Sets_PartitionKey_Selector(
         ServiceBusPublisherBuilder<TMessage> sut,
-        Func<TMessage, string> partitionKeySelector)
+        string partitionKey,
+        TMessage message,
+        [NoAutoProperties] ServiceBusMessage eventData)
     {
-        sut.WithPartitionKey(partitionKeySelector);
-
-        sut.PartitionKey
-            .Should()
-            .Be(partitionKeySelector);
+        sut.WithPartitionKey(m => partitionKey);
+        
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.PartitionKey.Should().Be(partitionKey);
     }
 
     [Theory, AutoNSubstituteData]
     public void WithPartitionKey_Sets_PartitionKey_Constant(
         ServiceBusPublisherBuilder<TMessage> sut,
         string partitionKey,
-        TMessage message)
+        TMessage message,
+        [NoAutoProperties] ServiceBusMessage eventData)
     {
         sut.WithPartitionKey(partitionKey);
 
-        sut.PartitionKey
-            .Invoke(message)
-            .Should()
-            .Be(partitionKey);
-    }
-
-    [Theory, AutoNSubstituteData]
-    public void GetPropertyFactory_Returns_Function_For_Selecting_Properties(
-        ServiceBusPublisherBuilder<TMessage> sut,
-        Dictionary<string, object> properties,
-        TMessage message)
-    {
-        foreach (var property in properties)
-        {
-            sut.Properties.Add(property.Key, _ => property.Value);
-        }
-
-        sut.GetPropertyFactory()
-            .Invoke(message)
-            .Should()
-            .BeEquivalentTo(properties);
-    }
-
-    [Theory, AutoNSubstituteData]
-    public void GetPartitionKeyFactory_Returns_Function_For_Selecting_PartitionKey(
-        ServiceBusPublisherBuilder<TMessage> sut,
-        string partitionKey,
-        TMessage message)
-    {
-        sut.WithPartitionKey(_ = partitionKey);
-
-        sut.GetPartitionKeyFactory()
-            .Invoke(message)
-            .Should()
-            .BeEquivalentTo(partitionKey);
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.PartitionKey.Should().Be(partitionKey);
     }
 }

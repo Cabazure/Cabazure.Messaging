@@ -48,10 +48,7 @@ public class EventHubPublisher<TMessage>(
             serializerOptions);
         var eventData = new EventData(json);
 
-        if (message != null)
-        {
-            eventDataModifier?.Invoke(message, eventData);
-        }
+        eventDataModifier?.Invoke(message!, eventData);
         ConfigureEventData(eventData, options);
 
         var partitionKey = partitionKeyFactory?.Invoke(message!);

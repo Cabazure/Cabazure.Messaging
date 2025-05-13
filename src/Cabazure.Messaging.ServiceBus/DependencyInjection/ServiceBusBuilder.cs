@@ -46,8 +46,7 @@ public class ServiceBusBuilder(
                 typeof(T),
                 topicOrQueueName,
                 publisherBuilder.SenderOptions,
-                publisherBuilder.GetPropertyFactory(),
-                publisherBuilder.GetPartitionKeyFactory()));
+                publisherBuilder.GetEventDataModifier()));
         Services.AddSingleton(s => s
             .GetRequiredService<IServiceBusPublisherFactory>()
             .Create<T>());

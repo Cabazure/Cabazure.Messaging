@@ -26,7 +26,6 @@ public class ServiceBusPublisherFactory(
         return new ServiceBusPublisher<TMessage>(
             options.SerializerOptions,
             sender,
-            publisher.PropertiesFactory,
-            publisher.PartitionKeyFactory);
+            publisher.EventDataModifier);
     }
 }

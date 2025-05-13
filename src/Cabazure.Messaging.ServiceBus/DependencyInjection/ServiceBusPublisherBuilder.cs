@@ -5,15 +5,36 @@ namespace Cabazure.Messaging.ServiceBus.DependencyInjection;
 
 public class ServiceBusPublisherBuilder<TMessage>
 {
-    public Dictionary<string, Func<TMessage, object>> Properties { get; } = [];
-    public Func<TMessage, string>? PartitionKey { get; private set; }
+    public List<Action<TMessage, ServiceBusMessage>> EventDataModifiers { get; } = [];
     public ServiceBusSenderOptions? SenderOptions { get; private set; }
+
+    public ServiceBusPublisherBuilder<TMessage> WithMessageId(
+        Func<TMessage, string> valueSelector)
+    {
+        EventDataModifiers.Add((m, d) => d.MessageId = valueSelector(m));
+        return this;
+    }
+
+    public ServiceBusPublisherBuilder<TMessage> WithSessionId(
+        Func<TMessage, string> valueSelector)
+    {
+        EventDataModifiers.Add((m, d) => d.SessionId = valueSelector(m));
+        return this;
+    }
+
+    public ServiceBusPublisherBuilder<TMessage> WithCorrelationId(
+        string name,
+        Func<TMessage, string> valueSelector)
+    {
+        EventDataModifiers.Add((m, d) => d.CorrelationId = valueSelector(m));
+        return this;
+    }
 
     public ServiceBusPublisherBuilder<TMessage> WithProperty(
         string name,
         Func<TMessage, object> valueSelector)
     {
-        Properties.Add(name, valueSelector);
+        EventDataModifiers.Add((m, d) => d.ApplicationProperties.Add(name, valueSelector(m)));
         return this;
     }
 
@@ -21,7 +42,7 @@ public class ServiceBusPublisherBuilder<TMessage>
         string name,
         object value)
     {
-        Properties.Add(name, _ => value);
+        EventDataModifiers.Add((m, d) => d.ApplicationProperties.Add(name, value));
         return this;
     }
 
@@ -44,14 +65,14 @@ public class ServiceBusPublisherBuilder<TMessage>
     public ServiceBusPublisherBuilder<TMessage> WithPartitionKey(
         Func<TMessage, string> valueSelector)
     {
-        PartitionKey = valueSelector;
+        EventDataModifiers.Add((m, d) => d.PartitionKey = valueSelector(m));
         return this;
     }
 
     public ServiceBusPublisherBuilder<TMessage> WithPartitionKey(
         string partitionKey)
     {
-        PartitionKey = _ => partitionKey;
+        EventDataModifiers.Add((m, d) => d.PartitionKey = partitionKey);
         return this;
     }
 
@@ -62,15 +83,8 @@ public class ServiceBusPublisherBuilder<TMessage>
         return this;
     }
 
-    public Func<object, Dictionary<string, object>>? GetPropertyFactory()
-        => Properties.Count == 0
+    public Action<object, ServiceBusMessage>? GetEventDataModifier()
+        => EventDataModifiers.Count == 0
          ? null
-         : o => Properties.ToDictionary(
-            kvp => kvp.Key,
-            kvp => kvp.Value((TMessage)o));
-
-    public Func<object, string>? GetPartitionKeyFactory()
-        => PartitionKey == null
-         ? null
-         : o => PartitionKey.Invoke((TMessage)o);
+         : (m, d) => EventDataModifiers.ForEach(i => i.Invoke((TMessage)m, d));
 }

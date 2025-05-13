@@ -7,5 +7,4 @@ public record ServiceBusPublisherRegistration(
     Type Type,
     string TopicOrQueueName,
     ServiceBusSenderOptions? SenderOptions,
-    Func<object, Dictionary<string, object>>? PropertiesFactory,
-    Func<object, string>? PartitionKeyFactory);
+    Action<object, ServiceBusMessage>? EventDataModifier);

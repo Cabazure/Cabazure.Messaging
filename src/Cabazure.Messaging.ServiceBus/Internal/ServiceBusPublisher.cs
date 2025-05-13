@@ -6,8 +6,7 @@ namespace Cabazure.Messaging.ServiceBus.Internal;
 public class ServiceBusPublisher<TMessage>(
     JsonSerializerOptions serializerOptions,
     ServiceBusSender sender,
-    Func<object, Dictionary<string, object>>? propertiesFactory,
-    Func<object, string>? partitionKeyFactory)
+    Action<object, ServiceBusMessage>? eventDataModifier)
     : IServiceBusPublisher<TMessage>
     , IMessagePublisher<TMessage>
 {
@@ -47,13 +46,8 @@ public class ServiceBusPublisher<TMessage>(
             serializerOptions);
         var eventData = new ServiceBusMessage(json);
 
-        var properties = propertiesFactory?.Invoke(message!);
-        var partitionKey = partitionKeyFactory?.Invoke(message!);
-        ConfigureEventData(
-            eventData,
-            options,
-            properties,
-            partitionKey);
+        eventDataModifier?.Invoke(message!, eventData);
+        ConfigureEventData(eventData, options);
 
         await sender.SendMessageAsync(
             eventData,
@@ -62,23 +56,8 @@ public class ServiceBusPublisher<TMessage>(
 
     private static void ConfigureEventData(
         ServiceBusMessage eventData,
-        PublishingOptions? options,
-        Dictionary<string, object>? properties,
-        string? partitionKey)
+        PublishingOptions? options)
     {
-        if (properties != null)
-        {
-            foreach (var property in properties)
-            {
-                eventData.ApplicationProperties[property.Key] = property.Value;
-            }
-        }
-
-        if (partitionKey != null)
-        {
-            eventData.PartitionKey = partitionKey;
-        }
-
         if (options == null)
         {
             return;

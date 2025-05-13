@@ -133,8 +133,7 @@ public class ServiceBusBuilderTests
                     typeof(TMessage),
                     eventHubName,
                     SenderOptions: null,
-                    PropertiesFactory: null,
-                    PartitionKeyFactory: null));
+                    EventDataModifier: null));
     }
 
     [Theory, AutoNSubstituteData]
