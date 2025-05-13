@@ -7,7 +7,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 public class EventHubPublisher<TMessage>(
     JsonSerializerOptions serializerOptions,
     EventHubProducerClient producer,
-    Func<object, Dictionary<string, object>>? propertiesFactory,
+    Action<object, EventData>? eventDataModifier,
     Func<object, string>? partitionKeyFactory)
     : IEventHubPublisher<TMessage>
     , IMessagePublisher<TMessage>
@@ -48,11 +48,11 @@ public class EventHubPublisher<TMessage>(
             serializerOptions);
         var eventData = new EventData(json);
 
-        var properties = propertiesFactory?.Invoke(message!);
-        ConfigureEventData(
-            eventData,
-            options,
-            properties);
+        if (message != null)
+        {
+            eventDataModifier?.Invoke(message, eventData);
+        }
+        ConfigureEventData(eventData, options);
 
         var partitionKey = partitionKeyFactory?.Invoke(message!);
         if (GetSendEventOptions(options, partitionKey) is { } sendOptions)
@@ -72,17 +72,8 @@ public class EventHubPublisher<TMessage>(
 
     private static void ConfigureEventData(
         EventData eventData,
-        PublishingOptions? options,
-        Dictionary<string, object>? properties)
+        PublishingOptions? options)
     {
-        if (properties != null)
-        {
-            foreach (var property in properties)
-            {
-                eventData.Properties[property.Key] = property.Value;
-            }
-        }
-
         if (options == null)
         {
             return;

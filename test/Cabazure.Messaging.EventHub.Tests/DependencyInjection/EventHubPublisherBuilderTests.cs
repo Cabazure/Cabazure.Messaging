@@ -1,4 +1,5 @@
-﻿using Cabazure.Messaging.EventHub.DependencyInjection;
+﻿using Azure.Messaging.EventHubs;
+using Cabazure.Messaging.EventHub.DependencyInjection;
 
 namespace Cabazure.Messaging.EventHub.Tests.DependencyInjection;
 
@@ -10,25 +11,26 @@ public class EventHubPublisherBuilderTests
     public void WithProperty_Adds_Property_With_Name(
         EventHubPublisherBuilder<TMessage> sut,
         string name,
-        Func<TMessage, object> valueSelector)
+        string value,
+        TMessage message,
+        EventData eventData)
     {
-        sut.WithProperty(name, valueSelector);
+        sut.WithProperty(name, m => value);
 
-        sut.Properties.Should().Contain(name, valueSelector);
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.Properties.Should().Contain(name, value);
     }
 
     [Theory, AutoNSubstituteData]
     public void WithProperty_Adds_Property_With_Resolved_Name(
         EventHubPublisherBuilder<TMessage> sut,
-        TMessage message)
+        TMessage message,
+        EventData eventData)
     {
         sut.WithProperty(m => m.Property1);
 
-        sut.Properties.Should().ContainKey(nameof(TMessage.Property1));
-        sut.Properties[nameof(TMessage.Property1)]
-            .Invoke(message)
-            .Should()
-            .Be(message.Property1);
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.Properties.Should().Contain(nameof(TMessage.Property1), message.Property1);
     }
 
     [Theory, AutoNSubstituteData]
@@ -36,15 +38,14 @@ public class EventHubPublisherBuilderTests
         EventHubPublisherBuilder<TMessage> sut,
         string name,
         object value,
-        TMessage message)
+        TMessage message,
+        EventData eventData)
     {
         sut.WithProperty(name, value);
 
-        sut.Properties.Should().ContainKey(name);
-        sut.Properties[name]
-            .Invoke(message)
-            .Should()
-            .Be(value);
+
+        sut.GetEventDataModifier().Invoke(message, eventData);
+        eventData.Properties.Should().Contain(name, value);
     }
 
     [Theory, AutoNSubstituteData]
@@ -54,7 +55,7 @@ public class EventHubPublisherBuilderTests
     {
         sut.WithPartitionKey(partitionKeySelector);
 
-        sut.PartitionKey
+        sut.PartitionKeyFactory
             .Should()
             .Be(partitionKeySelector);
     }
@@ -67,27 +68,10 @@ public class EventHubPublisherBuilderTests
     {
         sut.WithPartitionKey(partitionKey);
 
-        sut.PartitionKey
+        sut.PartitionKeyFactory
             .Invoke(message)
             .Should()
             .Be(partitionKey);
-    }
-
-    [Theory, AutoNSubstituteData]
-    public void GetPropertyFactory_Returns_Function_For_Selecting_Properties(
-        EventHubPublisherBuilder<TMessage> sut,
-        Dictionary<string, object> properties,
-        TMessage message)
-    {
-        foreach (var property in properties)
-        {
-            sut.Properties.Add(property.Key, _ => property.Value);
-        }
-
-        sut.GetPropertyFactory()
-            .Invoke(message)
-            .Should()
-            .BeEquivalentTo(properties);
     }
 
     [Theory, AutoNSubstituteData]

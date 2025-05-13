@@ -30,7 +30,7 @@ public class EventHubPublisherFactory(
         return new EventHubPublisher<TMessage>(
             options.SerializerOptions,
             producer,
-            publisher.PropertiesFactory,
+            publisher.EventDataModifier,
             publisher.PartitionKeyFactory);
     }
 }

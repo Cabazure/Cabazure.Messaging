@@ -12,9 +12,9 @@ builder.Services
     .AddCabazureEventHub(b => b
         .Configure(o => o
             .WithConnection(eventHubConnection))
-        .AddPublisher<MyEvent>(
-            "eventHub",
-            b => b.WithProperty(e => e.Date.Year)));
+        .AddPublisher<MyEvent>("eventHub", b => b
+            .WithMessageId(e => e.Identifier)
+            .WithProperty(e => e.Date.Year)));
 
 var app = builder.Build();
 

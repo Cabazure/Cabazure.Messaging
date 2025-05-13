@@ -1,18 +1,33 @@
 ﻿using System.Linq.Expressions;
+using Azure.Messaging.EventHubs;
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
 public class EventHubPublisherBuilder<TMessage>
 {
-    public Dictionary<string, Func<TMessage, object>> Properties { get; } = [];
+    public Func<TMessage, string>? PartitionKeyFactory { get; private set; }
 
-    public Func<TMessage, string>? PartitionKey { get; private set; }
+    public List<Action<TMessage, EventData>> EventDataModifiers { get; } = [];
+
+    public EventHubPublisherBuilder<TMessage> WithMessageId(
+        Func<TMessage, string> valueSelector)
+    {
+        EventDataModifiers.Add((m, d) => d.MessageId = valueSelector(m));
+        return this;
+    }
+
+    public EventHubPublisherBuilder<TMessage> WithCorrelationId(
+        Func<TMessage, string> valueSelector)
+    {
+        EventDataModifiers.Add((m, d) => d.CorrelationId = valueSelector(m));
+        return this;
+    }
 
     public EventHubPublisherBuilder<TMessage> WithProperty(
         string name,
         Func<TMessage, object> valueSelector)
     {
-        Properties.Add(name, valueSelector);
+        EventDataModifiers.Add((m, d) => d.Properties.Add(name, valueSelector(m)));
         return this;
     }
 
@@ -20,7 +35,7 @@ public class EventHubPublisherBuilder<TMessage>
         string name,
         object value)
     {
-        Properties.Add(name, _ => value);
+        EventDataModifiers.Add((_, d) => d.Properties.Add(name, value));
         return this;
     }
 
@@ -43,26 +58,24 @@ public class EventHubPublisherBuilder<TMessage>
     public EventHubPublisherBuilder<TMessage> WithPartitionKey(
         Func<TMessage, string> valueSelector)
     {
-        PartitionKey = valueSelector;
+        PartitionKeyFactory = valueSelector;
         return this;
     }
 
     public EventHubPublisherBuilder<TMessage> WithPartitionKey(
         string partitionKey)
     {
-        PartitionKey = _ => partitionKey;
+        PartitionKeyFactory = _ => partitionKey;
         return this;
     }
 
-    public Func<object, Dictionary<string, object>>? GetPropertyFactory()
-        => Properties.Count == 0
-         ? null
-         : o => Properties.ToDictionary(
-            kvp => kvp.Key,
-            kvp => kvp.Value((TMessage)o));
-
     public Func<object, string>? GetPartitionKeyFactory()
-        => PartitionKey == null
+        => PartitionKeyFactory == null
          ? null
-         : o => PartitionKey.Invoke((TMessage)o);
+         : o => PartitionKeyFactory.Invoke((TMessage)o);
+
+    public Action<object, EventData>? GetEventDataModifier()
+        => EventDataModifiers.Count == 0
+         ? null
+         : (m, d) => EventDataModifiers.ForEach(i => i.Invoke((TMessage)m, d));
 }

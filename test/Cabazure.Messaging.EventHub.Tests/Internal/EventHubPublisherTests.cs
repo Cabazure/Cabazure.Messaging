@@ -73,16 +73,14 @@ public class EventHubPublisherTests
     }
 
     [Theory, AutoNSubstituteData]
-    public async Task PublishAsync_Sends_Properties_From_Factory(
+    public async Task PublishAsync_Call_EventDataModifier_With_EventData(
         [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
         [Frozen, Substitute] EventHubProducerClient client,
-        [Frozen, Substitute] Func<object, Dictionary<string, object>> propertiesFactory,
-        Dictionary<string, object> properties,
+        [Frozen, Substitute] Action<object, EventData> eventDataModifier,
         EventHubPublisher<TMessage> sut,
         TMessage message,
         CancellationToken cancellationToken)
     {
-        propertiesFactory.Invoke(message).Returns(properties);
         await sut.PublishAsync(
             message,
             cancellationToken);
@@ -90,9 +88,11 @@ public class EventHubPublisherTests
         var eventData = client
             .ReceivedCallWithArgument<IEnumerable<EventData>>()
             .Single();
-        eventData.Properties
-            .Should()
-            .BeEquivalentTo(properties);
+        eventDataModifier
+            .Received(1)
+            .Invoke(
+                message,
+                eventData);
     }
 
     [Theory, AutoNSubstituteData]

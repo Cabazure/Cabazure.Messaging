@@ -43,7 +43,7 @@ public class EventHubBuilder(
                 ConnectionName,
                 typeof(T),
                 eventHubName,
-                publisherBuilder.GetPropertyFactory(),
+                publisherBuilder.GetEventDataModifier(),
                 publisherBuilder.GetPartitionKeyFactory()));
         Services.AddSingleton(s => s
             .GetRequiredService<IEventHubPublisherFactory>()
