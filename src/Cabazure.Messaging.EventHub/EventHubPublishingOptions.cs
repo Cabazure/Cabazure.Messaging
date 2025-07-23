@@ -6,8 +6,7 @@
 public class EventHubPublishingOptions : PublishingOptions
 {
     /// <summary>
-    /// Gets or sets the specific partition identifier to send the message to. 
-    /// If not specified, the Event Hub will automatically assign a partition based on the partition key.
+    /// Gets or sets the specific partition identifier to send the message to; if not specified, the Event Hub will automatically assign a partition based on the partition key.
     /// </summary>
     public string? PartitionId { get; set; }
 }
