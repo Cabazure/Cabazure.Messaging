@@ -13,10 +13,21 @@ public class EventHubBuilder(
     IServiceCollection services,
     string? connectionName)
 {
+    /// <summary>
+    /// Gets the service collection being configured.
+    /// </summary>
     public IServiceCollection Services { get; } = services;
 
+    /// <summary>
+    /// Gets the name of the connection configuration, or null for the default connection.
+    /// </summary>
     public string? ConnectionName { get; } = connectionName;
 
+    /// <summary>
+    /// Configures the Event Hub options using the provided configuration action.
+    /// </summary>
+    /// <param name="configure">The action to configure the Event Hub options.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public EventHubBuilder Configure(
         Action<CabazureEventHubOptions> configure)
     {
@@ -24,6 +35,11 @@ public class EventHubBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Configures the Event Hub options using the specified configure options class.
+    /// </summary>
+    /// <typeparam name="TConfigureOptions">The type that implements IConfigureOptions for CabazureEventHubOptions.</typeparam>
+    /// <returns>The current builder instance for method chaining.</returns>
     public EventHubBuilder Configure<TConfigureOptions>()
         where TConfigureOptions : class, IConfigureOptions<CabazureEventHubOptions>
     {
@@ -31,6 +47,13 @@ public class EventHubBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds an Event Hub publisher for the specified message type.
+    /// </summary>
+    /// <typeparam name="T">The type of message that the publisher will handle.</typeparam>
+    /// <param name="eventHubName">The name of the Event Hub to publish messages to.</param>
+    /// <param name="builder">Optional action to configure the publisher-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public EventHubBuilder AddPublisher<T>(
         string eventHubName,
         Action<EventHubPublisherBuilder<T>>? builder = null)
@@ -57,6 +80,15 @@ public class EventHubBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds an Event Hub processor for the specified message and processor types.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message that the processor will handle.</typeparam>
+    /// <typeparam name="TProcessor">The type of processor that will process the messages.</typeparam>
+    /// <param name="eventHubName">The name of the Event Hub to consume messages from.</param>
+    /// <param name="consumerGroup">The consumer group name. Defaults to "$default".</param>
+    /// <param name="builder">Optional action to configure the processor-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public EventHubBuilder AddProcessor<TMessage, TProcessor>(
         string eventHubName,
         string consumerGroup = "$default",
@@ -103,6 +135,16 @@ public class EventHubBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds a stateless Event Hub processor for the specified message and processor types.
+    /// Stateless processors do not use checkpointing and read from the latest available messages.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message that the processor will handle.</typeparam>
+    /// <typeparam name="TProcessor">The type of processor that will process the messages.</typeparam>
+    /// <param name="eventHubName">The name of the Event Hub to consume messages from.</param>
+    /// <param name="consumerGroup">The consumer group name. Defaults to "$default".</param>
+    /// <param name="builder">Optional action to configure the stateless processor-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public EventHubBuilder AddStatelessProcessor<TMessage, TProcessor>(
         string eventHubName,
         string consumerGroup = "$default",
