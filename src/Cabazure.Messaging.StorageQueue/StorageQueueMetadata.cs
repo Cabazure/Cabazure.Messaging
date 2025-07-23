@@ -2,6 +2,9 @@ using Azure.Storage.Queues.Models;
 
 namespace Cabazure.Messaging.StorageQueue;
 
+/// <summary>
+/// Represents metadata specific to Azure Storage Queue messages, extending the base message metadata with Storage Queue-specific properties.
+/// </summary>
 public class StorageQueueMetadata : MessageMetadata
 {
     public long DequeueCount { get; set; }

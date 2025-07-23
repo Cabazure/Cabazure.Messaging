@@ -7,6 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.ServiceBus.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Azure Service Bus publishers and processors in the dependency injection container.
+/// </summary>
 public class ServiceBusBuilder(
     IServiceCollection services,
     string? connectionName)

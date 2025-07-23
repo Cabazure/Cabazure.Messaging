@@ -6,6 +6,9 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Azure Storage Queue publishers and processors in the dependency injection container.
+/// </summary>
 public class StorageQueueBuilder(
     IServiceCollection services,
     string? connectionName)

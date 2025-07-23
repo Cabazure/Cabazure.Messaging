@@ -2,6 +2,9 @@
 
 namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Storage Queue processors with options such as polling intervals and visibility timeouts.
+/// </summary>
 public class StorageQueueProcessorBuilder
 {
     public StorageQueueProcessorOptions Options { get; set; } = new();

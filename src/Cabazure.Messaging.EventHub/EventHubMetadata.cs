@@ -2,6 +2,9 @@
 
 namespace Cabazure.Messaging.EventHub;
 
+/// <summary>
+/// Represents metadata specific to Azure Event Hub messages, extending the base message metadata with Event Hub-specific properties.
+/// </summary>
 public class EventHubMetadata : MessageMetadata
 {
     public required string PartitionId { get; init; }

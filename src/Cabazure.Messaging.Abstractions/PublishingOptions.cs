@@ -1,5 +1,8 @@
 ﻿namespace Cabazure.Messaging;
 
+/// <summary>
+/// Represents options that can be specified when publishing messages, including metadata and routing information.
+/// </summary>
 public class PublishingOptions
 {
     public string? ContentType { get; set; }

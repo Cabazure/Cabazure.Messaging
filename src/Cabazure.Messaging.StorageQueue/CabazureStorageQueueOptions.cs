@@ -4,6 +4,9 @@ using Azure.Storage.Queues;
 
 namespace Cabazure.Messaging.StorageQueue;
 
+/// <summary>
+/// Represents configuration options for Azure Storage Queue connections and settings.
+/// </summary>
 public class CabazureStorageQueueOptions
 {
     public TokenCredential? Credential { get; set; }

@@ -4,6 +4,9 @@ using Azure.Storage.Blobs;
 
 namespace Cabazure.Messaging.EventHub;
 
+/// <summary>
+/// Represents configuration options for Azure Event Hub connections and settings.
+/// </summary>
 public class CabazureEventHubOptions
 {
     public TokenCredential? Credential { get; set; }
@@ -67,6 +70,9 @@ public class CabazureEventHubOptions
 
 }
 
+/// <summary>
+/// Represents configuration options for Azure Blob Storage used for Event Hub checkpoint storage.
+/// </summary>
 public class BlobStorageOptions
 {
     public Uri? ServiceUri { get; set; }

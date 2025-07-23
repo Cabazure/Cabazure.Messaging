@@ -2,6 +2,9 @@
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring stateless Event Hub processors with filters and read options.
+/// </summary>
 public class EventHubStatelessProcessorBuilder
 {
     public List<Func<IDictionary<string, object>, bool>> Filters { get; } = [];

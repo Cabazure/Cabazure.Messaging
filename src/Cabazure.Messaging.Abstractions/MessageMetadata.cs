@@ -1,6 +1,9 @@
 ﻿
 namespace Cabazure.Messaging;
 
+/// <summary>
+/// Represents metadata associated with a message, containing information such as identifiers, timing, and custom properties.
+/// </summary>
 public class MessageMetadata
 {
     public string? ContentType { get; init; }

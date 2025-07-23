@@ -3,6 +3,9 @@ using Azure.Core;
 
 namespace Cabazure.Messaging.ServiceBus;
 
+/// <summary>
+/// Represents configuration options for Azure Service Bus connections and settings.
+/// </summary>
 public class CabazureServiceBusOptions
 {
     public TokenCredential? Credential { get; set; }

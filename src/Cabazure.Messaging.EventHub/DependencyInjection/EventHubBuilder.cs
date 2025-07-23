@@ -6,6 +6,9 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Azure Event Hub publishers and processors in the dependency injection container.
+/// </summary>
 public class EventHubBuilder(
     IServiceCollection services,
     string? connectionName)

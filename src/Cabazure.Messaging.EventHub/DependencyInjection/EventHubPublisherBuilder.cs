@@ -3,6 +3,10 @@ using Azure.Messaging.EventHubs;
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Event Hub publishers with message-specific customizations.
+/// </summary>
+/// <typeparam name="TMessage">The type of message that will be published.</typeparam>
 public class EventHubPublisherBuilder<TMessage>
 {
     public Func<TMessage, string>? PartitionKeyFactory { get; private set; }

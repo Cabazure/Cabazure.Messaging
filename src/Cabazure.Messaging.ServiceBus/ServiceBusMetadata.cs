@@ -2,6 +2,9 @@
 
 namespace Cabazure.Messaging.ServiceBus;
 
+/// <summary>
+/// Represents metadata specific to Azure Service Bus messages, extending the base message metadata with Service Bus-specific properties.
+/// </summary>
 public class ServiceBusMetadata : MessageMetadata
 {
     public string? DeadLetterErrorDescription { get; init; }
