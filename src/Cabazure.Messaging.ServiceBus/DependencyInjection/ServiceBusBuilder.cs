@@ -14,10 +14,21 @@ public class ServiceBusBuilder(
     IServiceCollection services,
     string? connectionName)
 {
+    /// <summary>
+    /// Gets the service collection being configured.
+    /// </summary>
     public IServiceCollection Services { get; } = services;
 
+    /// <summary>
+    /// Gets the name of the connection configuration, or null for the default connection.
+    /// </summary>
     public string? ConnectionName { get; } = connectionName;
 
+    /// <summary>
+    /// Configures the Service Bus options using the provided configuration action.
+    /// </summary>
+    /// <param name="configure">The action to configure the Service Bus options.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public ServiceBusBuilder Configure(
         Action<CabazureServiceBusOptions> configure)
     {
@@ -25,6 +36,11 @@ public class ServiceBusBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Configures the Service Bus options using the specified configure options class.
+    /// </summary>
+    /// <typeparam name="TConfigureOptions">The type that implements IConfigureOptions for CabazureServiceBusOptions.</typeparam>
+    /// <returns>The current builder instance for method chaining.</returns>
     public ServiceBusBuilder Configure<TConfigureOptions>()
         where TConfigureOptions : class, IConfigureOptions<CabazureServiceBusOptions>
     {
@@ -32,6 +48,13 @@ public class ServiceBusBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds a Service Bus publisher for the specified message type.
+    /// </summary>
+    /// <typeparam name="T">The type of message that the publisher will handle.</typeparam>
+    /// <param name="topicOrQueueName">The name of the Service Bus topic or queue to publish messages to.</param>
+    /// <param name="builder">Optional action to configure the publisher-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public ServiceBusBuilder AddPublisher<T>(
         string topicOrQueueName,
         Action<ServiceBusPublisherBuilder<T>>? builder = null)
@@ -59,6 +82,15 @@ public class ServiceBusBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds a Service Bus processor for the specified message and processor types using a topic and subscription.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message that the processor will handle.</typeparam>
+    /// <typeparam name="TProcessor">The type of processor that will process the messages.</typeparam>
+    /// <param name="topicName">The name of the Service Bus topic to consume messages from.</param>
+    /// <param name="subscriptionName">The name of the topic subscription to consume messages from.</param>
+    /// <param name="builder">Optional action to configure the processor-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public ServiceBusBuilder AddProcessor<TMessage, TProcessor>(
         string topicName,
         string subscriptionName,
@@ -68,6 +100,14 @@ public class ServiceBusBuilder(
             (f, o) => f.Create(ConnectionName, topicName, subscriptionName, o),
             builder);
 
+    /// <summary>
+    /// Adds a Service Bus processor for the specified message and processor types using a queue.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message that the processor will handle.</typeparam>
+    /// <typeparam name="TProcessor">The type of processor that will process the messages.</typeparam>
+    /// <param name="queueName">The name of the Service Bus queue to consume messages from.</param>
+    /// <param name="builder">Optional action to configure the processor-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public ServiceBusBuilder AddProcessor<TMessage, TProcessor>(
         string queueName,
         Action<ServiceBusProcessorBuilder>? builder = null)
