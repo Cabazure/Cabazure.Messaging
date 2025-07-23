@@ -2,6 +2,9 @@
 
 namespace Cabazure.Messaging.EventHub.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Event Hub processors with options such as filters, processor settings, and blob container configuration.
+/// </summary>
 public class EventHubProcessorBuilder(
     string eventHubName)
 {
@@ -34,6 +37,9 @@ public class EventHubProcessorBuilder(
     }
 }
 
+/// <summary>
+/// Represents configuration options for the blob container used for Event Hub checkpointing.
+/// </summary>
 public record BlobContainerOptions(
     string ContainerName,
     bool CreateIfNotExist = false);

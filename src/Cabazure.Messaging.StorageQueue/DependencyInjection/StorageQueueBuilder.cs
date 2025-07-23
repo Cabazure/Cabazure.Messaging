@@ -6,14 +6,28 @@ using Microsoft.Extensions.Options;
 
 namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Azure Storage Queue publishers and processors in the dependency injection container.
+/// </summary>
 public class StorageQueueBuilder(
     IServiceCollection services,
     string? connectionName)
 {
+    /// <summary>
+    /// Gets the service collection being configured.
+    /// </summary>
     public IServiceCollection Services { get; } = services;
 
+    /// <summary>
+    /// Gets the name of the connection configuration, or null for the default connection.
+    /// </summary>
     public string? ConnectionName { get; } = connectionName;
 
+    /// <summary>
+    /// Configures the Storage Queue options using the provided configuration action.
+    /// </summary>
+    /// <param name="configure">The action to configure the Storage Queue options.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public StorageQueueBuilder Configure(
         Action<CabazureStorageQueueOptions> configure)
     {
@@ -21,6 +35,11 @@ public class StorageQueueBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Configures the Storage Queue options using the specified configure options class.
+    /// </summary>
+    /// <typeparam name="TConfigureOptions">The type that implements IConfigureOptions for CabazureStorageQueueOptions.</typeparam>
+    /// <returns>The current builder instance for method chaining.</returns>
     public StorageQueueBuilder Configure<TConfigureOptions>()
         where TConfigureOptions : class, IConfigureOptions<CabazureStorageQueueOptions>
     {
@@ -28,6 +47,12 @@ public class StorageQueueBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds a Storage Queue publisher for the specified message type.
+    /// </summary>
+    /// <typeparam name="T">The type of message that the publisher will handle.</typeparam>
+    /// <param name="queueName">The name of the Storage Queue to publish messages to.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public StorageQueueBuilder AddPublisher<T>(
         string queueName)
     {
@@ -48,6 +73,14 @@ public class StorageQueueBuilder(
         return this;
     }
 
+    /// <summary>
+    /// Adds a Storage Queue processor for the specified message and processor types.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message that the processor will handle.</typeparam>
+    /// <typeparam name="TProcessor">The type of processor that will process the messages.</typeparam>
+    /// <param name="queueName">The name of the Storage Queue to consume messages from.</param>
+    /// <param name="builder">Optional action to configure the processor-specific settings.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
     public StorageQueueBuilder AddProcessor<TMessage, TProcessor>(
         string queueName,
         Action<StorageQueueProcessorBuilder>? builder = null)

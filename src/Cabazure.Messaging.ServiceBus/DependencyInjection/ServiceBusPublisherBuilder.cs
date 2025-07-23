@@ -3,6 +3,10 @@ using Azure.Messaging.ServiceBus;
 
 namespace Cabazure.Messaging.ServiceBus.DependencyInjection;
 
+/// <summary>
+/// Provides a fluent API for configuring Service Bus publishers with message-specific customizations.
+/// </summary>
+/// <typeparam name="TMessage">The type of message that will be published.</typeparam>
 public class ServiceBusPublisherBuilder<TMessage>
 {
     public List<Action<TMessage, ServiceBusMessage>> EventDataModifiers { get; } = [];
