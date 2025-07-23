@@ -6,7 +6,9 @@
 public class StorageQueuePublishingOptions : PublishingOptions
 {
     /// <summary>
-    /// Gets or sets the visibility timeout for the message, specifying how long the message will be invisible after being dequeued. If not specified, the default visibility timeout configured on the queue will be used.
+    /// Gets or sets the visibility timeout for the message, specifying how long 
+    /// the message will be invisible after being dequeued. If not specified, the 
+    /// default visibility timeout configured on the queue will be used.
     /// </summary>
     public TimeSpan? VisibilityTimeout { get; set; }
     
