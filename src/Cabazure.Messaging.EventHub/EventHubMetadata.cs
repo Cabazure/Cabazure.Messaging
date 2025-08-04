@@ -6,9 +6,9 @@ public class EventHubMetadata : MessageMetadata
 {
     public required string PartitionId { get; init; }
 
-    public long SequenceNumber { get; init; }
+    public required long SequenceNumber { get; init; }
 
-    public long Offset { get; init; }
+    public required string OffsetString { get; init; }
 
     public static EventHubMetadata Create(
         EventData eventData,
@@ -22,7 +22,7 @@ public class EventHubMetadata : MessageMetadata
             PartitionKey = eventData.PartitionKey,
             PartitionId = partitionId,
             SequenceNumber = eventData.SequenceNumber,
-            Offset = eventData.Offset,
+            OffsetString = eventData.OffsetString,
             Properties = new Dictionary<string, object>(
                 eventData.Properties),
         };
