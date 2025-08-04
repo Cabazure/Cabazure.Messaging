@@ -8,25 +8,46 @@ public class StorageQueuePublisherFactory(
     IStorageQueueClientProvider clientProvider)
     : IStorageQueuePublisherFactory
 {
-    private readonly Dictionary<Type, StorageQueuePublisherRegistration> publishers
-        = registrations.ToDictionary(r => r.Type);
+    private readonly Dictionary<Type, StorageQueuePublisherRegistration[]> registrations
+        = registrations.GroupBy(r => r.Type).ToDictionary(g => g.Key, g => g.ToArray());
 
     public IStorageQueuePublisher<TMessage> Create<TMessage>(
         string? connectionName = null)
     {
-        if (!publishers.TryGetValue(typeof(TMessage), out var publisher))
+        var registration = FindRegistration<TMessage>(connectionName);
+
+        var options = monitor.Get(connectionName);
+        var queue = clientProvider
+            .GetClient(connectionName)
+            .GetQueueClient(registration.QueueName);
+
+        return new StorageQueuePublisher<TMessage>(
+            options.SerializerOptions,
+            queue);
+    }
+
+    private StorageQueuePublisherRegistration FindRegistration<TMessage>(
+        string? connectionName)
+    {
+        if (!registrations.TryGetValue(typeof(TMessage), out var matches))
         {
             throw new ArgumentException(
                 $"Type {typeof(TMessage).Name} not configured as a StorageQueue publisher");
         }
 
-        var options = monitor.Get(connectionName);
-        var queue = clientProvider
-            .GetClient(connectionName)
-            .GetQueueClient(publisher.QueueName);
+        if (matches.Length == 1)
+        {
+            return matches[0];
+        }
 
-        return new StorageQueuePublisher<TMessage>(
-            options.SerializerOptions,
-            queue);
+        if (matches.FirstOrDefault(m => m.ConnectionName == connectionName) is { } match)
+        {
+            return match;
+        }
+
+        throw new ArgumentException(
+            connectionName is { Length: > 0 } c
+                ? $"Type {typeof(TMessage).Name} not configured as a StorageQueue publisher for connection '{c}'"
+                : $"Type {typeof(TMessage).Name} not configured as a StorageQueue publisher for default connection");
     }
 }

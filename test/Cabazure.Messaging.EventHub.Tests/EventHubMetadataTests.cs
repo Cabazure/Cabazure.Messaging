@@ -17,7 +17,7 @@ public class EventHubMetadataTests
                 CorrelationId = eventData.CorrelationId,
                 EnqueuedTime = eventData.EnqueuedTime,
                 MessageId = eventData.MessageId,
-                Offset = eventData.Offset,
+                OffsetString = eventData.OffsetString,
                 PartitionKey = eventData.PartitionKey,
                 PartitionId = partitionId,
                 Properties = eventData.Properties.ToDictionary(),

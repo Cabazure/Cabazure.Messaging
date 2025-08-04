@@ -25,12 +25,12 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventHubs" Version="5.11.6" />
-    <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.11.6" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.3" />
-    <PackageReference Include="System.Text.Json" Version="9.0.3" />
+    <PackageReference Include="Azure.Messaging.EventHubs" Version="5.12.2" />
+    <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.12.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.7" />
+    <PackageReference Include="System.Text.Json" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>
