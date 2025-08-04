@@ -31,20 +31,25 @@ public class EventHubPublisherFactory(
     private EventHubPublisherRegistration FindRegistration<TMessage>(
         string? connectionName)
     {
-        if (registrations.TryGetValue(typeof(TMessage), out var matches))
+        if (!registrations.TryGetValue(typeof(TMessage), out var matches))
         {
-            if (matches.Length == 1)
-            {
-                return matches[0];
-            }
+            throw new ArgumentException(
+                $"Type {typeof(TMessage).Name} not configured as an EventHub publisher");
+        }
 
-            if (matches.SingleOrDefault(m => m.ConnectionName == connectionName) is { } singleMatch)
-            {
-                return singleMatch;
-            }
+        if (matches.Length == 1)
+        {
+            return matches[0];
+        }
+
+        if (matches.FirstOrDefault(m => m.ConnectionName == connectionName) is { } match)
+        {
+            return match;
         }
 
         throw new ArgumentException(
-            $"Type {typeof(TMessage).Name} not configured as an EventHub publisher");
+            connectionName is { Length: > 0 } c
+                ? $"Type {typeof(TMessage).Name} not configured as an EventHub publisher for connection '{c}'"
+                : $"Type {typeof(TMessage).Name} not configured as an EventHub publisher for default connection");
     }
 }
