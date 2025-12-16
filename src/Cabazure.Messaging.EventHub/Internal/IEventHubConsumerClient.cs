@@ -11,8 +11,12 @@ public interface IEventHubConsumerClient : IAsyncDisposable
 
     public string ConsumerGroup { get; }
 
-    IAsyncEnumerable<PartitionEvent> ReadEventsAsync(
-        bool startReadingAtEarliestEvent,
+    Task<string[]> GetPartitionIdsAsync(
+        CancellationToken cancellationToken = default);
+
+    IAsyncEnumerable<PartitionEvent> ReadEventsFromPartitionAsync(
+        string partitionId,
+        EventPosition startingPosition,
         ReadEventOptions? readOptions = null,
         CancellationToken cancellationToken = default);
 }
@@ -30,12 +34,20 @@ public sealed class EventHubConsumerClientWrapper(
 
     public ValueTask DisposeAsync() => client.DisposeAsync();
 
-    public IAsyncEnumerable<PartitionEvent> ReadEventsAsync(
-        bool startReadingAtEarliestEvent,
+    public IAsyncEnumerable<PartitionEvent> ReadEventsFromPartitionAsync(
+        string partitionId,
+        EventPosition startingPosition,
         ReadEventOptions? readOptions = null,
         CancellationToken cancellationToken = default)
-            => client.ReadEventsAsync(
-                startReadingAtEarliestEvent,
+            => client.ReadEventsFromPartitionAsync(
+                partitionId,
+                startingPosition,
                 readOptions,
                 cancellationToken);
+
+    public async Task<string[]> GetPartitionIdsAsync(CancellationToken cancellationToken = default)
+    {
+        var properties = await client.GetEventHubPropertiesAsync(cancellationToken);
+        return properties.PartitionIds;
+    }
 }
