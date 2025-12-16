@@ -80,13 +80,20 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
                     readOptions: readOptions,
                     cancellationToken: stoppingToken);
 
-
+                var anyEventsProcessed = false;
                 await foreach (var evt in events.WithCancellation(stoppingToken))
                 {
+                    anyEventsProcessed = true;
                     // Process sequentially within this partition
                     await ProcessMessageAsync(evt.Data, evt.Partition, stoppingToken);
                     // Update position to just after the processed event
                     eventPosition = EventPosition.FromOffset(evt.Data.OffsetString, isInclusive: false);
+                }
+
+                if (!anyEventsProcessed)
+                {
+                    // No events were processed, wait briefly before polling again
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
                 }
             }
         }
