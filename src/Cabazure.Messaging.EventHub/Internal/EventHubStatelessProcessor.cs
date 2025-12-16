@@ -71,18 +71,22 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
     {
         try
         {
+            var eventPosition = EventPosition.Latest;
             while (!stoppingToken.IsCancellationRequested)
             {
                 var events = client.ReadEventsFromPartitionAsync(
-                partitionId: partitionId,
-                startingPosition: EventPosition.Latest,
-                readOptions: readOptions,
-                cancellationToken: stoppingToken);
+                    partitionId: partitionId,
+                    startingPosition: eventPosition,
+                    readOptions: readOptions,
+                    cancellationToken: stoppingToken);
+
 
                 await foreach (var evt in events.WithCancellation(stoppingToken))
                 {
                     // Process sequentially within this partition
                     await ProcessMessageAsync(evt.Data, evt.Partition, stoppingToken);
+                    // Update position to just after the processed event
+                    eventPosition = EventPosition.FromOffset(evt.Data.OffsetString, isInclusive: false);
                 }
             }
         }
