@@ -43,18 +43,19 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
             // Ensure background task is running asynchronously
             await Task.Yield();
 
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                var events = client.ReadEventsAsync(
-                    startReadingAtEarliestEvent: false,
-                    readOptions: readOptions,
-                    cancellationToken: stoppingToken);
+            // Get all partition IDs
+            var partitionIds = await client.GetPartitionIdsAsync(stoppingToken);
 
-                await foreach (var evt in events.WithCancellation(stoppingToken))
-                {
-                    await ProcessMessageAsync(evt.Data, evt.Partition, stoppingToken);
-                }
-            }
+            // Process each partition in its own task to maintain per-partition ordering
+            var partitionTasks = partitionIds
+                .Select(partitionId => ProcessPartitionAsync(partitionId, stoppingToken))
+                .ToArray();
+
+            await Task.WhenAll(partitionTasks);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Graceful shutdown
         }
         catch (Exception ex)
         {
@@ -63,6 +64,46 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
         finally
         {
             IsRunning = false;
+        }
+    }
+
+    private async Task ProcessPartitionAsync(string partitionId, CancellationToken stoppingToken)
+    {
+        try
+        {
+            var eventPosition = EventPosition.Latest;
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var events = client.ReadEventsFromPartitionAsync(
+                    partitionId: partitionId,
+                    startingPosition: eventPosition,
+                    readOptions: readOptions,
+                    cancellationToken: stoppingToken);
+
+                var anyEventsProcessed = false;
+                await foreach (var evt in events.WithCancellation(stoppingToken))
+                {
+                    anyEventsProcessed = true;
+                    // Process sequentially within this partition
+                    await ProcessMessageAsync(evt.Data, evt.Partition, stoppingToken);
+                    // Update position to just after the processed event
+                    eventPosition = EventPosition.FromOffset(evt.Data.OffsetString, isInclusive: false);
+                }
+
+                if (!anyEventsProcessed)
+                {
+                    // No events were processed, wait briefly before polling again
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Graceful shutdown
+        }
+        catch (Exception ex)
+        {
+            await ProcessErrorAsync(ex, stoppingToken);
         }
     }
 

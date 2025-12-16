@@ -35,7 +35,7 @@ public class EventHubBatchHandler<TMessage, TProcessor>(
        CancellationToken cancellationToken)
     {
         EventData? lastEvent = null;
-        foreach (var evt in events)
+        foreach (var evt in events.OrderBy(e => e.SequenceNumber))
         {
             lastEvent = evt;
 

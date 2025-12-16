@@ -53,20 +53,31 @@ public class EventHubStatelessProcessorTests
         [Frozen] IEventHubConsumerClient client,
         [Frozen] ReadEventOptions readOptions,
         EventHubStatelessProcessor<TMessage, TProcessor> sut,
+        string partitionId,
         CancellationTokenSource cts)
     {
+        client.GetPartitionIdsAsync(default)
+            .ReturnsForAnyArgs([partitionId]);
         client
-            .WhenForAnyArgs(c => c.ReadEventsAsync(default, default, default))
+            .WhenForAnyArgs(c => c.ReadEventsFromPartitionAsync(default, default, default, default))
             .Do(c => cts.Cancel());
 
         _ = sut.StartProcessingAsync(cts.Token);
 
+        await client
+            .WaitForCallForAnyArgs(c
+            => c.GetPartitionIdsAsync(default));
+
         await client.WaitForCallForAnyArgs(c
-            => c.ReadEventsAsync(default, default, default));
+            => c.ReadEventsFromPartitionAsync(default, default, default, default));
+
+        _ = client
+            .Received(1)
+            .GetPartitionIdsAsync(Arg.Any<CancellationToken>());
 
         client
             .Received(1)
-            .ReadEventsAsync(false, readOptions, Arg.Any<CancellationToken>());
+            .ReadEventsFromPartitionAsync(partitionId, EventPosition.Latest, readOptions, Arg.Any<CancellationToken>());
     }
 
     [Theory, AutoNSubstituteData]
@@ -98,9 +109,11 @@ public class EventHubStatelessProcessorTests
             partitionId);
         var eventHubMessages = data
             .Select(m => new PartitionEvent(partition, m));
-
         client
-            .ReadEventsAsync(default, default, default)
+            .GetPartitionIdsAsync(default)
+            .ReturnsForAnyArgs([partitionId]);
+        client
+            .ReadEventsFromPartitionAsync(default, default, default, default)
             .ReturnsForAnyArgs(
                 c =>
                 {
