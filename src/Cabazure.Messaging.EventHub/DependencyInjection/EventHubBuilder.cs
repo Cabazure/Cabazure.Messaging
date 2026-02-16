@@ -47,7 +47,7 @@ public class EventHubBuilder(
                 publisherBuilder.GetPartitionKeyFactory()));
         Services.AddSingleton(s => s
             .GetRequiredService<IEventHubPublisherFactory>()
-            .Create<T>());
+            .Create<T>(ConnectionName));
         Services.AddSingleton<IMessagePublisher<T>>(s => s
             .GetRequiredService<IEventHubPublisher<T>>());
 

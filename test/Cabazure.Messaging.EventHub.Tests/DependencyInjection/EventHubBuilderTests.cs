@@ -158,7 +158,7 @@ public class EventHubBuilderTests
             .GetRequiredService<IEventHubPublisher<TMessage>>();
         factory
             .Received(1)
-            .Create<TMessage>();
+            .Create<TMessage>(sut.ConnectionName);
     }
 
     [Theory, AutoNSubstituteData]
@@ -182,7 +182,7 @@ public class EventHubBuilderTests
             .GetRequiredService<IMessagePublisher<TMessage>>();
         factory
             .Received(1)
-            .Create<TMessage>();
+            .Create<TMessage>(sut.ConnectionName);
     }
 
     [Theory, AutoNSubstituteData]
