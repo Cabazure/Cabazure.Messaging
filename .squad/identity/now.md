@@ -1,9 +1,9 @@
 ---
-updated_at: 2026-03-13T07:41:24.960Z
-focus_area: Squad configured for Cabazure.Messaging
+updated_at: 2026-03-13T08:02:17.880Z
+focus_area: Migrating tests to Cabazure.Test
 active_issues: []
 ---
 
-# What We're Focused On
+# What We''re Focused On
 
-The squad is aligned around maintaining Cabazure.Messaging as a multi-package .NET library for Azure messaging abstractions and backend integrations.
+Migrating the Cabazure.Messaging test suite from Atc.Test to Cabazure.Test using the sibling Cabazure.Test migration guide, on a focused feature branch.
