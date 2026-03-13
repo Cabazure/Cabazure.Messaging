@@ -25,3 +25,16 @@
   - Build succeeds; 186 tests pass (79 EventHub, 66 ServiceBus, 41 StorageQueue)
 - **Validation:** Confirmed by Tank and Oracle; zero Atc.Test residuals; documentation aligned
 - **Commits:** 4ed715a (migration), b26e966 (docs), 2c6e1e1 (copilot guidance)
+
+### 2026-03-13: FluentArgs.Match Migration & EventHub Customization Cleanup
+- **FluentArgs.Match Refactoring:** Implemented conservative-scope migration (3 tests) in commit f917525
+  - ServiceBusProcessorServiceTests.cs: 2 metadata assertion migrations
+  - EventHubBatchHandlerTests.cs: 1 single-message metadata assertion migration
+  - Correctly preserved: Publisher tests (require post-extraction transform), batch-style ReceivedArgs<T>() loops
+  - Tank's audit identified 12 total safe candidates; Trinity migrated immediate "truly fits" 3-test subset
+- **EventHub Customization Cleanup:** Commit bcc9821
+  - BlobClientOptionsGenerator: Replaced local IsRequestFor<T>() with SpecimenRequestHelper.GetRequestType(request)
+  - EventHubModelsGenerator: Simplified from custom ISpecimenBuilder to TypeCustomization<EventData> base class
+  - Impact: -14 lines duplicate request-matching logic; behavioral equivalence verified
+- **Approvals:** All work approved by Tank; 186 tests pass; zero regressions
+- **Status:** ✅ COMPLETE — Feature branch ready for user merge decision

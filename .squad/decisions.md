@@ -81,6 +81,77 @@
 
 ---
 
+### 2026-03-13: FluentArgs.Match Migration Scope Decision
+
+**Owner:** Tank (Tester & Reviewer)  
+**Date:** 2026-03-13  
+**Status:** ✅ IMPLEMENTED
+
+**Context:** User requested audit of test suite for legacy `Arg.Any<T>()` + `ReceivedArg<T>()` pattern candidates for refactoring to `FluentArgs.Match<T>()` inline matchers.
+
+**Decision:** Migrate only "truly fits" cases — single argument extraction immediately followed by assertion, with no downstream reuse or transformation.
+
+**Implementation:**
+- 3 tests migrated (commit f917525):
+  - `ServiceBusProcessorServiceTests.cs`: 2 metadata assertion tests
+  - `EventHubBatchHandlerTests.cs`: 1 single-message metadata assertion test
+- 12 additional safe candidates identified and deferred (audit map created)
+- 7 not-applicable tests (call-verify-only) correctly excluded
+- 2 tests with uncertain type-filter semantics deferred pending Cabazure.Test API clarification
+
+**Rationale:** Conservative scope appropriate for maintenance refactoring. Publisher tests requiring post-extraction transformation (`.Single()`, secondary verification calls) correctly excluded. Batch-style `ReceivedArgs<T>()` loops correctly preserved to maintain clear iteration intent.
+
+**Evidence:**
+- Build: ✅ Success (Release configuration)
+- Tests: ✅ 186 pass (79 EventHub, 66 ServiceBus, 41 StorageQueue)
+- No regressions
+
+---
+
+### 2026-03-13: EventHub Test Customization Best Practices
+
+**Owner:** Trinity (Implementer) & Tank (Reviewer)  
+**Date:** 2026-03-13  
+**Status:** ✅ APPROVED
+
+**Context:** EventHub test customizations used local `IsRequestFor<T>()` helper implementation and custom `ISpecimenBuilder` where simpler approaches exist in Cabazure.Test.
+
+**Decision:**
+1. Prefer `SpecimenRequestHelper.GetRequestType(request)` over local `IsRequestFor<T>()` helpers
+2. Prefer `TypeCustomization<T>` when specimen builder creates only one concrete type
+3. These patterns keep request-matching in Cabazure.Test; local code focuses on specimen construction
+
+**Implementation (commit bcc9821):**
+- `BlobClientOptionsGenerator.cs`: Replaced local `IsRequestFor<T>()` with `SpecimenRequestHelper.GetRequestType(request)`
+- `EventHubModelsGenerator.cs`: Simplified from custom `ISpecimenBuilder` to `TypeCustomization<EventData>` base class
+
+**Impact:** -14 lines of duplicate request-matching logic; behavioral equivalence verified (broader Type request coverage, not narrower)
+
+**Evidence:**
+- Build: ✅ Success
+- EventHub tests: ✅ 79 pass (no regressions)
+
+---
+
+### 2026-03-13: Final Approval — Feature Branch Ready for Merge
+
+**Owner:** Tank (Tester & Reviewer)  
+**Date:** 2026-03-13  
+**Status:** ✅ APPROVED
+
+**What:** Branch `feature/migrate-cabazure-test` approved for user merge after comprehensive review of FluentArgs migration and EventHub customizations.
+
+**Verification:**
+- Build succeeds (Release configuration)
+- All 186 tests pass (79 EventHub, 66 ServiceBus, 41 StorageQueue)
+- Zero residual Atc.Test API usages (grep verified)
+- Migration scope correctly applied (conservative, justified)
+- Customization cleanups behaviorally equivalent
+
+**Recommendation:** Ready for user review and merge.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus

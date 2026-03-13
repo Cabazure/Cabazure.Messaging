@@ -1,9 +1,9 @@
 ---
-updated_at: 2026-03-13T08:02:17.880Z
-focus_area: Migrating tests to Cabazure.Test
+updated_at: 2026-03-13T08:42:24.796Z
+focus_area: Migrating test assertions to FluentArgs.Match
 active_issues: []
 ---
 
 # What We''re Focused On
 
-Migrating the Cabazure.Messaging test suite from Atc.Test to Cabazure.Test using the sibling Cabazure.Test migration guide, on a focused feature branch.
+Migrating eligible tests from the old Arg.Any plus follow-up argument-inspection pattern to FluentArgs.Match, while preserving non-equivalent verification flows.
