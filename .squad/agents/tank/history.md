@@ -101,3 +101,18 @@
     - `FluentArg.Match<T>` takes an `Action<T>` assertion delegate (`C:\Users\ricky\Projects\Cabazure\Cabazure.Test\src\Cabazure.Test\FluentArg.cs`).
     - `FixtureFactory.Customizations.Add<T>(Func<IFixture, T>)` and `TypeCustomization<T>` are valid supported customization paths (`C:\Users\ricky\Projects\Cabazure\Cabazure.Test\src\Cabazure.Test\Customizations\FixtureCustomizationCollection.cs`, `...\TypeCustomization.cs`).
   - Latest added tips are concise, accurate, and suitable as future migration guidance rather than Cabazure.Messaging-specific advice.
+## Learnings
+- **[2026-03-13 Tank] Cabazure.Test MIGRATING.md Inline Matcher Tip Review — APPROVED:**
+  - Reviewed `C:\Users\ricky\Projects\Cabazure\Cabazure.Test\MIGRATING.md` addition covering `Arg.Any<T>()` + `ReceivedCallWithArgument<T>()` / `ReceivedArg<T>()` migration to `FluentArg.Match<T>()`.
+  - API wording is accurate to current Cabazure.Test source: `FluentArg.Match<T>(Action<T> assertion)` takes an assertion action, not a predicate, and the guide now says so explicitly.
+  - Scope is correct: inline matcher guidance is limited to immediate assertions and explicitly preserves `ReceivedArg<T>()` / `ReceivedArgs<T>()` for reuse, transformation, and batch inspection.
+  - Framing remains general-purpose; the new example uses neutral request terminology and does not drift into Cabazure.Messaging-specific or backend-specific guidance.
+
+- **[2026-03-13 Tank] Final Inline Matcher Documentation Review — SESSION COMPLETE:**
+  - Session arc: Oracle drafted → Tank rejected for API/scope issues → Trinity revised → Tank approved
+  - Trinity's revision corrected FluentArg.Match<T> examples to action-assertion syntax, simplified TypeCustomization<T> to factory pattern, removed EventHub-specific framing
+  - Final approval verified API accuracy against Cabazure.Test source, confirmed general-purpose framing suitable for future migrations
+  - Status: ✅ APPROVED — Ready for Cabazure.Test publication
+  - Session logged: orchestration-log/20260313T090706-tank.md, session-log/20260313T090706-inline-match-migration-guide.md
+  - Decision merged to decisions.md
+

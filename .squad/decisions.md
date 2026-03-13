@@ -193,6 +193,31 @@
 
 ---
 
+### 2026-03-13: Cabazure.Test MIGRATING.md — Inline Matcher Documentation (Trinity & Tank)
+
+**Author:** Trinity (Implementation), Tank (Review)  
+**Date:** 2026-03-13  
+**Status:** ✅ APPROVED
+
+**Context:** Following successful Cabazure.Messaging test migration, team documented high-value patterns for `Cabazure.Test/MIGRATING.md`:
+1. **Specimen Customization Patterns:** Prefer `SpecimenRequestHelper.GetRequestType()` for request-type filtering and `TypeCustomization<T>` base class
+2. **Assertion Refactoring Scope:** Use `FluentArg.Match<T>(Action<T>)` only for single-argument extraction with inline assertions; preserve `ReceivedArg<T>()` / `ReceivedArgs<T>()` for reuse, transformation, and batch flows
+
+**Revision Arc:**
+- **Draft (Oracle):** Initial tips submitted with API accuracy issues (FluentArg.Match<T> predicate example) and scope overfitting (EventHub-specific framing)
+- **Revision (Trinity):** Corrected examples to match actual Cabazure.Test API; generalized scope from backend-specific to universal specimen customization patterns
+- **Approval (Tank):** Final review confirmed API accuracy (verified against Cabazure.Test source), project-agnostic framing, and suitability for future migrations
+
+**Evidence:**
+- `FluentArg.Match<T>` correctly uses assertion-action syntax: `m => m.TenantId.Should().Be(expectedTenantId)` (source: `src\Cabazure.Test\FluentArg.cs`)
+- `TypeCustomization<T>` correctly uses factory pattern: `new TypeCustomization<T>(f => ...)` or subclass with `base(...)` (source: `src\Cabazure.Test\Customizations\TypeCustomization.cs`)
+- Guidance framed as general migration advice, not Cabazure.Messaging-specific
+- No backend-specific examples; applies to any Atc.Test → Cabazure.Test migration
+
+**Decision:** Approve and publish inline matcher guidance in Cabazure.Test MIGRATING.md.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus

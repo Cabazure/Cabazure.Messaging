@@ -1,15 +1,15 @@
-# Skill: FluentArgs.Match Migration for NSubstitute Mock Assertions
+# Skill: FluentArg.Match Migration for NSubstitute Mock Assertions
 
 **Version:** 1.0  
 **Owner:** Tank (Tester & Reviewer)  
 **Created:** 2025-01-10  
-**Context:** Cabazure.Messaging test suite; generalizable to any NSubstitute + FluentArgs project
+**Context:** Cabazure.Messaging test suite; generalizable to any NSubstitute + FluentArg project
 
 ---
 
 ## Overview
 
-This skill documents the pattern for migrating from the older Cabazure.Test `Arg.Any<T>()` + `.ReceivedArg<T>()` assertion pattern to the newer **FluentArgs.Match** pattern. It enables test authors to write cleaner, more readable assertions on mock calls.
+This skill documents the pattern for migrating from the older `Arg.Any<T>()` + post-call argument inspection pattern (`ReceivedCallWithArgument<T>()` in Atc.Test, `ReceivedArg<T>()` in Cabazure.Test) to the newer **FluentArg.Match** pattern. It enables test authors to write cleaner, more readable assertions on mock calls.
 
 ---
 
@@ -39,10 +39,10 @@ actualMessage.ContentType
 
 ## The Solution
 
-**New Pattern (FluentArgs.Match):**
+**New Pattern (FluentArg.Match):**
 ```csharp
 mock.Received(1).Method(
-    FluentArgs.Match<ServiceBusMessage>(msg =>
+    FluentArg.Match<ServiceBusMessage>(msg =>
         msg.ContentType.Should().BeEquivalentTo(expectedContentType)),
     cancellationToken);
 ```
@@ -58,10 +58,11 @@ mock.Received(1).Method(
 
 ## When to Use This Pattern
 
-✅ **Use FluentArgs.Match when:**
+✅ **Use FluentArg.Match when:**
 - You want to both verify a call was made AND validate the argument's properties
 - The argument is a complex object (message, options, metadata) with multiple properties to validate
-- You extract the argument via `ReceivedArg<T>()` immediately after `.Received()` for assertions
+- You extract the argument via `ReceivedCallWithArgument<T>()` / `ReceivedArg<T>()` immediately after `.Received()` for assertions
+- The inline matcher expresses the same verification flow as the old extraction-based version
 
 ❌ **Do NOT use when:**
 - You only care about verifying the call was made (no assertion on the argument value)
@@ -85,9 +86,9 @@ mock.Received(1).Method(
 2. **Move the assertion inside the `.Received()` call:**
    ```csharp
    mock.Received(n).Method(
-       FluentArgs.Match<T>(arg => arg.SomeProperty.Should()...),
-       ...);
-   ```
+        FluentArg.Match<T>(arg => arg.SomeProperty.Should()...),
+        ...);
+    ```
 
 3. **Remove the extraction variable and separate assertion.**
 
@@ -95,7 +96,7 @@ mock.Received(1).Method(
 
 ---
 
-## Examples from Cabazure.Messaging
+## Examples
 
 ### Example 1: Single Property Assertion
 **Before:**
@@ -111,7 +112,7 @@ eventData.Body
 **After:**
 ```csharp
 sender.Received(1).SendMessageAsync(
-    FluentArgs.Match<ServiceBusMessage>(msg =>
+    FluentArg.Match<ServiceBusMessage>(msg =>
         msg.Body
             .ToObjectFromJson<TMessage>(serializerOptions)
             .Should()
@@ -132,7 +133,7 @@ eventData.MessageId.Should().BeEquivalentTo(options.MessageId);
 **After:**
 ```csharp
 sender.Received(1).SendMessageAsync(
-    FluentArgs.Match<ServiceBusMessage>(msg =>
+    FluentArg.Match<ServiceBusMessage>(msg =>
     {
         msg.ContentType.Should().BeEquivalentTo(options.ContentType);
         msg.CorrelationId.Should().BeEquivalentTo(options.CorrelationId);
@@ -158,7 +159,7 @@ processor.ReceivedArg<ServiceBusMetadata>()
 ```csharp
 processor.Received(1).ProcessAsync(
     message,
-    FluentArgs.Match<ServiceBusMetadata>(metadata =>
+    FluentArg.Match<ServiceBusMetadata>(metadata =>
         metadata.Should()
             .BeEquivalentTo(ServiceBusMetadata.Create(args.Message))),
     args.CancellationToken);
@@ -171,15 +172,15 @@ processor.Received(1).ProcessAsync(
 ### Pitfall 1: Forgetting the Matcher Lambda
 ❌ **Wrong:**
 ```csharp
-mock.Received(1).Method(FluentArgs.Match<T>);  // Missing lambda
+mock.Received(1).Method(FluentArg.Match<T>);  // Missing lambda
 ```
 
 ✅ **Right:**
 ```csharp
-mock.Received(1).Method(FluentArgs.Match<T>(arg => arg.Should()...));
+mock.Received(1).Method(FluentArg.Match<T>(arg => arg.Should()...));
 ```
 
-### Pitfall 2: Confusing Arg.Is with FluentArgs.Match
+### Pitfall 2: Confusing Arg.Is with FluentArg.Match
 ❌ **Wrong (for assertions):**
 ```csharp
 // Arg.Is<T>() is for equality matching, not assertions
@@ -188,8 +189,8 @@ mock.Received(1).Method(Arg.Is<T>(x => x.Property == expected));
 
 ✅ **Right:**
 ```csharp
-// FluentArgs.Match is for fluent assertions
-mock.Received(1).Method(FluentArgs.Match<T>(x =>
+// FluentArg.Match is for fluent assertions
+mock.Received(1).Method(FluentArg.Match<T>(x =>
     x.Property.Should().Be(expected)));
 ```
 
@@ -207,8 +208,8 @@ var t2 = mock.ReceivedArg<T2>();
 ✅ **Safe (type-dependent):**
 ```csharp
 mock.Received(1).Method(
-    FluentArgs.Match<T1>(arg => arg.Should()...),
-    FluentArgs.Match<T2>(arg => arg.Should()...));
+    FluentArg.Match<T1>(arg => arg.Should()...),
+    FluentArg.Match<T2>(arg => arg.Should()...));
 // Type safety ensures each matcher matches its intended argument
 ```
 
@@ -216,17 +217,17 @@ mock.Received(1).Method(
 
 ## When to Ask for Help
 
-- **Q:** Can I use FluentArgs.Match on a primitive argument?  
+- **Q:** Can I use FluentArg.Match on a primitive argument?  
   **A:** Yes, but `Arg.Is<T>()` is more concise for simple equality: `Arg.Is<string>("expected")`
 
 - **Q:** Can I extract the argument outside for reuse?  
-  **A:** Not with FluentArgs.Match. If you need the value elsewhere, keep the old `.ReceivedArg<T>()` pattern (that's a sign the test might be doing too much).
+  **A:** Not with FluentArg.Match. If you need the value elsewhere, keep the old `.ReceivedArg<T>()` pattern (that's a sign the test might be doing too much).
 
 - **Q:** What if the assertion I want is complex?  
   **A:** Move the complex logic into a local helper method called from the matcher:
   ```csharp
   mock.Received(1).Method(
-      FluentArgs.Match<T>(arg => AssertMessageProperties(arg, expected)));
+      FluentArg.Match<T>(arg => AssertMessageProperties(arg, expected)));
 
   private void AssertMessageProperties(ServiceBusMessage msg, Expected expected)
   {
@@ -249,7 +250,7 @@ mock.Received(1).Method(
 
 ## Review Checklist for Code Reviewers
 
-When reviewing a FluentArgs.Match migration:
+When reviewing a FluentArg.Match migration:
 
 - [ ] Assertion logic inside the matcher is equivalent to the old extraction + assertion
 - [ ] No intermediate variables left over from the extraction pattern
