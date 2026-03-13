@@ -1,17 +1,15 @@
-﻿using Atc.Test.Customizations;
-using Atc.Test.Customizations.Generators;
 using AutoFixture.Kernel;
 using Azure.Storage.Blobs;
+using Cabazure.Test.Customizations;
 
 namespace Cabazure.Messaging.EventHub.Tests;
 
-[AutoRegister]
 public class BlobClientOptionsGenerator : ISpecimenBuilder
 {
     /// <inheritdoc/>
     public object Create(object request, ISpecimenContext context)
     {
-        if (!request.IsRequestFor<BlobClientOptions>())
+        if (SpecimenRequestHelper.GetRequestType(request) != typeof(BlobClientOptions))
         {
             return new NoSpecimen();
         }

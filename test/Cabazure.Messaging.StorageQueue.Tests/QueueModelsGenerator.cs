@@ -1,23 +1,20 @@
-﻿using Atc.Test.Customizations;
-using Atc.Test.Customizations.Generators;
 using AutoFixture.Kernel;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 
 namespace Cabazure.Messaging.StorageQueue.Tests;
 
-[AutoRegister]
 public class QueueModelsGenerator : ISpecimenBuilder
 {
     /// <inheritdoc/>
     public object Create(object request, ISpecimenContext context)
     {
-        if (request.IsRequestFor<QueueClientOptions>())
+        if (IsRequestFor<QueueClientOptions>(request))
         {
             return new QueueClientOptions();
         }
 
-        if (request.IsRequestFor<QueueMessage>())
+        if (IsRequestFor<QueueMessage>(request))
         {
             return QueuesModelFactory.QueueMessage(
                 context.Create<string>(),
@@ -31,4 +28,12 @@ public class QueueModelsGenerator : ISpecimenBuilder
 
         return new NoSpecimen();
     }
+
+    private static bool IsRequestFor<T>(object request)
+        => request switch
+        {
+            Type type => type == typeof(T),
+            SeededRequest seededRequest => Equals(seededRequest.Request, typeof(T)),
+            _ => false,
+        };
 }

@@ -56,20 +56,20 @@ public class EventHubStatelessProcessorTests
         string partitionId,
         CancellationTokenSource cts)
     {
-        client.GetPartitionIdsAsync(default)
+        client.GetPartitionIdsAsync(TestContext.Current.CancellationToken)
             .ReturnsForAnyArgs([partitionId]);
         client
-            .WhenForAnyArgs(c => c.ReadEventsFromPartitionAsync(default, default, default, default))
+            .WhenForAnyArgs(c => c.ReadEventsFromPartitionAsync(default, default, default, TestContext.Current.CancellationToken))
             .Do(c => cts.Cancel());
 
         _ = sut.StartProcessingAsync(cts.Token);
 
         await client
-            .WaitForCallForAnyArgs(c
-            => c.GetPartitionIdsAsync(default));
+            .WaitForReceivedWithAnyArgs(c
+            => c.GetPartitionIdsAsync(TestContext.Current.CancellationToken));
 
-        await client.WaitForCallForAnyArgs(c
-            => c.ReadEventsFromPartitionAsync(default, default, default, default));
+        await client.WaitForReceivedWithAnyArgs(c
+            => c.ReadEventsFromPartitionAsync(default, default, default, TestContext.Current.CancellationToken));
 
         _ = client
             .Received(1)
@@ -110,10 +110,10 @@ public class EventHubStatelessProcessorTests
         var eventHubMessages = data
             .Select(m => new PartitionEvent(partition, m));
         client
-            .GetPartitionIdsAsync(default)
+            .GetPartitionIdsAsync(TestContext.Current.CancellationToken)
             .ReturnsForAnyArgs([partitionId]);
         client
-            .ReadEventsFromPartitionAsync(default, default, default, default)
+            .ReadEventsFromPartitionAsync(default, default, default, TestContext.Current.CancellationToken)
             .ReturnsForAnyArgs(
                 c =>
                 {
@@ -132,12 +132,12 @@ public class EventHubStatelessProcessorTests
                 Arg.Any<CancellationToken>());
 
         processor
-            .ReceivedCallsWithArguments<TMessage>()
+            .ReceivedArgs<TMessage>()
             .Should()
             .BeEquivalentTo(messages);
 
         processor
-            .ReceivedCallsWithArguments<EventHubMetadata>()
+            .ReceivedArgs<EventHubMetadata>()
             .Should()
             .BeEquivalentTo(eventHubMessages
                 .Select(e => EventHubMetadata.Create(

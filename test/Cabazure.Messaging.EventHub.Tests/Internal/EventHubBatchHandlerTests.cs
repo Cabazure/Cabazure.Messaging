@@ -62,7 +62,7 @@ public class EventHubBatchHandlerTests
             .Select(e => EventHubMetadata.Create(e, partition.PartitionId))
             .ToArray();
         processor
-            .ReceivedCallsWithArguments<EventHubMetadata>()
+            .ReceivedArgs<EventHubMetadata>()
             .Should()
             .BeEquivalentTo(expectedMetadata);
     }
@@ -96,7 +96,7 @@ public class EventHubBatchHandlerTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessAsync(default, default, default);
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
     }
 
     [Theory, AutoNSubstituteData]
@@ -130,14 +130,10 @@ public class EventHubBatchHandlerTests
             .Received(1)
             .ProcessAsync(
                 message,
-                Arg.Any<EventHubMetadata>(),
+                FluentArg.Match<EventHubMetadata>(metadata =>
+                    metadata.Should().BeEquivalentTo(
+                        EventHubMetadata.Create(data, partition.PartitionId))),
                 cancellationToken);
-
-        processor
-            .ReceivedCallWithArgument<EventHubMetadata>()
-            .Should()
-            .BeEquivalentTo(
-                EventHubMetadata.Create(data, partition.PartitionId));
     }
 
 

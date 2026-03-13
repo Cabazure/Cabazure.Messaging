@@ -54,7 +54,7 @@ Tests mirror the production packages under `test/`, and runnable examples live u
 ## Test conventions
 
 - Add or update tests in the matching test project for the package you change
-- Use the current test stack: xUnit, AutoFixture with AutoNSubstitute, Atc.Test, FluentAssertions, and NSubstitute
+- Use the current test stack: xUnit, AutoFixture with AutoNSubstitute, Cabazure.Test, FluentAssertions, and NSubstitute
 - Prefer `[Theory, AutoNSubstituteData]` with `[Frozen]` collaborators for unit tests
 - Verify both payload serialization and Azure SDK metadata mapping when changing publishers or processors
 - Cover both DI registration behavior and runtime behavior when modifying builder or processor infrastructure

@@ -61,7 +61,7 @@ public class ServiceBusPublisherTests
             cancellationToken);
 
         var eventData = sender
-            .ReceivedCallWithArgument<ServiceBusMessage>();
+            .ReceivedArg<ServiceBusMessage>();
         eventData.Body
             .ToObjectFromJson<TMessage>(
                 serializerOptions)
@@ -83,7 +83,7 @@ public class ServiceBusPublisherTests
             cancellationToken);
 
         var eventData = sender
-            .ReceivedCallWithArgument<ServiceBusMessage>();
+            .ReceivedArg<ServiceBusMessage>();
         eventDataModifier
             .Received(1)
             .Invoke(message, eventData);
@@ -104,7 +104,7 @@ public class ServiceBusPublisherTests
             cancellationToken);
 
         var eventData = sender
-            .ReceivedCallWithArgument<ServiceBusMessage>();
+            .ReceivedArg<ServiceBusMessage>();
         eventData.ContentType
             .Should()
             .BeEquivalentTo(options.ContentType);
@@ -137,7 +137,7 @@ public class ServiceBusPublisherTests
             cancellationToken);
 
         var eventData = sender
-            .ReceivedCallWithArgument<ServiceBusMessage>();
+            .ReceivedArg<ServiceBusMessage>();
         eventData.SessionId
             .Should()
             .Be(options.SessionId);

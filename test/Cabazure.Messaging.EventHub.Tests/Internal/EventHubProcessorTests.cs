@@ -67,7 +67,7 @@ public static class EventHubBatchProcessorExtensions
         EventProcessorPartition partition,
         CancellationToken cancellationToken)
         where TProcessor : IMessageProcessor<TMessage>
-        => processor.InvokeProtectedMethod<Task>(
+        => processor.InvokeProtected<Task>(
             "OnProcessingEventBatchAsync",
             events,
             partition,
@@ -80,7 +80,7 @@ public static class EventHubBatchProcessorExtensions
         string operationDescription,
         CancellationToken cancellationToken)
         where TProcessor : IMessageProcessor<TMessage>
-        => processor.InvokeProtectedMethod<Task>(
+        => processor.InvokeProtected<Task>(
             "OnProcessingErrorAsync",
             exception,
             partition,

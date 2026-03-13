@@ -138,14 +138,10 @@ public class ServiceBusProcessorServiceTests
             .Received(1)
             .ProcessAsync(
                 message,
-                Arg.Any<ServiceBusMetadata>(),
+                FluentArg.Match<ServiceBusMetadata>(metadata =>
+                    metadata.Should().BeEquivalentTo(
+                        ServiceBusMetadata.Create(args.Message))),
                 args.CancellationToken);
-
-        processor
-            .ReceivedCallWithArgument<ServiceBusMetadata>()
-            .Should()
-            .BeEquivalentTo(
-                ServiceBusMetadata.Create(args.Message));
     }
 
     [Theory, AutoNSubstituteData]
@@ -176,7 +172,7 @@ public class ServiceBusProcessorServiceTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessAsync(default, default, default);
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
     }
 
 
@@ -209,14 +205,10 @@ public class ServiceBusProcessorServiceTests
             .Received(1)
             .ProcessAsync(
                 message,
-                Arg.Any<ServiceBusMetadata>(),
+                FluentArg.Match<ServiceBusMetadata>(metadata =>
+                    metadata.Should().BeEquivalentTo(
+                        ServiceBusMetadata.Create(args.Message))),
                 args.CancellationToken);
-
-        processor
-            .ReceivedCallWithArgument<ServiceBusMetadata>()
-            .Should()
-            .BeEquivalentTo(
-                ServiceBusMetadata.Create(args.Message));
     }
 
     [Theory, AutoNSubstituteData]
@@ -239,7 +231,7 @@ public class ServiceBusProcessorServiceTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessAsync(default, default, default);
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
     }
 
     [Theory, AutoNSubstituteData]
@@ -297,6 +289,6 @@ public class ServiceBusProcessorServiceTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessErrorAsync(default, default);
+            .ProcessErrorAsync(default!, TestContext.Current.CancellationToken);
     }
 }

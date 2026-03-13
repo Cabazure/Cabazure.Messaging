@@ -1,9 +1,9 @@
 ---
-updated_at: 2026-03-13T07:41:24.960Z
-focus_area: Squad configured for Cabazure.Messaging
+updated_at: 2026-03-13T08:42:24.796Z
+focus_area: Migrating test assertions to FluentArgs.Match
 active_issues: []
 ---
 
-# What We're Focused On
+# What We''re Focused On
 
-The squad is aligned around maintaining Cabazure.Messaging as a multi-package .NET library for Azure messaging abstractions and backend integrations.
+Migrating eligible tests from the old Arg.Any plus follow-up argument-inspection pattern to FluentArgs.Match, while preserving non-equivalent verification flows.

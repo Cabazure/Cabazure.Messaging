@@ -154,12 +154,12 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
                 Arg.Any<CancellationToken>());
 
         processor
-            .ReceivedCallsWithArguments<TMessage>()
+            .ReceivedArgs<TMessage>()
             .Should()
             .BeEquivalentTo(messages);
 
         processor
-            .ReceivedCallsWithArguments<StorageQueueMetadata>()
+            .ReceivedArgs<StorageQueueMetadata>()
             .Should()
             .BeEquivalentTo(queueMessages
                 .Select(StorageQueueMetadata.Create));
@@ -169,7 +169,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
     public async Task Should_Call_Processor_ProcessErrorAsync(
         Exception exception)
     {
-        processor.ProcessAsync(default, default, default)
+        processor.ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
             .ReturnsForAnyArgs(c => throw exception);
 
         await sut.StartAsync(cancellationToken);
