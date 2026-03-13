@@ -142,7 +142,7 @@ public class ServiceBusProcessorServiceTests
                 args.CancellationToken);
 
         processor
-            .ReceivedCallWithArgument<ServiceBusMetadata>()
+            .ReceivedArg<ServiceBusMetadata>()
             .Should()
             .BeEquivalentTo(
                 ServiceBusMetadata.Create(args.Message));
@@ -176,7 +176,7 @@ public class ServiceBusProcessorServiceTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessAsync(default, default, default);
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
     }
 
 
@@ -213,7 +213,7 @@ public class ServiceBusProcessorServiceTests
                 args.CancellationToken);
 
         processor
-            .ReceivedCallWithArgument<ServiceBusMetadata>()
+            .ReceivedArg<ServiceBusMetadata>()
             .Should()
             .BeEquivalentTo(
                 ServiceBusMetadata.Create(args.Message));
@@ -239,7 +239,7 @@ public class ServiceBusProcessorServiceTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessAsync(default, default, default);
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
     }
 
     [Theory, AutoNSubstituteData]
@@ -297,6 +297,6 @@ public class ServiceBusProcessorServiceTests
 
         _ = processor
             .DidNotReceiveWithAnyArgs()
-            .ProcessErrorAsync(default, default);
+            .ProcessErrorAsync(default!, TestContext.Current.CancellationToken);
     }
 }

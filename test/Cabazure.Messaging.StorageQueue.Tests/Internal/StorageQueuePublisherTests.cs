@@ -65,7 +65,7 @@ public class StorageQueuePublisherTests
             cancellationToken);
 
         var data = client
-            .ReceivedCallWithArgument<BinaryData>();
+            .ReceivedArg<BinaryData>();
         data
             .ToObjectFromJson<TMessage>(serializerOptions)
             .Should()

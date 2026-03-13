@@ -63,7 +63,7 @@ public class EventHubPublisherTests
             cancellationToken);
 
         var eventData = client
-            .ReceivedCallWithArgument<IEnumerable<EventData>>()
+            .ReceivedArg<IEnumerable<EventData>>()
             .Single();
         eventData.EventBody
             .ToObjectFromJson<TMessage>(
@@ -86,7 +86,7 @@ public class EventHubPublisherTests
             cancellationToken);
 
         var eventData = client
-            .ReceivedCallWithArgument<IEnumerable<EventData>>()
+            .ReceivedArg<IEnumerable<EventData>>()
             .Single();
         eventDataModifier
             .Received(1)
@@ -110,7 +110,7 @@ public class EventHubPublisherTests
             cancellationToken);
 
         var eventData = client
-            .ReceivedCallWithArgument<IEnumerable<EventData>>()
+            .ReceivedArg<IEnumerable<EventData>>()
             .Single();
         eventData.ContentType
             .Should()
@@ -142,7 +142,7 @@ public class EventHubPublisherTests
             cancellationToken);
 
         var sendOptions = client
-            .ReceivedCallWithArgument<SendEventOptions>();
+            .ReceivedArg<SendEventOptions>();
         sendOptions.PartitionKey
             .Should()
             .BeEquivalentTo(partitionKey);
@@ -163,7 +163,7 @@ public class EventHubPublisherTests
             cancellationToken);
 
         var sendOptions = client
-            .ReceivedCallWithArgument<SendEventOptions>();
+            .ReceivedArg<SendEventOptions>();
         sendOptions.PartitionKey
             .Should()
             .BeEquivalentTo(options.PartitionKey);

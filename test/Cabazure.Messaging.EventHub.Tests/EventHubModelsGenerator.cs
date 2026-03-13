@@ -1,17 +1,14 @@
-﻿using Atc.Test.Customizations;
-using Atc.Test.Customizations.Generators;
 using AutoFixture.Kernel;
 using Azure.Messaging.EventHubs;
 
 namespace Cabazure.Messaging.EventHub.Tests;
 
-[AutoRegister]
 public class EventHubModelsGenerator : ISpecimenBuilder
 {
     /// <inheritdoc/>
     public object Create(object request, ISpecimenContext context)
     {
-        if (request.IsRequestFor<EventData>())
+        if (IsRequestFor<EventData>(request))
         {
             return EventHubsModelFactory.EventData(
                 eventBody: context.Create<BinaryData>(),
@@ -25,4 +22,12 @@ public class EventHubModelsGenerator : ISpecimenBuilder
 
         return new NoSpecimen();
     }
+
+    private static bool IsRequestFor<T>(object request)
+        => request switch
+        {
+            Type type => type == typeof(T),
+            SeededRequest seededRequest => Equals(seededRequest.Request, typeof(T)),
+            _ => false,
+        };
 }
