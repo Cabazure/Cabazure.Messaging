@@ -12,6 +12,7 @@
 - Cabazure.Messaging test projects live under `test\Cabazure.Messaging.*.Tests\` and migrated from `Atc.Test` to `Cabazure.Test` 1.0.1 on `feature/migrate-cabazure-test`.
 - EventHub and StorageQueue test assemblies register custom AutoFixture specimen builders in `TestInitializer.cs` via `FixtureFactory.Customizations.Add(...)`; EventHub also needs a safe `EventHubsRetryOptions` factory for xUnit 3-era fixture creation.
 - The migration touched `Cabazure.Messaging.*.Tests.csproj` files, swapped global usings to `Cabazure.Test` and `AutoFixture.Xunit3`, and replaced Atc-specific helpers like `ReceivedCallWithArgument`, `ReceivedCallsWithArguments`, `WaitForCallForAnyArgs`, and `InvokeProtectedMethod`.
+- EventHub test customizations now prefer `Cabazure.Test.Customizations.SpecimenRequestHelper` over local `IsRequestFor` helpers, and `test\Cabazure.Messaging.EventHub.Tests\EventHubModelsGenerator.cs` is clearer as a `TypeCustomization<EventData>` than a hand-rolled `ISpecimenBuilder`.
 
 ## Work Log
 

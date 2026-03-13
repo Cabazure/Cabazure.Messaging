@@ -23,6 +23,8 @@ Use this pattern when moving a Cabazure test assembly from `Atc.Test` to `Cabazu
 - Remove `[AutoRegister]` from specimen builders.
 - Add a `TestInitializer.cs` per test assembly that uses `[ModuleInitializer]` and `FixtureFactory.Customizations.Add(...)` to register custom `ISpecimenBuilder` instances.
 - If Azure SDK option types fail AutoFixture construction under xUnit 3, register safe defaults in the initializer, e.g. `FixtureFactory.Customizations.Add(_ => new EventHubsRetryOptions());`.
+- When a customization only needs to check the requested type, prefer `SpecimenRequestHelper.GetRequestType(request)` over local `IsRequestFor(...)` helpers.
+- When a customization only creates one type, consider `TypeCustomization<T>` (or `FixtureFactory.Customizations.Add<T>(...)`) instead of a bespoke `ISpecimenBuilder`.
 
 ### API renames
 

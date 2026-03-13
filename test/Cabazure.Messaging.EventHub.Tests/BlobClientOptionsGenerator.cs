@@ -1,5 +1,6 @@
 using AutoFixture.Kernel;
 using Azure.Storage.Blobs;
+using Cabazure.Test.Customizations;
 
 namespace Cabazure.Messaging.EventHub.Tests;
 
@@ -8,19 +9,11 @@ public class BlobClientOptionsGenerator : ISpecimenBuilder
     /// <inheritdoc/>
     public object Create(object request, ISpecimenContext context)
     {
-        if (!IsRequestFor<BlobClientOptions>(request))
+        if (SpecimenRequestHelper.GetRequestType(request) != typeof(BlobClientOptions))
         {
             return new NoSpecimen();
         }
 
         return new BlobClientOptions();
     }
-
-    private static bool IsRequestFor<T>(object request)
-        => request switch
-        {
-            Type type => type == typeof(T),
-            SeededRequest seededRequest => Equals(seededRequest.Request, typeof(T)),
-            _ => false,
-        };
 }
