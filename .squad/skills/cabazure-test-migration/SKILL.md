@@ -33,6 +33,11 @@ Use this pattern when moving a Cabazure test assembly from `Atc.Test` to `Cabazu
 - `WaitForCallForAnyArgs(...)` becomes `WaitForReceivedWithAnyArgs(...)`.
 - `InvokeProtectedMethod(...)` becomes `InvokeProtected(...)` or `InvokeProtectedAsync(...)` depending on the target method shape.
 
+### Fluent matcher cleanup
+
+- When a test verifies exactly one received call and then immediately inspects the captured argument with `ReceivedArg<T>()`, prefer `FluentArg.Match<T>(...)` and keep the FluentAssertions assertion inline in the `Received(...)` call.
+- Keep `ReceivedArgs<T>()`-based flows for batch/loop assertions where calls are counted first and the collected arguments are intentionally asserted together afterward.
+
 ### xUnit 3 analyzer expectations
 
 - xUnit 3 analyzers reject placeholder cancellation tokens in test method calls. Use `TestContext.Current.CancellationToken` in NSubstitute setups and verifications that invoke APIs taking a `CancellationToken`.

@@ -130,14 +130,10 @@ public class EventHubBatchHandlerTests
             .Received(1)
             .ProcessAsync(
                 message,
-                Arg.Any<EventHubMetadata>(),
+                FluentArg.Match<EventHubMetadata>(metadata =>
+                    metadata.Should().BeEquivalentTo(
+                        EventHubMetadata.Create(data, partition.PartitionId))),
                 cancellationToken);
-
-        processor
-            .ReceivedArg<EventHubMetadata>()
-            .Should()
-            .BeEquivalentTo(
-                EventHubMetadata.Create(data, partition.PartitionId));
     }
 
 

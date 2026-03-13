@@ -138,14 +138,10 @@ public class ServiceBusProcessorServiceTests
             .Received(1)
             .ProcessAsync(
                 message,
-                Arg.Any<ServiceBusMetadata>(),
+                FluentArg.Match<ServiceBusMetadata>(metadata =>
+                    metadata.Should().BeEquivalentTo(
+                        ServiceBusMetadata.Create(args.Message))),
                 args.CancellationToken);
-
-        processor
-            .ReceivedArg<ServiceBusMetadata>()
-            .Should()
-            .BeEquivalentTo(
-                ServiceBusMetadata.Create(args.Message));
     }
 
     [Theory, AutoNSubstituteData]
@@ -209,14 +205,10 @@ public class ServiceBusProcessorServiceTests
             .Received(1)
             .ProcessAsync(
                 message,
-                Arg.Any<ServiceBusMetadata>(),
+                FluentArg.Match<ServiceBusMetadata>(metadata =>
+                    metadata.Should().BeEquivalentTo(
+                        ServiceBusMetadata.Create(args.Message))),
                 args.CancellationToken);
-
-        processor
-            .ReceivedArg<ServiceBusMetadata>()
-            .Should()
-            .BeEquivalentTo(
-                ServiceBusMetadata.Create(args.Message));
     }
 
     [Theory, AutoNSubstituteData]
