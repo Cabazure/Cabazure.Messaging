@@ -79,3 +79,25 @@
    - Agent histories updated with multi-session arc context
    - All team decisions, artifacts, and work properly archived and documented
    - **Final Status:** ✅ APPROVED — Feature branch `feature/migrate-cabazure-test` ready for user merge decision
+
+- **[2026-03-13 Tank] Cabazure.Test MIGRATING.md Session — COMPLETE:**
+   - **Phase 1:** Reviewed Oracle's draft "Tips from Migration Experience" section
+   - **Phase 2:** REJECTED Oracle draft for API accuracy failures and scope overfitting
+   - **Phase 3:** Reviewed Trinity's revision after generalization and API correction
+   - **Phase 4:** APPROVED Trinity's final version — API-accurate, project-agnostic, suitable for future migrations
+   - **Evidence:** All examples verified against Cabazure.Test source; no backend-specific framing; guidance applicable to any Atc.Test → Cabazure.Test migration
+   - **Status:** ✅ COMPLETE — Cabazure.Test MIGRATING.md updated with documented decisions archived
+- **[2026-03-13 Tank] Cabazure.Test MIGRATING.md Review — REJECTED:**
+  - Reviewed `C:\Users\ricky\Projects\Cabazure\Cabazure.Test\MIGRATING.md` update adding "Tips from Migration Experience".
+  - **Found API-invalid examples:** `FluentArg.Match<T>` accepts an assertion `Action<T>`, not a boolean predicate; the new example `m => m.TenantId == expectedTenantId` is wrong against `src\Cabazure.Test\FluentArg.cs`.
+  - **Found customization example invalid:** `TypeCustomization<T>` is factory-based (`new TypeCustomization<T>(f => ...)` or `: base(f => ...)`), not an overridable `Create(IFixture)` pattern; the new sample would not compile against `src\Cabazure.Test\Customizations\TypeCustomization.cs`.
+  - **Scope issue:** Heading and wording are too EventHub-specific for a general migration guide. Keep the helper guidance, but frame it generically around specimen builders/customizations.
+  - Required follow-up: different author should revise the doc before approval.
+
+- **[2026-03-13 Tank] Cabazure.Test MIGRATING.md Final Review — APPROVED:**
+  - Re-reviewed `C:\Users\ricky\Projects\Cabazure\Cabazure.Test\MIGRATING.md` after the migration-tip rewrite.
+  - The new section is now general-purpose: no backend-specific wording remains, and the guidance is framed around generic specimen customization and argument-verification patterns.
+  - API accuracy verified against source:
+    - `FluentArg.Match<T>` takes an `Action<T>` assertion delegate (`C:\Users\ricky\Projects\Cabazure\Cabazure.Test\src\Cabazure.Test\FluentArg.cs`).
+    - `FixtureFactory.Customizations.Add<T>(Func<IFixture, T>)` and `TypeCustomization<T>` are valid supported customization paths (`C:\Users\ricky\Projects\Cabazure\Cabazure.Test\src\Cabazure.Test\Customizations\FixtureCustomizationCollection.cs`, `...\TypeCustomization.cs`).
+  - Latest added tips are concise, accurate, and suitable as future migration guidance rather than Cabazure.Messaging-specific advice.

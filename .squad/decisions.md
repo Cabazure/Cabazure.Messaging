@@ -152,6 +152,47 @@
 
 ---
 
+### 2026-03-13: Cabazure.Test MIGRATING.md — Migration Tips Documentation
+
+**Author:** Oracle (Documentation), revised by Trinity (Implementation)  
+**Date:** 2026-03-13  
+**Status:** ✅ COMPLETED
+
+**Context:** Following successful Cabazure.Messaging test migration (Atc.Test → Cabazure.Test 1.0.1), team identified two high-value patterns for documentation in `Cabazure.Test/MIGRATING.md`:
+1. **Specimen Customization Patterns:** Prefer `SpecimenRequestHelper.GetRequestType()` for request-type filtering and `TypeCustomization<T>` base class for single-type builders
+2. **Assertion Refactoring Scope:** Use `FluentArg.Match<T>()` only for single-argument extraction with inline assertions; preserve `ReceivedArg<T>()` and `ReceivedArgs<T>()` for reuse, transformation, and batch flows
+
+**Revision History:**
+- **Draft (Oracle):** Initial tips submitted; Tank identified API accuracy issues (FluentArg.Match<T> and TypeCustomization<T> examples did not match real API signatures) and scope overfitting (too EventHub-specific)
+- **Revision (Trinity):** Corrected examples to match actual Cabazure.Test API; generalized scope from "EventHub Test Customization" to "Specimen Customization Patterns"; removed backend-specific framing
+- **Approval (Tank):** Final review confirmed API accuracy and project-agnostic framing suitable for future migrations
+
+**Evidence:**
+- FluentArg.Match<T> now correctly uses assertion-action syntax: `m => m.TenantId.Should().Be(expectedTenantId)`
+- TypeCustomization<T> now correctly uses constructor/factory patterns: `new TypeCustomization<T>(f => ...)` or subclass with `base(...)`
+- Guidance framed as general migration advice, not Cabazure.Messaging-specific cleanup
+
+**Impact:**
+- Cabazure.Test MIGRATING.md updated with practical, API-accurate tips for customizing fixtures and assertions
+- Future test authors (inside and outside Cabazure.Messaging) have reusable guidance
+- No backend-specific examples; guidance applies to any Atc.Test → Cabazure.Test migration
+
+---
+
+### 2026-03-13: User Directive — Keep MIGRATING.md Project-Agnostic
+
+**By:** Ricky Kaare Engelharth (via Copilot CLI)  
+**Date:** 2026-03-13  
+**Status:** ✅ APPLIED
+
+**What:** Keep `Cabazure.Test/MIGRATING.md` general-purpose; do not reference backend-specific examples like EventHub tests.
+
+**Why:** User constraint to ensure Cabazure.Test documentation remains broadly applicable across projects, not become a record of one specific migration.
+
+**Applied In:** Trinity's revision phase; all EventHub-specific framing removed; guidance recast as universal specimen customization and assertion patterns.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
