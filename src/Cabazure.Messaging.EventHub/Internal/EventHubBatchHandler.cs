@@ -7,7 +7,7 @@ namespace Cabazure.Messaging.EventHub.Internal;
 
 public interface IEventHubBatchHandler<TMessage, TProcessor>
 {
-    public TProcessor Processor { get; }
+    TProcessor Processor { get; }
 
     Task<EventData?> ProcessBatchAsync(
         IEnumerable<EventData> events,
@@ -56,7 +56,7 @@ public class EventHubBatchHandler<TMessage, TProcessor>(
 
                     await processor
                         .ProcessAsync(
-                            message!,
+                            message,
                             metadata,
                             cancellationToken)
                         .ConfigureAwait(false);

@@ -34,12 +34,22 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
     public Task StopProcessingAsync(CancellationToken cancellationToken)
         => StopAsync(cancellationToken);
 
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        IsRunning = true;
+        return base.StartAsync(cancellationToken);
+    }
+
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        IsRunning = false;
+        return base.StopAsync(cancellationToken);
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            IsRunning = true;
-
             // Ensure background task is running asynchronously
             await Task.Yield();
 

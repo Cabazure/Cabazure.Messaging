@@ -1,9 +1,9 @@
-﻿using FluentAssertions.Collections;
+﻿using AwesomeAssertions.Collections;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cabazure.Messaging.ServiceBus.Tests;
+namespace Cabazure.Messaging.StorageQueue.Tests;
 
-public static class FluentAssertionsExtensions
+public static class AwesomeAssertionsExtensions
 {
     public static AndWhichConstraint<GenericCollectionAssertions<ServiceDescriptor>, ServiceDescriptor> Contain<TService, TImplementation>(
         this GenericCollectionAssertions<ServiceDescriptor> collection)

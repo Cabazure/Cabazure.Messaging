@@ -71,7 +71,7 @@ public static class EventHubBatchProcessorExtensions
             "OnProcessingEventBatchAsync",
             events,
             partition,
-            cancellationToken)!;
+            cancellationToken);
 
     public static Task OnProcessingErrorAsync<TMessage, TProcessor>(
         this EventHubProcessor<TMessage, TProcessor> processor,
@@ -85,5 +85,5 @@ public static class EventHubBatchProcessorExtensions
             exception,
             partition,
             operationDescription,
-            cancellationToken)!;
+            cancellationToken);
 }

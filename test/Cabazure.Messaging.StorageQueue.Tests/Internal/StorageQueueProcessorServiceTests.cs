@@ -110,6 +110,8 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
         options.CreateIfNotExists = true;
 
         await sut.StartAsync(cancellationToken);
+        await queueClient.WaitForReceivedWithAnyArgs(c
+            => c.CreateIfNotExistsAsync(default, TestContext.Current.CancellationToken));
 
         _ = queueClient
             .Received(1)
@@ -134,6 +136,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
     public async Task Should_Receive_Messages_From_Queue()
     {
         await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
 
         _ = queueClient
             .Received(2)
@@ -145,6 +148,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
     public async Task Should_Call_Processor_For_Each_Message()
     {
         await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
 
         _ = processor
             .Received(3)
@@ -173,6 +177,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
             .ReturnsForAnyArgs(c => throw exception);
 
         await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
 
         _ = processor
             .Received(3)
@@ -185,6 +190,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
     public async Task Should_Delete_Processed_Messages()
     {
         await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
 
         foreach (var message in queueMessages)
         {
@@ -202,6 +208,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
     public async Task Should_Add_A_PollingInterval_Delay_When_No_Messages_Was_Received()
     {
         await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
 
         timeProvider
             .Received(1)

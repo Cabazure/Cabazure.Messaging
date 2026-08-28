@@ -28,10 +28,10 @@ jobs:
       - name: 🛒 Checkout repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup dotnet 9.0.x
+      - name: ⚙️ Setup dotnet 10.0.x
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - name: 🧹 Clean
         run: dotnet clean -c Release && dotnet nuget locals all --clear
@@ -43,7 +43,7 @@ jobs:
         run: dotnet build --no-restore -c:Release
 
       - name: 🧪 Run tests
-        run: dotnet test --no-build -c:Release --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage" || true
+        run: dotnet test --no-build -c:Release --report-trx --report-trx-filename test-results.trx --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml || true
 
       - name: 📋 Test Report
         uses: dorny/test-reporter@v1
