@@ -110,6 +110,8 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
         options.CreateIfNotExists = true;
 
         await sut.StartAsync(cancellationToken);
+        await queueClient.WaitForReceivedWithAnyArgs(c
+            => c.CreateIfNotExistsAsync(default, TestContext.Current.CancellationToken));
 
         _ = queueClient
             .Received(1)

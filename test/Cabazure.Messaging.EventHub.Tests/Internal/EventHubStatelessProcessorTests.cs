@@ -33,15 +33,24 @@ public class EventHubStatelessProcessorTests
         [Frozen] IEventHubConsumerClient client,
         [Frozen] ReadEventOptions readOptions,
         EventHubStatelessProcessor<TMessage, TProcessor> sut,
-        CancellationToken cancellationToken)
+        string partitionId)
     {
+        using var cts = new CancellationTokenSource();
+        client.GetPartitionIdsAsync(TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs([partitionId]);
+        client.ReadEventsFromPartitionAsync(default, default, default, TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs(_ => Array.Empty<PartitionEvent>().ToAsyncEnumerable());
+
         sut.IsRunning.Should().BeFalse();
 
-        _ = sut.StartProcessingAsync(cancellationToken);
+        _ = sut.StartProcessingAsync(cts.Token);
+        await client.WaitForReceivedWithAnyArgs(c
+            => c.GetPartitionIdsAsync(TestContext.Current.CancellationToken));
 
         sut.IsRunning.Should().BeTrue();
 
-        await sut.StopProcessingAsync(cancellationToken);
+        cts.Cancel();
+        await sut.StopProcessingAsync(TestContext.Current.CancellationToken);
         await sut.ExecuteTask;
 
         sut.IsRunning.Should().BeFalse();
