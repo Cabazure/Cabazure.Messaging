@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>2b138052-b702-4589-9590-f84dd9c7a508</UserSecretsId>
+    <!-- Aspire CLI isn't installed/required for this project's dotnet run / IDE workflow. -->
+    <AspireUseCliBundle>false</AspireUseCliBundle>
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);ASPIRE010</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
   <ItemGroup>
