@@ -65,7 +65,7 @@ public class ServiceBusPublisherBuilderTests
         [NoAutoProperties] ServiceBusMessage eventData)
     {
         sut.WithPartitionKey(m => partitionKey);
-        
+
         sut.GetEventDataModifier().Invoke(message, eventData);
         eventData.PartitionKey.Should().Be(partitionKey);
     }

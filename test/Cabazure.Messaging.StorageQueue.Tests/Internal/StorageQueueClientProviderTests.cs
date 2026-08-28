@@ -73,8 +73,7 @@ public class StorageQueueClientProviderTests
        TokenCredential credential,
        string connectionName)
     {
-        queueServiceUri = new UriBuilder(queueServiceUri.Host) 
-            { Scheme = Uri.UriSchemeHttps, }.Uri;
+        queueServiceUri = new UriBuilder(queueServiceUri.Host) { Scheme = Uri.UriSchemeHttps }.Uri;
         var options = new CabazureStorageQueueOptions
         {
             QueueServiceUri = queueServiceUri,

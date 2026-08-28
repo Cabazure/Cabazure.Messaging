@@ -26,3 +26,4 @@ dotnet_diagnostic.CS8625.severity = none            # Cannot convert null litera
 dotnet_diagnostic.CS8602.severity = none            # Dereference of a possibly null reference.
 dotnet_diagnostic.CS8604.severity = none            # Possible null reference argument.
 dotnet_diagnostic.IDE0060.severity = none           # IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0058.severity = none           # IDE0058: Expression value is never used
