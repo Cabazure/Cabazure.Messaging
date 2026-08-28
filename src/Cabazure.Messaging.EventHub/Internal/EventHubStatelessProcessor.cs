@@ -71,6 +71,10 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
         {
             await ProcessErrorAsync(ex, stoppingToken);
         }
+        finally
+        {
+            IsRunning = false;
+        }
     }
 
     private async Task ProcessPartitionAsync(string partitionId, CancellationToken stoppingToken)
