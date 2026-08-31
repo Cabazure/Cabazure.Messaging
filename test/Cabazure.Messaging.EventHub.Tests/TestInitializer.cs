@@ -1,4 +1,5 @@
 using Azure.Messaging.EventHubs;
+using Azure.Messaging.EventHubs.Producer;
 using System.Runtime.CompilerServices;
 
 namespace Cabazure.Messaging.EventHub.Tests;
@@ -11,5 +12,6 @@ internal static class TestInitializer
         FixtureFactory.Customizations.Add(new BlobClientOptionsGenerator());
         FixtureFactory.Customizations.Add(new EventHubModelsGenerator());
         FixtureFactory.Customizations.Add(_ => new EventHubsRetryOptions());
+        FixtureFactory.Customizations.Add(_ => new EventHubProducerClientOptions());
     }
 }

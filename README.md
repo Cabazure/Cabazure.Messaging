@@ -49,6 +49,24 @@ Multiple Event Hub connections are supported by passing a `connectionName` to th
 
 The Blob Storage configuration is only required if you need to run a message processor, as the storage is used for processor state.
 
+An `EventHubProducerClientOptions` can optionally be set via `CabazureEventHubOptions.ProducerClientOptions` (or the `WithProducerClientOptions()` fluent method), which is passed through to the underlying `EventHubProducerClient` used by publishers on that connection. This is most commonly used to tune `RetryOptions` (e.g. increase `MaximumRetries`/`MaximumDelay`) so publishing can ride out sustained Event Hub throttling (`ServiceBusy`) instead of failing after the SDK's default retry envelope is exhausted:
+
+```csharp
+builder.Services.AddCabazureEventHub(b => b
+    .Configure(o => o
+        .WithConnection(
+            "eventhub1.servicebus.windows.net",
+            new DefaultAzureCredential())
+        .WithProducerClientOptions(new EventHubProducerClientOptions
+        {
+            RetryOptions = new EventHubsRetryOptions
+            {
+                MaximumRetries = 10,
+                MaximumDelay = TimeSpan.FromSeconds(30),
+            },
+        })));
+```
+
 
 ### 2b. Configure ServiceBus connection
 

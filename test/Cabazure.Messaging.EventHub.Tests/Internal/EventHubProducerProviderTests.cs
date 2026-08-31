@@ -181,6 +181,98 @@ public class EventHubProducerProviderTests
     }
 
     [Theory, AutoNSubstituteData]
+    public void Creates_Client_With_ProducerClientOptions_From_Namespace_And_Credential(
+        [Frozen, NoAutoProperties]
+        JsonSerializerOptions serializerOptions,
+        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        EventHubProducerProvider sut,
+        string fqns,
+        TokenCredential credential,
+        string connectionName,
+        string eventHubName,
+        string identifier)
+    {
+        var options = new CabazureEventHubOptions
+        {
+            FullyQualifiedNamespace = fqns,
+            Credential = credential,
+            ProducerClientOptions = new EventHubProducerClientOptions
+            {
+                Identifier = identifier,
+            },
+        };
+        monitor.Get(default).ReturnsForAnyArgs(options);
+
+        var client = sut.GetClient(
+            connectionName,
+            eventHubName);
+
+        client.Identifier
+            .Should()
+            .Be(identifier);
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void Creates_Client_With_ProducerClientOptions_From_ConnectionString(
+        [Frozen, NoAutoProperties]
+        JsonSerializerOptions serializerOptions,
+        [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+        EventHubProducerProvider sut,
+        string connectionName,
+        string eventHubName,
+        string fqns,
+        string identifier)
+    {
+        var options = new CabazureEventHubOptions
+        {
+            ConnectionString =
+                $"Endpoint=sb://{fqns};" +
+                $"SharedAccessKeyName=RootManageSharedAccessKey;" +
+                $"SharedAccessKey=SAS_KEY_VALUE;",
+            ProducerClientOptions = new EventHubProducerClientOptions
+            {
+                Identifier = identifier,
+            },
+        };
+        monitor.Get(default).ReturnsForAnyArgs(options);
+
+        var client = sut.GetClient(
+            connectionName,
+            eventHubName);
+
+        client.Identifier
+            .Should()
+            .Be(identifier);
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void Creates_Client_Without_ProducerClientOptions_Uses_Default_Identifier(
+       [Frozen, NoAutoProperties]
+       JsonSerializerOptions serializerOptions,
+       [Frozen] IOptionsMonitor<CabazureEventHubOptions> monitor,
+       EventHubProducerProvider sut,
+       string fqns,
+       TokenCredential credential,
+       string connectionName,
+       string eventHubName)
+    {
+        var options = new CabazureEventHubOptions
+        {
+            FullyQualifiedNamespace = fqns,
+            Credential = credential,
+        };
+        monitor.Get(default).ReturnsForAnyArgs(options);
+
+        var client = sut.GetClient(
+            connectionName,
+            eventHubName);
+
+        client.Identifier
+            .Should()
+            .NotBeNullOrEmpty();
+    }
+
+    [Theory, AutoNSubstituteData]
     public async Task DisposeAsync_Disposes_Clients(
         [Frozen, NoAutoProperties]
         JsonSerializerOptions serializerOptions,

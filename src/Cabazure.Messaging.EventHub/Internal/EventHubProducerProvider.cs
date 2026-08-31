@@ -30,8 +30,8 @@ public class EventHubProducerProvider(
         ClientKey clientKey)
         => monitor.Get(clientKey.Connection) switch
         {
-            { FullyQualifiedNamespace: { } n, Credential: { } c } => new EventHubProducerClient(n, clientKey.EventHub, c),
-            { ConnectionString: { } cs } => new(cs, clientKey.EventHub),
+            { FullyQualifiedNamespace: { } n, Credential: { } c } options => new EventHubProducerClient(n, clientKey.EventHub, c, options.ProducerClientOptions),
+            { ConnectionString: { } cs } options => new(cs, clientKey.EventHub, options.ProducerClientOptions),
             _ => throw new ArgumentException(
                 $"Missing configuration for Event Hub connection `{clientKey.Connection}`"),
         };

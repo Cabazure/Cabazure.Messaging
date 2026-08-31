@@ -52,6 +52,7 @@ public class EventHubBuilderTests
             o.Credential = options.Credential;
             o.FullyQualifiedNamespace = options.FullyQualifiedNamespace;
             o.SerializerOptions = options.SerializerOptions;
+            o.ProducerClientOptions = options.ProducerClientOptions;
         });
 
         services

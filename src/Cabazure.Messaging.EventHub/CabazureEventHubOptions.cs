@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Azure.Core;
+using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Blobs;
 
 namespace Cabazure.Messaging.EventHub;
@@ -20,6 +21,14 @@ public class CabazureEventHubOptions
         DictionaryKeyPolicy = null,
     };
 
+    /// <summary>
+    /// Options passed to <see cref="EventHubProducerClient"/> when constructing
+    /// publishers on this connection, e.g. to configure <see cref="EventHubProducerClientOptions.RetryOptions"/>
+    /// so publishing can ride out longer Event Hub throttling windows. When
+    /// <see langword="null"/>, the Azure SDK defaults are used.
+    /// </summary>
+    public EventHubProducerClientOptions? ProducerClientOptions { get; set; }
+
     public CabazureEventHubOptions WithSerializerOptions(JsonSerializerOptions options)
     {
         SerializerOptions = options;
@@ -36,6 +45,12 @@ public class CabazureEventHubOptions
     public CabazureEventHubOptions WithConnection(string connectionString)
     {
         ConnectionString = connectionString;
+        return this;
+    }
+
+    public CabazureEventHubOptions WithProducerClientOptions(EventHubProducerClientOptions options)
+    {
+        ProducerClientOptions = options;
         return this;
     }
 
