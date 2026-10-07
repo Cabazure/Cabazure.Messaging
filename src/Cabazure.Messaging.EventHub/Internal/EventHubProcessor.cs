@@ -55,20 +55,28 @@ public class EventHubProcessor<TMessage, TProcessor>
         EventProcessorPartition partition,
         CancellationToken cancellationToken)
     {
-        var lastEvent = await batchHandler
-            .ProcessBatchAsync(
-                events,
-                partition,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        if (lastEvent != null)
+        try
         {
-            await UpdateCheckpointAsync(
-                    partition.PartitionId,
-                    CheckpointPosition.FromEvent(lastEvent),
+            var lastEvent = await batchHandler
+                .ProcessBatchAsync(
+                    events,
+                    partition,
                     cancellationToken)
                 .ConfigureAwait(false);
+
+            if (lastEvent != null)
+            {
+                await UpdateCheckpointAsync(
+                        partition.PartitionId,
+                        CheckpointPosition.FromEvent(lastEvent),
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Partition processing is stopping (shutdown or ownership change).
+            // The next owner resumes from the last stored checkpoint.
         }
     }
 
