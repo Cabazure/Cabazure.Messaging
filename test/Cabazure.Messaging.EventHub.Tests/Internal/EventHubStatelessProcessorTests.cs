@@ -153,4 +153,58 @@ public class EventHubStatelessProcessorTests
                     e.Data,
                     e.Partition.PartitionId)));
     }
+
+    [Theory, AutoNSubstituteData]
+    public async Task Should_Not_Report_Error_When_Processor_Is_Canceled_On_Stop(
+        [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
+        [Frozen] IEventHubConsumerClient client,
+        [Frozen, Substitute] TProcessorWithErrorHandling processor,
+        [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
+        EventHubStatelessProcessor<TMessage, TProcessorWithErrorHandling> sut,
+        TMessage[] messages,
+        EventData[] data,
+        string fullyQualifiedNamespace,
+        string eventHubName,
+        string consumerGroup,
+        string partitionId)
+    {
+        using var cts = new CancellationTokenSource();
+        filters.Clear();
+        for (int i = 0; i < data.Length; i++)
+        {
+            data[i].EventBody = BinaryData.FromObjectAsJson(
+                messages[i],
+                serializerOptions);
+        }
+        var partition = EventHubsModelFactory.PartitionContext(
+            fullyQualifiedNamespace,
+            eventHubName,
+            consumerGroup,
+            partitionId);
+        client
+            .GetPartitionIdsAsync(TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs([partitionId]);
+        client
+            .ReadEventsFromPartitionAsync(default, default, default, TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs(_ => data
+                .Select(d => new PartitionEvent(partition, d))
+                .ToAsyncEnumerable());
+        processor
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs(async _ =>
+            {
+                await cts.CancelAsync();
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        await sut.StartProcessingAsync(cts.Token);
+        await sut.ExecuteTask;
+
+        _ = processor
+            .ReceivedWithAnyArgs(1)
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
+        _ = processor
+            .DidNotReceiveWithAnyArgs()
+            .ProcessErrorAsync(default!, TestContext.Current.CancellationToken);
+    }
 }
