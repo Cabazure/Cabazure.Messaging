@@ -49,11 +49,11 @@ app.MapGet(
 
 app.Run();
 
-sealed record MyEvent(
+internal sealed record MyEvent(
     DateTime Date,
     string Identifier);
 
-sealed class MyEventProcessor : IMessageProcessor<MyEvent>
+internal sealed class MyEventProcessor : IMessageProcessor<MyEvent>
 {
     public List<MyEvent> ReceivedEvents { get; } = [];
 
