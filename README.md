@@ -174,6 +174,12 @@ builder.Services.AddCabazureServiceBus(b => b
           .WithFilter(p => p.TryGetValue("Property1", out var v) && v is "Value1")));
 ```
 
+#### Error handling and cancellation
+
+When a processor throws an exception, the error is logged as a warning, or passed to the processor if it implements `IProcessErrorHandler`.
+
+For Event Hub processors, both checkpointed and stateless, the `CancellationToken` passed to `ProcessAsync` is canceled when processing stops. For checkpointed processors, that also happens when another instance takes over the partition while a new version rolls out. An `OperationCanceledException` thrown after that point is not treated as an error. A checkpointed processor abandons the rest of the batch and writes no checkpoint, so the next owner of the partition resumes from the last checkpoint. Cancellation while the checkpoint is being written is handled the same way.
+
 ## Samples
 
 Please see the [samples](samples/) folder for sample implementation of publishers and processors targeting both [EventHub](samples/EventHub/) and [ServiceBus](samples/ServiceBus/).

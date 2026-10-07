@@ -62,6 +62,12 @@ public class EventHubBatchHandler<TMessage, TProcessor>(
                         .ConfigureAwait(false);
                 }
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // Partition processing is stopping; abandon the rest of the batch
+                // so no checkpoint is written past unprocessed events.
+                throw;
+            }
             catch (Exception ex)
             {
                 await ProcessErrorAsync(ex, cancellationToken)

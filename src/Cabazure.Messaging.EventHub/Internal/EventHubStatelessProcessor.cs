@@ -140,6 +140,11 @@ public class EventHubStatelessProcessor<TMessage, TProcessor>(
                 metadata,
                 cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Processor is stopping; let the partition loop end gracefully.
+            throw;
+        }
         catch (Exception exception)
         {
             await ProcessErrorAsync(

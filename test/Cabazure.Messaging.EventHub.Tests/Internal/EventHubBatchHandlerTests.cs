@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Primitives;
 using Cabazure.Messaging.EventHub.Internal;
@@ -136,6 +136,78 @@ public class EventHubBatchHandlerTests
                 cancellationToken);
     }
 
+
+    [Theory, AutoNSubstituteData]
+    public async Task ProcessBatchAsync_Should_Stop_And_Throw_When_Canceled(
+        [Frozen] ILogger<TProcessor> logger,
+        [Frozen, Substitute] TProcessor processor,
+        [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
+        [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
+        EventHubBatchHandler<TMessage, TProcessor> sut,
+        EventData[] data,
+        TMessage[] messages,
+        EventProcessorPartition partition)
+    {
+        using var cts = new CancellationTokenSource();
+        filters.Clear();
+        for (int i = 0; i < data.Length; i++)
+        {
+            data[i].EventBody = BinaryData.FromObjectAsJson(
+                messages[i],
+                serializerOptions);
+        }
+
+        processor
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs(async _ =>
+            {
+                await cts.CancelAsync();
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        var act = () => sut.ProcessBatchAsync(
+            data,
+            partition,
+            cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        _ = processor
+            .ReceivedWithAnyArgs(1)
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken);
+        logger.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Theory, AutoNSubstituteData]
+    public async Task ProcessBatchAsync_Should_Report_Error_When_Processor_Is_Canceled_Without_Cancellation(
+        [Frozen] ILogger<TProcessor> logger,
+        [Frozen, Substitute] TProcessor processor,
+        [Frozen, NoAutoProperties] JsonSerializerOptions serializerOptions,
+        [Frozen] List<Func<IDictionary<string, object>, bool>> filters,
+        EventHubBatchHandler<TMessage, TProcessor> sut,
+        EventData data,
+        TMessage message,
+        EventProcessorPartition partition)
+    {
+        var exception = new TaskCanceledException();
+        filters.Clear();
+        data.EventBody = BinaryData.FromObjectAsJson(message, serializerOptions);
+        processor
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
+            .ThrowsAsyncForAnyArgs(exception);
+
+        var result = await sut.ProcessBatchAsync(
+            [data],
+            partition,
+            TestContext.Current.CancellationToken);
+
+        result.Should().BeSameAs(data);
+        logger
+            .Received(1)
+            .FailedToProcessMessage(
+                nameof(TMessage),
+                nameof(TProcessor),
+                exception);
+    }
 
     [Theory, AutoNSubstituteData]
     public async Task ProcessErrorAsync_Should_Call_Logger(

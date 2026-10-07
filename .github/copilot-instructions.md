@@ -34,6 +34,7 @@ Tests mirror the production packages under `test/`, and runnable examples live u
 - Message processors must remain thread-safe because they are registered as singletons
 - Always honor `CancellationToken`
 - For Event Hubs, checkpointed processors require blob storage; use the stateless processor path only when checkpointing is intentionally not needed
+- `OperationCanceledException` thrown after the partition token is canceled (partition stopping/rebalancing) is expected: stop the batch, skip the checkpoint and don't report it as a processing error
 - Prefer extending existing provider or factory abstractions before adding new top-level registration concepts
 
 ## Multi-tenant and metadata guidance
