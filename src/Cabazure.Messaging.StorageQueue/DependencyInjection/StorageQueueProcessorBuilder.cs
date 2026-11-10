@@ -5,6 +5,8 @@ namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
 public class StorageQueueProcessorBuilder
 {
     private static readonly TimeSpan MaxRetryDelay = TimeSpan.FromDays(7);
+    private static readonly TimeSpan MinMessageClaimDuration = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan MaxMessageClaimDuration = TimeSpan.FromDays(7);
 
     public StorageQueueProcessorOptions Options { get; set; } = new();
 
@@ -34,6 +36,22 @@ public class StorageQueueProcessorBuilder
         }
 
         Options.RetryDelay = retryDelay;
+        return this;
+    }
+
+    public StorageQueueProcessorBuilder WithMessageClaimDuration(
+        TimeSpan messageClaimDuration)
+    {
+        if (messageClaimDuration < MinMessageClaimDuration
+            || messageClaimDuration > MaxMessageClaimDuration)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(messageClaimDuration),
+                messageClaimDuration,
+                "Message claim duration must be between one second and seven days.");
+        }
+
+        Options.MessageClaimDuration = messageClaimDuration;
         return this;
     }
 }

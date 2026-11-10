@@ -42,7 +42,9 @@ public class StorageQueueProcessorService<TMessage, TProcessor>(
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var messages = await queueClient.ReceiveMessagesAsync(stoppingToken);
+            var messages = await queueClient.ReceiveMessagesAsync(
+                visibilityTimeout: options.MessageClaimDuration,
+                cancellationToken: stoppingToken);
             foreach (var message in messages.Value)
             {
                 try

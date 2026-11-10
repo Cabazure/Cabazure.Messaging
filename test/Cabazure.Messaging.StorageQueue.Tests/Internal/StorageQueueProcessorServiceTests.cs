@@ -82,7 +82,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
         var response1 = Azure.Response.FromValue(queueMessages, Substitute.For<Azure.Response>());
         var response2 = Azure.Response.FromValue(new QueueMessage[0], Substitute.For<Azure.Response>());
         queueClient
-            .ReceiveMessagesAsync(default)
+            .ReceiveMessagesAsync(default, default, default)
             .ReturnsForAnyArgs(response1, response2);
     }
 
@@ -141,6 +141,24 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
         _ = queueClient
             .Received(2)
             .ReceiveMessagesAsync(
+                maxMessages: default,
+                visibilityTimeout: default,
+                cancellationToken: Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Should_Use_Configured_Message_Claim_Duration()
+    {
+        options.MessageClaimDuration = TimeSpan.FromMinutes(2);
+
+        await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
+
+        _ = queueClient
+            .Received(2)
+            .ReceiveMessagesAsync(
+                maxMessages: default,
+                visibilityTimeout: options.MessageClaimDuration,
                 cancellationToken: Arg.Any<CancellationToken>());
     }
 
@@ -217,7 +235,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
             original.InsertedOn,
             original.ExpiresOn);
         queueClient
-            .ReceiveMessagesAsync(TestContext.Current.CancellationToken)
+            .ReceiveMessagesAsync(default, default, TestContext.Current.CancellationToken)
             .ReturnsForAnyArgs(
                 Azure.Response.FromValue(queueMessages, Substitute.For<Azure.Response>()),
                 Azure.Response.FromValue(new[] { redelivered }, Substitute.For<Azure.Response>()),

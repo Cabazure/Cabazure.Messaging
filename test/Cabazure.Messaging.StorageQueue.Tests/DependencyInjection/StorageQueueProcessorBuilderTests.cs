@@ -54,4 +54,34 @@ public class StorageQueueProcessorBuilderTests
         act.Should().Throw<ArgumentOutOfRangeException>()
             .WithParameterName("retryDelay");
     }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(60)]
+    [InlineData(604800)]
+    public void WithMessageClaimDuration_Sets_Duration(
+        int seconds)
+    {
+        var sut = new StorageQueueProcessorBuilder();
+        var messageClaimDuration = TimeSpan.FromSeconds(seconds);
+
+        sut.WithMessageClaimDuration(messageClaimDuration).Should().BeSameAs(sut);
+
+        sut.Options.MessageClaimDuration.Should().Be(messageClaimDuration);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(604801)]
+    public void WithMessageClaimDuration_Rejects_Invalid_Duration(
+        int seconds)
+    {
+        var sut = new StorageQueueProcessorBuilder();
+
+        var act = () => sut.WithMessageClaimDuration(TimeSpan.FromSeconds(seconds));
+
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .WithParameterName("messageClaimDuration");
+    }
 }

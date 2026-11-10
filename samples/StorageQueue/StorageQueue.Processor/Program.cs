@@ -13,6 +13,7 @@ builder.Services.AddCabazureStorageQueue(b => b
     .AddProcessor<MyEvent, MyEventprocessor>("queue", b => b
         .WithInitialization(createIfNotExists: true)
         .WithPollingInterval(TimeSpan.FromSeconds(5))
+        .WithMessageClaimDuration(TimeSpan.FromMinutes(5))
         .WithRetryDelay(TimeSpan.FromMinutes(1))));
 
 var app = builder.Build();

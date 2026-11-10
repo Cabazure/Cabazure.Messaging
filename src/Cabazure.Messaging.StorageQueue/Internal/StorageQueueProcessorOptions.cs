@@ -8,4 +8,6 @@ public class StorageQueueProcessorOptions
     public bool CreateIfNotExists { get; set; }
 
     public TimeSpan? RetryDelay { get; set; }
+
+    public TimeSpan? MessageClaimDuration { get; set; }
 }

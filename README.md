@@ -188,10 +188,14 @@ Storage Queue processors delete failed messages by default, after logging the er
 builder.Services.AddCabazureStorageQueue(b => b
     .AddProcessor<MyEvent, MyEventProcessor>(
         "my-queue",
-        b => b.WithRetryDelay(TimeSpan.FromMinutes(1))));
+        b => b
+            .WithRetryDelay(TimeSpan.FromMinutes(1))
+            .WithMessageClaimDuration(TimeSpan.FromMinutes(5))));
 ```
 
-When processing fails, the original message remains in the queue and its visibility is delayed by the configured interval, measured from failure handling. Successful messages are deleted normally. No replacement message is published, and the worker can process other messages during the delay. The delay must be between zero and seven days; it does not delay the initial delivery or change the processing visibility timeout.
+When processing fails, the original message remains in the queue and its visibility is delayed by the configured interval, measured from failure handling. Successful messages are deleted normally. No replacement message is published, and the worker can process other messages during the delay. The retry delay must be between zero and seven days; it does not delay the initial delivery or change the message claim duration.
+
+`WithMessageClaimDuration` sets how long a received message remains unavailable to other processors before it becomes eligible for redelivery. It defaults to Azure Queue Storage's 30 seconds and can be set from one second to seven days. Set it longer than the expected processing duration to reduce concurrent redelivery; a longer duration also delays redelivery if the worker stops unexpectedly. The claim does not renew automatically or limit how long processing can run.
 
 Delivery is at least once, so processors must tolerate duplicates. There is no automatic dequeue limit or poison queue: failures can repeat until the message expires. Shutdown cancellation leaves the message unsettled without reporting a processing error. If scheduling the retry fails, that error propagates and the original message is not deleted.
 
