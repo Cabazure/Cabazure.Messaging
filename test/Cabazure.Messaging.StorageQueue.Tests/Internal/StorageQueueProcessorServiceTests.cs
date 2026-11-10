@@ -82,7 +82,7 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
         var response1 = Azure.Response.FromValue(queueMessages, Substitute.For<Azure.Response>());
         var response2 = Azure.Response.FromValue(new QueueMessage[0], Substitute.For<Azure.Response>());
         queueClient
-            .ReceiveMessagesAsync(default)
+            .ReceiveMessagesAsync(default, default, default)
             .ReturnsForAnyArgs(response1, response2);
     }
 
@@ -141,6 +141,24 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
         _ = queueClient
             .Received(2)
             .ReceiveMessagesAsync(
+                maxMessages: default,
+                visibilityTimeout: default,
+                cancellationToken: Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Should_Use_Configured_Message_Claim_Duration()
+    {
+        options.MessageClaimDuration = TimeSpan.FromMinutes(2);
+
+        await sut.StartAsync(cancellationToken);
+        await sut.ExecuteTask!;
+
+        _ = queueClient
+            .Received(2)
+            .ReceiveMessagesAsync(
+                maxMessages: default,
+                visibilityTimeout: options.MessageClaimDuration,
                 cancellationToken: Arg.Any<CancellationToken>());
     }
 
@@ -184,6 +202,159 @@ public sealed class StorageQueueProcessorServiceTests : IDisposable
             .ProcessErrorAsync(
                 exception,
                 Arg.Any<CancellationToken>());
+
+        foreach (var message in queueMessages)
+        {
+            _ = queueClient.Received(1).DeleteMessageAsync(
+                message.MessageId,
+                message.PopReceipt,
+                Arg.Any<CancellationToken>());
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Should_Retry_Failed_Message_And_Delete_It_Only_After_Success(
+        bool operationCanceled)
+    {
+        options.RetryDelay = TimeSpan.FromMinutes(1);
+        Exception exception = operationCanceled
+            ? new OperationCanceledException()
+            : new InvalidOperationException();
+        processor
+            .ProcessAsync(messages[0], Arg.Any<MessageMetadata>(), Arg.Any<CancellationToken>())
+            .Returns(_ => throw exception, _ => Task.CompletedTask);
+        var original = queueMessages[0];
+        var redelivered = QueuesModelFactory.QueueMessage(
+            original.MessageId,
+            original.PopReceipt + "-retry",
+            original.Body,
+            original.DequeueCount + 1,
+            original.NextVisibleOn,
+            original.InsertedOn,
+            original.ExpiresOn);
+        queueClient
+            .ReceiveMessagesAsync(default, default, TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs(
+                Azure.Response.FromValue(queueMessages, Substitute.For<Azure.Response>()),
+                Azure.Response.FromValue(new[] { redelivered }, Substitute.For<Azure.Response>()),
+                Azure.Response.FromValue(Array.Empty<QueueMessage>(), Substitute.For<Azure.Response>()));
+
+        await sut.InvokeProtected<Task>("ExecuteAsync", cancellationToken);
+
+        _ = queueClient.Received(1).UpdateMessageAsync(
+            original.MessageId,
+            original.PopReceipt,
+            visibilityTimeout: options.RetryDelay.Value,
+            cancellationToken: Arg.Any<CancellationToken>());
+        _ = queueClient.DidNotReceive().DeleteMessageAsync(
+            original.MessageId,
+            original.PopReceipt,
+            Arg.Any<CancellationToken>());
+        foreach (var message in queueMessages.Skip(1).Append(redelivered))
+        {
+            _ = queueClient.Received(1).DeleteMessageAsync(
+                message.MessageId,
+                message.PopReceipt,
+                Arg.Any<CancellationToken>());
+        }
+
+        _ = processor.Received(2).ProcessAsync(
+            messages[0],
+            Arg.Any<StorageQueueMetadata>(),
+            Arg.Any<CancellationToken>());
+        _ = processor.Received(1).ProcessErrorAsync(
+            exception,
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Should_Retry_Failed_Messages_Without_A_Custom_Error_Handler()
+    {
+        options.RetryDelay = TimeSpan.FromMinutes(1);
+        var plainProcessor = Substitute.For<IMessageProcessor<TMessage>>();
+        plainProcessor
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
+            .ThrowsAsyncForAnyArgs(new InvalidOperationException());
+        using var plainSut = new StorageQueueProcessorService<TMessage, IMessageProcessor<TMessage>>(
+            timeProvider,
+            Substitute.For<ILogger<IMessageProcessor<TMessage>>>(),
+            plainProcessor,
+            options,
+            serializerOptions,
+            queueClient);
+
+        await plainSut.InvokeProtected<Task>("ExecuteAsync", cancellationToken);
+
+        foreach (var message in queueMessages)
+        {
+            _ = queueClient.Received(1).UpdateMessageAsync(
+                message.MessageId,
+                message.PopReceipt,
+                visibilityTimeout: options.RetryDelay.Value,
+                cancellationToken: Arg.Any<CancellationToken>());
+        }
+
+        _ = queueClient.DidNotReceiveWithAnyArgs().DeleteMessageAsync(
+            default!,
+            default!,
+            TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task Should_Not_Delete_Message_When_Retry_Scheduling_Fails()
+    {
+        options.RetryDelay = TimeSpan.FromMinutes(1);
+        processor
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
+            .ThrowsAsyncForAnyArgs(new InvalidOperationException());
+        var exception = new Azure.RequestFailedException("Queue unavailable");
+        queueClient
+            .UpdateMessageAsync(
+                default!,
+                default!,
+                visibilityTimeout: default,
+                cancellationToken: TestContext.Current.CancellationToken)
+            .ThrowsAsyncForAnyArgs(exception);
+
+        var act = () => sut.InvokeProtected<Task>("ExecuteAsync", cancellationToken);
+
+        await act.Should().ThrowAsync<Azure.RequestFailedException>()
+            .Where(e => ReferenceEquals(e, exception));
+        _ = queueClient.DidNotReceiveWithAnyArgs().DeleteMessageAsync(
+            default!,
+            default!,
+            TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task Should_Leave_Message_Unsettled_When_Processing_Is_Canceled_For_Shutdown()
+    {
+        options.RetryDelay = TimeSpan.FromMinutes(1);
+        using var cts = new CancellationTokenSource();
+        processor
+            .ProcessAsync(default!, default!, TestContext.Current.CancellationToken)
+            .ReturnsForAnyArgs(_ =>
+            {
+                cts.Cancel();
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        await sut.InvokeProtected<Task>("ExecuteAsync", cts.Token);
+
+        _ = processor.DidNotReceiveWithAnyArgs().ProcessErrorAsync(
+            default!,
+            TestContext.Current.CancellationToken);
+        _ = queueClient.DidNotReceiveWithAnyArgs().DeleteMessageAsync(
+            default!,
+            default!,
+            TestContext.Current.CancellationToken);
+        _ = queueClient.DidNotReceiveWithAnyArgs().UpdateMessageAsync(
+            default!,
+            default!,
+            visibilityTimeout: default,
+            cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
