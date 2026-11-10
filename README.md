@@ -180,6 +180,21 @@ When a processor throws an exception, the error is logged as a warning, or passe
 
 For Event Hub processors, both checkpointed and stateless, the `CancellationToken` passed to `ProcessAsync` is canceled when processing stops. For checkpointed processors, that also happens when another instance takes over the partition while a new version rolls out. An `OperationCanceledException` thrown after that point is not treated as an error. A checkpointed processor abandons the rest of the batch and writes no checkpoint, so the next owner of the partition resumes from the last checkpoint. Cancellation while the checkpoint is being written is handled the same way.
 
+#### Storage Queue processing retries
+
+Storage Queue processors delete failed messages by default, after logging the error or calling `IProcessErrorHandler`. Opt in to queue redelivery with `WithRetryDelay`:
+
+```csharp
+builder.Services.AddCabazureStorageQueue(b => b
+    .AddProcessor<MyEvent, MyEventProcessor>(
+        "my-queue",
+        b => b.WithRetryDelay(TimeSpan.FromMinutes(1))));
+```
+
+When processing fails, the original message remains in the queue and its visibility is delayed by the configured interval, measured from failure handling. Successful messages are deleted normally. No replacement message is published, and the worker can process other messages during the delay. The delay must be between zero and seven days; it does not delay the initial delivery or change the processing visibility timeout.
+
+Delivery is at least once, so processors must tolerate duplicates. There is no automatic dequeue limit or poison queue: failures can repeat until the message expires. Shutdown cancellation leaves the message unsettled without reporting a processing error. If scheduling the retry fails, that error propagates and the original message is not deleted.
+
 ## Samples
 
 Please see the [samples](samples/) folder for sample implementation of publishers and processors targeting both [EventHub](samples/EventHub/) and [ServiceBus](samples/ServiceBus/).

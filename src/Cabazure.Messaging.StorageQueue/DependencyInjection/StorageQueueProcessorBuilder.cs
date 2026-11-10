@@ -4,6 +4,8 @@ namespace Cabazure.Messaging.StorageQueue.DependencyInjection;
 
 public class StorageQueueProcessorBuilder
 {
+    private static readonly TimeSpan MaxRetryDelay = TimeSpan.FromDays(7);
+
     public StorageQueueProcessorOptions Options { get; set; } = new();
 
     public StorageQueueProcessorBuilder WithPollingInterval(
@@ -17,6 +19,21 @@ public class StorageQueueProcessorBuilder
         bool createIfNotExists)
     {
         Options.CreateIfNotExists = createIfNotExists;
+        return this;
+    }
+
+    public StorageQueueProcessorBuilder WithRetryDelay(
+        TimeSpan retryDelay)
+    {
+        if (retryDelay < TimeSpan.Zero || retryDelay > MaxRetryDelay)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(retryDelay),
+                retryDelay,
+                "Retry delay must be between zero and seven days.");
+        }
+
+        Options.RetryDelay = retryDelay;
         return this;
     }
 }

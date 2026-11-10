@@ -53,9 +53,23 @@ public class StorageQueueProcessorService<TMessage, TProcessor>(
                         await Processor.ProcessAsync(obj, metadata, stoppingToken);
                     }
                 }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 catch (Exception ex)
                 {
                     await OnProcessErrorAsync(ex, stoppingToken);
+
+                    if (options.RetryDelay is { } retryDelay)
+                    {
+                        await queueClient.UpdateMessageAsync(
+                            message.MessageId,
+                            message.PopReceipt,
+                            visibilityTimeout: retryDelay,
+                            cancellationToken: stoppingToken);
+                        continue;
+                    }
                 }
 
                 await queueClient.DeleteMessageAsync(
